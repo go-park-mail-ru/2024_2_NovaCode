@@ -1,4 +1,4 @@
-package repository
+package track_repository
 
 import (
 	"context"
@@ -15,13 +15,6 @@ type TrackRepository struct {
 
 func NewTrackPGRepository(db *sql.DB) *TrackRepository {
 	return &TrackRepository{db: db}
-}
-
-type TrackRepositoryInterface interface {
-	Create(ctx context.Context, track *models.Track) (*models.Track, error)
-	UpdateTrack(ctx context.Context, track *models.Track) error
-	FindById(ctx context.Context, trackID uint64) (*models.Track, error)
-	FindByName(ctx context.Context, name string) ([]*models.Track, error)
 }
 
 func (r *TrackRepository) Create(ctx context.Context, track *models.Track) (*models.Track, error) {
@@ -104,7 +97,7 @@ func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*model
 			&track.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByName.Rows.Scan")
+			return nil, errors.Wrap(err, "FindByName.Query")
 		}
 		if strings.Contains(track.Name, name) {
 			tracks = append(tracks, track)

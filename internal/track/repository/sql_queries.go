@@ -1,4 +1,4 @@
-package repository
+package track_repository
 
 const (
 	createTrackQuery = `INSERT INTO track (name, genre, duration, filepath, image, artist_id, album_id, release) 

@@ -1,4 +1,4 @@
-package repository
+package track_repository
 
 import (
 	"context"
@@ -56,9 +56,9 @@ func TestTrackRepositoryCreate(t *testing.T) {
 		mockTrack.ReleaseDate,
 	).WillReturnRows(rows)
 
-	createdUser, err := trackPGRepository.Create(context.Background(), mockTrack)
+	createdTrack, err := trackPGRepository.Create(context.Background(), mockTrack)
 	require.NoError(t, err)
-	require.NotNil(t, createdUser)
+	require.NotNil(t, createdTrack)
 }
 
 func TestTrackRepositoryFindById(t *testing.T) {
@@ -152,8 +152,8 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 			UpdatedAt:   time.Now(),
 		},
 	}
-	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 
+	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
