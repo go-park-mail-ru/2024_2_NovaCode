@@ -2,17 +2,26 @@ FROM golang:1.22-alpine3.20 AS builder
 
 WORKDIR /service
 
-COPY ./ ./
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN go mod tidy
-RUN go build -o bin/main cmd/main.go
+COPY . .
 
-FROM alpine:3.20
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/main ./cmd/main.go
+
+FROM alpine:latest
+
+RUN apk update && apk upgrade
+RUN rm -rf /var/cache/apk/* && \
+    rm -rf /tmp/*
+
+RUN adduser -D guest
+USER guest
 
 WORKDIR /service
 
-RUN apk update && apk add bash && apk --no-cache add tzdata
-
 COPY --from=builder /service/bin/main ./bin/
 
-ENTRYPOINT [ "/service/bin/main" ]
+EXPOSE 8080
+
+ENTRYPOINT ["./bin/main"]
