@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
@@ -28,9 +29,11 @@ func NewServer(cfg *config.ServiceConfig, db *sql.DB, logger logger.Logger) *Ser
 func (s *Server) Run() error {
 	s.BindRoutes()
 
+	loggedMux := middleware.LoggingMiddleware(s.cfg, s.logger, s.mux)
+
 	server := &http.Server{
 		Addr:         s.cfg.Port,
-		Handler:      s.mux,
+		Handler:      loggedMux,
 		ReadTimeout:  s.cfg.ReadTimeout * time.Second,
 		WriteTimeout: s.cfg.WriteTimeout * time.Second,
 		IdleTimeout:  s.cfg.IdleTimeout * time.Second,
