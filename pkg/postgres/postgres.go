@@ -6,7 +6,7 @@ import (
 
 	"database/sql"
 
-	"github.com/daronenko/auth/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	_ "github.com/lib/pq"
 )
 
