@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/daronenko/auth/internal/models"
+import "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 
 type UserDTO struct {
 	Username string `json:"username"`

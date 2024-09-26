@@ -3,10 +3,10 @@ package server
 import (
 	"net/http"
 
-	"github.com/daronenko/auth/internal/middleware"
-	userHandlers "github.com/daronenko/auth/internal/user/delivery/http"
-	userRepo "github.com/daronenko/auth/internal/user/repository/postgres"
-	userUsecase "github.com/daronenko/auth/internal/user/usecase"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
+	userHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/delivery/http"
+	userRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/repository/postgres"
+	userUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/usecase"
 )
 
 func (s *Server) BindRoutes() {

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daronenko/auth/config"
-	"github.com/daronenko/auth/internal/jwt"
-	"github.com/daronenko/auth/internal/models"
-	"github.com/daronenko/auth/internal/user"
-	"github.com/daronenko/auth/internal/user/dto"
-	"github.com/daronenko/auth/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/jwt"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
 type userUsecase struct {

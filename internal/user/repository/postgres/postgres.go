@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/daronenko/auth/internal/models"
-	"github.com/daronenko/auth/internal/user"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user"
 	"github.com/google/uuid"
 )
 

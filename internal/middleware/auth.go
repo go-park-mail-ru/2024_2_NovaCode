@@ -3,10 +3,10 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/daronenko/auth/config"
-	"github.com/daronenko/auth/internal/jwt"
-	"github.com/daronenko/auth/internal/utils"
-	"github.com/daronenko/auth/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/jwt"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
 func AuthMiddleware(cfg *config.Config, logger logger.Logger, next http.Handler) http.Handler {

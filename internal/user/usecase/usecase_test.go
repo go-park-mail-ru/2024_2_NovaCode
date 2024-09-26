@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/daronenko/auth/config"
-	"github.com/daronenko/auth/internal/models"
-	"github.com/daronenko/auth/internal/user/mock"
-	"github.com/daronenko/auth/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/mock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )

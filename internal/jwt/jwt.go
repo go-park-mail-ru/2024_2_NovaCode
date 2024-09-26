@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/daronenko/auth/config"
-	"github.com/daronenko/auth/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 

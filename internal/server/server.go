@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/daronenko/auth/config"
-	"github.com/daronenko/auth/pkg/logger"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
 type Server struct {

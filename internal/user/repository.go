@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/daronenko/auth/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/google/uuid"
 )
 
