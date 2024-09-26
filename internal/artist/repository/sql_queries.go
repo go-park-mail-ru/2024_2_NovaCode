@@ -1,4 +1,4 @@
-package artist_repository
+package repository
 
 const (
 	createArtistQuery = `INSERT INTO artist (name, bio, county, image) 

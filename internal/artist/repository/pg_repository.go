@@ -1,4 +1,4 @@
-package artist_repository
+package repository
 
 import (
 	"context"

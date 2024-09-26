@@ -1,4 +1,4 @@
-package track_repository
+package repository
 
 import (
 	"context"

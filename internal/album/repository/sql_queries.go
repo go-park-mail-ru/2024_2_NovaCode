@@ -1,4 +1,4 @@
-package album_repository
+package repository
 
 const (
 	createAlbumQuery = `INSERT INTO album (name, genre, track_count, release, image, artist_id) 

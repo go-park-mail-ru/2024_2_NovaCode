@@ -1,4 +1,4 @@
-package album_repository
+package repository
 
 import (
 	"context"
