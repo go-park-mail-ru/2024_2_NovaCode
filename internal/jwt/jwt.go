@@ -9,16 +9,16 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func Generate(cfg *config.Config, user *models.User) (string, error) {
+func Generate(cfg *config.JwtConfig, user *models.User) (string, error) {
 	claims := jwt.MapClaims{
 		"username": user.Username,
 		"role":     user.Role,
-		"exp":      time.Now().Add(cfg.Auth.Jwt.Expire * time.Second).Unix(),
+		"exp":      time.Now().Add(cfg.Expire * time.Second).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(cfg.Auth.Jwt.Secret))
+	tokenString, err := token.SignedString([]byte(cfg.Secret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign jwt token: %w", err)
 	}
@@ -26,12 +26,12 @@ func Generate(cfg *config.Config, user *models.User) (string, error) {
 	return tokenString, nil
 }
 
-func Verify(cfg *config.Config, accessToken string) error {
+func Verify(cfg *config.JwtConfig, accessToken string) error {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(cfg.Auth.Jwt.Secret), nil
+		return []byte(cfg.Secret), nil
 	})
 	if err != nil {
 		return fmt.Errorf("failed to parse token: %w", err)

@@ -9,24 +9,24 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func New(cfg *config.Config) (*sql.DB, error) {
+func New(cfg *config.PostgresConfig) (*sql.DB, error) {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
-		cfg.Postgres.User,
-		cfg.Postgres.DBName,
-		cfg.Postgres.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.User,
+		cfg.DBName,
+		cfg.Password,
 	)
 
-	db, err := sql.Open(cfg.Postgres.Driver, connStr)
+	db, err := sql.Open(cfg.Driver, connStr)
 	if err != nil {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(cfg.Postgres.MaxOpenConns)
-	db.SetConnMaxLifetime(time.Duration(cfg.Postgres.ConnMaxIdleLifetime) * time.Second)
-	db.SetMaxIdleConns(cfg.Postgres.MaxIdleConns)
-	db.SetConnMaxIdleTime(time.Duration(cfg.Postgres.ConnMaxIdleTime) * time.Second)
+	db.SetMaxOpenConns(cfg.MaxOpenConns)
+	db.SetConnMaxLifetime(time.Duration(cfg.ConnMaxIdleLifetime) * time.Second)
+	db.SetMaxIdleConns(cfg.MaxIdleConns)
+	db.SetConnMaxIdleTime(time.Duration(cfg.ConnMaxIdleTime) * time.Second)
 
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("cannot ping postgres instance: %v", err)

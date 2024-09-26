@@ -13,12 +13,12 @@ import (
 )
 
 type userUsecase struct {
-	cfg    *config.Config
+	cfg    *config.AuthConfig
 	repo   user.Repo
 	logger logger.Logger
 }
 
-func NewUserUsecase(cfg *config.Config, repo user.Repo, logger logger.Logger) user.Usecase {
+func NewUserUsecase(cfg *config.AuthConfig, repo user.Repo, logger logger.Logger) user.Usecase {
 	return &userUsecase{cfg, repo, logger}
 }
 
@@ -51,7 +51,7 @@ func (usecase *userUsecase) Register(ctx context.Context, user *models.User) (*d
 	}
 	usecase.logger.Infof("user '%s' successfully registered", insertedUser.Username)
 
-	token, err := jwt.Generate(usecase.cfg, insertedUser)
+	token, err := jwt.Generate(&usecase.cfg.Jwt, insertedUser)
 	if err != nil {
 		usecase.logger.Errorf("error generating jwt token: %v", err)
 		return nil, fmt.Errorf("failed to generate token: %w", err)
@@ -74,7 +74,7 @@ func (usecase *userUsecase) Login(ctx context.Context, user *models.User) (*dto.
 		return nil, fmt.Errorf("invalid username or password")
 	}
 
-	token, err := jwt.Generate(usecase.cfg, foundUser)
+	token, err := jwt.Generate(&usecase.cfg.Jwt, foundUser)
 	if err != nil {
 		usecase.logger.Errorf("failed to generate jwt token: %v", err)
 		return nil, fmt.Errorf("failed to generate token: %w", err)

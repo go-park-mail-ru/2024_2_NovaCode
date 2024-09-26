@@ -10,18 +10,19 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Logger   LoggerConfig   `yaml:"logger"`
-	Auth     AuthConfig     `yaml:"auth"`
+	Service  ServiceConfig  `yaml:"service"`
 	Postgres PostgresConfig `yaml:"postgres"`
 }
 
-type ServerConfig struct {
+type ServiceConfig struct {
 	Port           string        `yaml:"port"`
 	ReadTimeout    time.Duration `yaml:"readTimeout"`
 	WriteTimeout   time.Duration `yaml:"writeTimeout"`
 	IdleTimeout    time.Duration `yaml:"idleTimeout"`
 	ContextTimeout time.Duration `yaml:"contextTimeout"`
+
+	Logger LoggerConfig `yaml:"logger"`
+	Auth   AuthConfig   `yaml:"auth"`
 }
 
 type LoggerConfig struct {

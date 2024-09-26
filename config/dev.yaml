@@ -1,23 +1,23 @@
-server:
+service:
   port: :8080
   readTimeout: 10
   writeTimeout: 10
   idleTimeout: 120
   contextTimeout: 5
 
-logger:
-  level: info
-  format: json
+  logger:
+    level: info
+    format: json
 
-auth:
-  jwt:
-    secret: secret
-    expire: 3600
-    cookie:
-      name: jwt-token
-      maxAge: 86400
-      secure: false
-      httpOnly: true
+  auth:
+    jwt:
+      secret: secret
+      expire: 3600
+      cookie:
+        name: jwt-token
+        maxAge: 86400
+        secure: false
+        httpOnly: true
 
 postgres:
   host: postgres

@@ -21,20 +21,22 @@ func TestUsecase_Register(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	user := &models.User{
 		Username: "test_user",
@@ -61,20 +63,22 @@ func TestUsecase_Register_UsernameAlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	user := &models.User{
 		Username: "test_user",
@@ -103,20 +107,22 @@ func TestUsecase_Register_EmailAlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	user := &models.User{
 		Username: "test_user",
@@ -147,20 +153,22 @@ func TestUsecase_Register_InsertError(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	user := &models.User{
 		Username: "test_user",
@@ -188,20 +196,22 @@ func TestUsecase_Login(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	password := "password"
 
@@ -236,20 +246,22 @@ func TestUsecase_Login_InvalidPassword(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	password := "password"
 	wrongPassword := "wrong_password"
@@ -283,20 +295,22 @@ func TestUsecase_Login_UserNotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Secret: "secret",
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Secret: "secret",
+				},
 			},
-		},
-		Logger: config.LoggerConfig{
-			Level:  "info",
-			Format: "json",
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	repoMock := mock.NewMockRepo(ctrl)
-	userUsecase := NewUserUsecase(cfg, repoMock, logger)
+	userUsecase := NewUserUsecase(&cfg.Service.Auth, repoMock, logger)
 
 	user := &models.User{
 		Username: "test_user",

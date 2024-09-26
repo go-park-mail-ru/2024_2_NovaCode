@@ -32,10 +32,10 @@ type Log struct {
 	slog *slog.Logger
 }
 
-func New(cfg *config.Config) Logger {
+func New(cfg *config.LoggerConfig) Logger {
 	options := &slog.HandlerOptions{}
 
-	if v, ok := levelMapping[cfg.Logger.Level]; ok {
+	if v, ok := levelMapping[cfg.Level]; ok {
 		options.Level = v
 	} else {
 		options.Level = slog.LevelInfo
@@ -43,7 +43,7 @@ func New(cfg *config.Config) Logger {
 
 	var handler slog.Handler
 
-	switch cfg.Logger.Format {
+	switch cfg.Format {
 	case "json":
 		handler = slog.NewJSONHandler(os.Stderr, options)
 	default:

@@ -22,21 +22,23 @@ func TestUserHandlers_Register(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Cookie: config.JwtCookieConfig{
-					Name:     "access_token",
-					MaxAge:   3600,
-					Secure:   true,
-					HttpOnly: true,
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
 				},
 			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	usecaseMock := mock.NewMockUsecase(ctrl)
-	userHandlers := NewUserHandlers(cfg, usecaseMock, logger)
+	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
 
 	t.Run("successful registration", func(t *testing.T) {
 		user := models.User{
@@ -62,9 +64,9 @@ func TestUserHandlers_Register(t *testing.T) {
 		assert.Equal(t, http.StatusOK, res.StatusCode)
 
 		cookie := response.Result().Cookies()[0]
-		assert.Equal(t, cfg.Auth.Jwt.Cookie.Name, cookie.Name)
+		assert.Equal(t, cfg.Service.Auth.Jwt.Cookie.Name, cookie.Name)
 		assert.Equal(t, userTokenDTO.Token, cookie.Value)
-		assert.Equal(t, cfg.Auth.Jwt.Cookie.MaxAge, cookie.MaxAge)
+		assert.Equal(t, cfg.Service.Auth.Jwt.Cookie.MaxAge, cookie.MaxAge)
 		assert.True(t, cookie.HttpOnly)
 		assert.True(t, cookie.Secure)
 	})
@@ -119,21 +121,23 @@ func TestUserHandlers_Login(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Cookie: config.JwtCookieConfig{
-					Name:     "access_token",
-					MaxAge:   3600,
-					Secure:   true,
-					HttpOnly: true,
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
 				},
 			},
 		},
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 	usecaseMock := mock.NewMockUsecase(ctrl)
-	userHandlers := NewUserHandlers(cfg, usecaseMock, logger)
+	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
 
 	t.Run("successful login", func(t *testing.T) {
 		user := models.User{
@@ -157,9 +161,9 @@ func TestUserHandlers_Login(t *testing.T) {
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 
 		cookie := response.Result().Cookies()[0]
-		assert.Equal(t, cfg.Auth.Jwt.Cookie.Name, cookie.Name)
+		assert.Equal(t, cfg.Service.Auth.Jwt.Cookie.Name, cookie.Name)
 		assert.Equal(t, userTokenDTO.Token, cookie.Value)
-		assert.Equal(t, cfg.Auth.Jwt.Cookie.MaxAge, cookie.MaxAge)
+		assert.Equal(t, cfg.Service.Auth.Jwt.Cookie.MaxAge, cookie.MaxAge)
 		assert.True(t, cookie.HttpOnly)
 		assert.True(t, cookie.Secure)
 
@@ -216,20 +220,22 @@ func TestUserHandlers_Logout(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := &config.Config{
-		Auth: config.AuthConfig{
-			Jwt: config.JwtConfig{
-				Cookie: config.JwtCookieConfig{
-					Name:     "access_token",
-					MaxAge:   3600,
-					Secure:   true,
-					HttpOnly: true,
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
 				},
 			},
 		},
 	}
 
-	logger := logger.New(cfg)
-	handlers := NewUserHandlers(cfg, nil, logger)
+	logger := logger.New(&cfg.Service.Logger)
+	handlers := NewUserHandlers(&cfg.Service.Auth, nil, logger)
 
 	t.Run("successful logout", func(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, "/logout", bytes.NewBuffer(nil))
@@ -241,7 +247,7 @@ func TestUserHandlers_Logout(t *testing.T) {
 		assert.Equal(t, http.StatusOK, result.StatusCode)
 
 		cookie := response.Result().Cookies()[0]
-		assert.Equal(t, cfg.Auth.Jwt.Cookie.Name, cookie.Name)
+		assert.Equal(t, cfg.Service.Auth.Jwt.Cookie.Name, cookie.Name)
 		assert.Equal(t, "", cookie.Value)
 		assert.Equal(t, -1, cookie.MaxAge)
 

@@ -11,8 +11,8 @@ import (
 
 func (s *Server) BindRoutes() {
 	userRepo := userRepo.NewUserPostgresRepository(s.db)
-	userUsecase := userUsecase.NewUserUsecase(s.cfg, userRepo, s.logger)
-	userHandleres := userHandlers.NewUserHandlers(s.cfg, userUsecase, s.logger)
+	userUsecase := userUsecase.NewUserUsecase(&s.cfg.Auth, userRepo, s.logger)
+	userHandleres := userHandlers.NewUserHandlers(&s.cfg.Auth, userUsecase, s.logger)
 
 	s.mux.HandleFunc("GET /api/v1/health", userHandleres.Health)
 
@@ -23,6 +23,6 @@ func (s *Server) BindRoutes() {
 	// auth middleware usage example
 	s.mux.Handle(
 		"GET /api/v1/auth/health",
-		middleware.AuthMiddleware(s.cfg, s.logger, http.HandlerFunc(userHandleres.Health)),
+		middleware.AuthMiddleware(&s.cfg.Auth, s.logger, http.HandlerFunc(userHandleres.Health)),
 	)
 }

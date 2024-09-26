@@ -15,14 +15,14 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	logger := logger.New(cfg)
+	logger := logger.New(&cfg.Service.Logger)
 
-	pg, err := postgres.New(cfg)
+	pg, err := postgres.New(&cfg.Postgres)
 	if err != nil {
 		log.Fatalf("failed to create postgres client: %v", err)
 	}
 
-	s := server.NewServer(cfg, pg, logger)
+	s := server.NewServer(&cfg.Service, pg, logger)
 	if err = s.Run(); err != nil {
 		log.Fatalf("failed to run server: %v", err)
 	}

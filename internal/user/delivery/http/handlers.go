@@ -12,12 +12,12 @@ import (
 )
 
 type userHandlers struct {
-	cfg     *config.Config
+	cfg     *config.AuthConfig
 	usecase user.Usecase
 	logger  logger.Logger
 }
 
-func NewUserHandlers(cfg *config.Config, usecase user.Usecase, logger logger.Logger) user.Handlers {
+func NewUserHandlers(cfg *config.AuthConfig, usecase user.Usecase, logger logger.Logger) user.Handlers {
 	return &userHandlers{cfg, usecase, logger}
 }
 
@@ -71,11 +71,11 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	}
 
 	accessTokenCookie := http.Cookie{
-		Name:     handlers.cfg.Auth.Jwt.Cookie.Name,
+		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    userTokenDTO.Token,
-		MaxAge:   handlers.cfg.Auth.Jwt.Cookie.MaxAge,
-		Secure:   handlers.cfg.Auth.Jwt.Cookie.Secure,
-		HttpOnly: handlers.cfg.Auth.Jwt.Cookie.HttpOnly,
+		MaxAge:   handlers.cfg.Jwt.Cookie.MaxAge,
+		Secure:   handlers.cfg.Jwt.Cookie.Secure,
+		HttpOnly: handlers.cfg.Jwt.Cookie.HttpOnly,
 	}
 
 	http.SetCookie(response, &accessTokenCookie)
@@ -125,11 +125,11 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	}
 
 	accessTokenCookie := http.Cookie{
-		Name:     handlers.cfg.Auth.Jwt.Cookie.Name,
+		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    userTokenDTO.Token,
-		MaxAge:   handlers.cfg.Auth.Jwt.Cookie.MaxAge,
-		Secure:   handlers.cfg.Auth.Jwt.Cookie.Secure,
-		HttpOnly: handlers.cfg.Auth.Jwt.Cookie.HttpOnly,
+		MaxAge:   handlers.cfg.Jwt.Cookie.MaxAge,
+		Secure:   handlers.cfg.Jwt.Cookie.Secure,
+		HttpOnly: handlers.cfg.Jwt.Cookie.HttpOnly,
 	}
 
 	http.SetCookie(response, &accessTokenCookie)
@@ -152,11 +152,11 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 // @Router /api/v1/auth/logout [post]
 func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http.Request) {
 	accessTokenCookie := http.Cookie{
-		Name:     handlers.cfg.Auth.Jwt.Cookie.Name,
+		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    "",
 		MaxAge:   -1,
-		Secure:   handlers.cfg.Auth.Jwt.Cookie.Secure,
-		HttpOnly: handlers.cfg.Auth.Jwt.Cookie.HttpOnly,
+		Secure:   handlers.cfg.Jwt.Cookie.Secure,
+		HttpOnly: handlers.cfg.Jwt.Cookie.HttpOnly,
 	}
 
 	http.SetCookie(response, &accessTokenCookie)
