@@ -87,9 +87,6 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		return
 	}
 
-	handlers.logger.Infof("userTokenDTO: %v", userTokenDTO)
-	handlers.logger.Infof("userTokenDTO.user: %v", userTokenDTO.User)
-
 	response.WriteHeader(http.StatusOK)
 }
 
