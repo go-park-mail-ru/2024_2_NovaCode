@@ -33,7 +33,7 @@ jobs:
           args: -c ./.golangci.yaml
 
   test:
-    name: Run Test
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into directory
@@ -60,5 +60,5 @@ jobs:
         uses: vladopajic/go-test-coverage@v2
         with:
           profile: coverage.out
-          local-prefix: github.com/daronenko/auth
+          local-prefix: github.com/go-park-mail-ru/2024_2_NovaCode
           threshold-total: 50
