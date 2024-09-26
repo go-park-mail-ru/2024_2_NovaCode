@@ -1,10 +1,9 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
-
-	"database/sql"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	_ "github.com/lib/pq"
