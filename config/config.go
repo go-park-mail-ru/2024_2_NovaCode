@@ -4,17 +4,27 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
+	Server ServerConfig `yaml:"server"`
 	Logger LoggerConfig `yaml:"logger"`
 }
 
 type LoggerConfig struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
+}
+
+type ServerConfig struct {
+	Port           string        `yaml:"port"`
+	ReadTimeout    time.Duration `yaml:"readTimeout"`
+	WriteTimeout   time.Duration `yaml:"writeTimeout"`
+	IdleTimeout    time.Duration `yaml:"idleTimeout"`
+	ContextTimeout time.Duration `yaml:"contextTimeout"`
 }
 
 func New() (*Config, error) {

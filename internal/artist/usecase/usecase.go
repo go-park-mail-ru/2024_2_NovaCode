@@ -59,6 +59,27 @@ func (usecase *artistUsecase) Search(ctx context.Context, name string) ([]*dto.A
 	return dtoArtists, nil
 }
 
+func (usecase *artistUsecase) GetAll(ctx context.Context) ([]*dto.ArtistDTO, error) {
+	artists, err := usecase.artistRepo.GetAll(ctx)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load artists: %v", err))
+		return nil, fmt.Errorf("Can't load artists")
+	}
+	usecase.logger.Info("Artists found")
+
+	var dtoArtists []*dto.ArtistDTO
+	for _, artist := range artists {
+		dtoArtist, err := usecase.convertArtistToDTO(artist)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s artist: %v", artist.Name, err))
+			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoArtists = append(dtoArtists, dtoArtist)
+	}
+
+	return dtoArtists, nil
+}
+
 func (usecase *artistUsecase) convertArtistToDTO(artist *models.Artist) (*dto.ArtistDTO, error) {
 	return dto.NewArtistDTO(artist), nil
 }

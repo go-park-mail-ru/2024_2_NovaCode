@@ -180,3 +180,79 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 	require.NotNil(t, foundTracks)
 	require.Equal(t, foundTracks, expectedTracks)
 }
+
+func TestTrackRepositoryGetAll(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	trackPGRepository := NewTrackPGRepository(db)
+	tracks := []models.Track{
+		{
+			ID:          1,
+			Name:        "test song 1",
+			Genre:       "test",
+			Duration:    123,
+			FilePath:    "/songs/track_1.mp4",
+			Image:       "/imgs/tracks/track_1.jpg",
+			ArtistID:    1,
+			AlbumID:     1,
+			ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          2,
+			Name:        "another song",
+			Genre:       "test",
+			Duration:    93,
+			FilePath:    "/songs/track_2.mp4",
+			Image:       "/imgs/tracks/track_2.jpg",
+			ArtistID:    2,
+			AlbumID:     2,
+			ReleaseDate: time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          3,
+			Name:        "song test",
+			Genre:       "test",
+			Duration:    99,
+			FilePath:    "/songs/track_3.mp4",
+			Image:       "/imgs/tracks/track_3.jpg",
+			ArtistID:    3,
+			AlbumID:     3,
+			ReleaseDate: time.Date(2021, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, track := range tracks {
+		rows.AddRow(
+			track.ID,
+			track.Name,
+			track.Genre,
+			track.Duration,
+			track.FilePath,
+			track.Image,
+			track.ArtistID,
+			track.AlbumID,
+			track.ReleaseDate,
+			track.CreatedAt,
+			track.UpdatedAt,
+		)
+	}
+
+	expectedTracks := []*models.Track{&tracks[0], &tracks[1], &tracks[2]}
+	mock.ExpectQuery(getAllQuery).WillReturnRows(rows)
+
+	foundTracks, err := trackPGRepository.GetAll(context.Background())
+	require.NoError(t, err)
+	require.NotNil(t, foundTracks)
+	require.Equal(t, foundTracks, expectedTracks)
+}

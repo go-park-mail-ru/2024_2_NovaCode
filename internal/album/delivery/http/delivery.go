@@ -36,7 +36,7 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to find albums: %v", err))
 		return
 	} else if len(foundAlbums) == 0 {
-		utils.JSONError(response, http.StatusNotFound, "")
+		utils.JSONError(response, http.StatusNotFound, "No albums were found")
 		return
 	}
 
@@ -67,6 +67,27 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(foundAlbum); err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode album: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
+	albums, err := handlers.usecase.GetAll(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to load albums: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to load albums: %v", err))
+		return
+	} else if len(albums) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No albums were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(albums); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode albums: %v", err))
 		return
 	}
 

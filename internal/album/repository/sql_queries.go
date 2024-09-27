@@ -7,5 +7,7 @@ const (
 
 	findByIDQuery = `SELECT id, name, genre, track_count, release, image, artist_id, created_at, updated_at FROM album WHERE id = $1`
 
+	getAllQuery = `SELECT id, name, genre, track_count, release, image, artist_id, created_at, updated_at FROM album`
+
 	findByNameQuery = `SELECT id, name, genre, track_count, release, image, artist_id, created_at, updated_at FROM album WHERE name = $1`
 )

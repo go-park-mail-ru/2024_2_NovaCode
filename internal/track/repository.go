@@ -9,5 +9,6 @@ import (
 type Repo interface {
 	Create(ctx context.Context, track *models.Track) (*models.Track, error)
 	FindById(ctx context.Context, trackID uint64) (*models.Track, error)
+	GetAll(ctx context.Context) ([]*models.Track, error)
 	FindByName(ctx context.Context, name string) ([]*models.Track, error)
 }

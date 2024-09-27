@@ -36,7 +36,7 @@ func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to find tracks: %v", err))
 		return
 	} else if len(foundTracks) == 0 {
-		utils.JSONError(response, http.StatusNotFound, "")
+		utils.JSONError(response, http.StatusNotFound, "No tracks were found")
 		return
 	}
 
@@ -67,6 +67,27 @@ func (handlers *trackHandlers) ViewTrack(response http.ResponseWriter, request *
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(foundTrack); err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode track: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *trackHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
+	tracks, err := handlers.usecase.GetAll(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get tracks: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get tracks: %v", err))
+		return
+	} else if len(tracks) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No tracks were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 

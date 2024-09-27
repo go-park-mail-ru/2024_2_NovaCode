@@ -9,4 +9,5 @@ import (
 type Usecase interface {
 	View(ctx context.Context, albumID uint64) (*dto.AlbumDTO, error)
 	Search(ctx context.Context, name string) ([]*dto.AlbumDTO, error)
+	GetAll(ctx context.Context) ([]*dto.AlbumDTO, error)
 }

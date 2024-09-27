@@ -9,5 +9,6 @@ import (
 type Repo interface {
 	Create(ctx context.Context, album *models.Album) (*models.Album, error)
 	FindById(ctx context.Context, albumID uint64) (*models.Album, error)
+	GetAll(ctx context.Context) ([]*models.Album, error)
 	FindByName(ctx context.Context, name string) ([]*models.Album, error)
 }

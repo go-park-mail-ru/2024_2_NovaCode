@@ -144,3 +144,63 @@ func TestArtistRepositoryFindByName(t *testing.T) {
 	require.NotNil(t, foundArtists)
 	require.Equal(t, foundArtists, expectedArtists)
 }
+
+func TestArtistRepositoryGetAll(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistPGRepository := NewArtistPGRepository(db)
+	artists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "First artist",
+			Bio:       "Some random bio",
+			Country:   "USA",
+			Image:     "/imgs/artists/artist_1.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Artist for test 1",
+			Bio:       "Some random bio",
+			Country:   "USA",
+			Image:     "/imgs/artists/artist_2.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        3,
+			Name:      "Artist for test 2",
+			Bio:       "Some random bio",
+			Country:   "USA",
+			Image:     "/imgs/artists/artist_3.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "bio", "country", "image", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, artist := range artists {
+		rows.AddRow(
+			artist.ID,
+			artist.Name,
+			artist.Bio,
+			artist.Country,
+			artist.Image,
+			artist.CreatedAt,
+			artist.UpdatedAt,
+		)
+	}
+
+	expectedArtists := []*models.Artist{&artists[0], &artists[1], &artists[2]}
+	mock.ExpectQuery(getAllQuery).WillReturnRows(rows)
+
+	foundArtists, err := artistPGRepository.GetAll(context.Background())
+	require.NoError(t, err)
+	require.NotNil(t, foundArtists)
+	require.Equal(t, foundArtists, expectedArtists)
+}

@@ -98,3 +98,33 @@ func (r *AlbumRepository) FindByName(ctx context.Context, name string) ([]*model
 
 	return albums, nil
 }
+
+func (r *AlbumRepository) GetAll(ctx context.Context) ([]*models.Album, error) {
+	var albums []*models.Album
+	rows, err := r.db.QueryContext(ctx, getAllQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAll.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		album := &models.Album{}
+		err := rows.Scan(
+			&album.ID,
+			&album.Name,
+			&album.Genre,
+			&album.TrackCount,
+			&album.ReleaseDate,
+			&album.Image,
+			&album.ArtistID,
+			&album.CreatedAt,
+			&album.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetAll.Query")
+		}
+		albums = append(albums, album)
+	}
+
+	return albums, nil
+}

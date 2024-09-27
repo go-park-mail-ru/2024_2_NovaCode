@@ -36,7 +36,7 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to find artists: %v", err))
 		return
 	} else if len(foundArtists) == 0 {
-		utils.JSONError(response, http.StatusNotFound, "")
+		utils.JSONError(response, http.StatusNotFound, "No artists were found")
 		return
 	}
 
@@ -67,6 +67,27 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artist: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
+	artists, err := handlers.usecase.GetAll(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to load artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to load artists: %v", err))
+		return
+	} else if len(artists) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No artists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(artists); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
 

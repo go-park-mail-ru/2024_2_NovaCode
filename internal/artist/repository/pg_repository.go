@@ -90,3 +90,31 @@ func (r *ArtistRepository) FindByName(ctx context.Context, name string) ([]*mode
 
 	return artists, nil
 }
+
+func (r *ArtistRepository) GetAll(ctx context.Context) ([]*models.Artist, error) {
+	var artists []*models.Artist
+	rows, err := r.db.QueryContext(ctx, getAllQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAll.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		artist := &models.Artist{}
+		err := rows.Scan(
+			&artist.ID,
+			&artist.Name,
+			&artist.Bio,
+			&artist.Country,
+			&artist.Image,
+			&artist.CreatedAt,
+			&artist.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetAll.Query")
+		}
+		artists = append(artists, artist)
+	}
+
+	return artists, nil
+}

@@ -1,3 +1,10 @@
+server:
+  port: :8080
+  readTimeout: 10
+  writeTimeout: 10
+  idleTimeout: 120
+  contextTimeout: 5
+
 logger:
   level: info
   format: json

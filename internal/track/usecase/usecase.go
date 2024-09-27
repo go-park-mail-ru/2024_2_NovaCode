@@ -63,6 +63,27 @@ func (usecase *trackUsecase) Search(ctx context.Context, name string) ([]*dto.Tr
 	return dtoTracks, nil
 }
 
+func (usecase *trackUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error) {
+	tracks, err := usecase.trackRepo.GetAll(ctx)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load tracks: %v", err))
+		return nil, fmt.Errorf("Can't load tracks")
+	}
+	usecase.logger.Info("Found tracks")
+
+	var dtoTracks []*dto.TrackDTO
+	for _, track := range tracks {
+		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err))
+			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoTracks = append(dtoTracks, dtoTrack)
+	}
+
+	return dtoTracks, nil
+}
+
 func (usecase *trackUsecase) convertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
 	artist, err := usecase.artistRepo.FindById(ctx, track.ArtistID)
 	if err != nil {

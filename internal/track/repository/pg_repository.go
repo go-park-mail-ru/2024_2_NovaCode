@@ -106,3 +106,35 @@ func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*model
 
 	return tracks, nil
 }
+
+func (r *TrackRepository) GetAll(ctx context.Context) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getAllQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAll.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Genre,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetAll.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}
