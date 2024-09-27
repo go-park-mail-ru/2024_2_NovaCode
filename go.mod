@@ -8,6 +8,8 @@ require (
 	github.com/pkg/errors v0.9.1
 )
 
+require github.com/lib/pq v1.10.9 // indirect
+
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect

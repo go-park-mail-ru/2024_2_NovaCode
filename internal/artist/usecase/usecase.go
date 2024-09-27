@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
@@ -12,13 +11,12 @@ import (
 )
 
 type artistUsecase struct {
-	cfg        *config.Config
 	artistRepo artist.Repo
 	logger     logger.Logger
 }
 
-func NewArtistUsecase(cfg *config.Config, artistRepo artist.Repo, logger logger.Logger) artist.Usecase {
-	return &artistUsecase{cfg, artistRepo, logger}
+func NewArtistUsecase(artistRepo artist.Repo, logger logger.Logger) artist.Usecase {
+	return &artistUsecase{artistRepo, logger}
 }
 
 func (usecase *artistUsecase) View(ctx context.Context, artistID uint64) (*dto.ArtistDTO, error) {

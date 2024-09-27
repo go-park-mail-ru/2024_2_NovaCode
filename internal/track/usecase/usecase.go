@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
@@ -14,15 +13,14 @@ import (
 )
 
 type trackUsecase struct {
-	cfg        *config.Config
 	trackRepo  track.Repo
 	albumRepo  album.Repo
 	artistRepo artist.Repo
 	logger     logger.Logger
 }
 
-func NewTrackUsecase(cfg *config.Config, trackRepo track.Repo, albumRepo album.Repo, artistRepo artist.Repo, logger logger.Logger) track.Usecase {
-	return &trackUsecase{cfg, trackRepo, albumRepo, artistRepo, logger}
+func NewTrackUsecase(trackRepo track.Repo, albumRepo album.Repo, artistRepo artist.Repo, logger logger.Logger) track.Usecase {
+	return &trackUsecase{trackRepo, albumRepo, artistRepo, logger}
 }
 
 func (usecase *trackUsecase) View(ctx context.Context, trackID uint64) (*dto.TrackDTO, error) {

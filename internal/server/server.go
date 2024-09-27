@@ -11,29 +11,32 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
 type Server struct {
 	mux    *http.ServeMux
-	cfg    *config.Config
+	cfg    *config.ServiceConfig
 	db     *sql.DB
 	logger logger.Logger
 }
 
-func NewServer(cfg *config.Config, db *sql.DB, logger logger.Logger) *Server {
+func NewServer(cfg *config.ServiceConfig, db *sql.DB, logger logger.Logger) *Server {
 	return &Server{http.NewServeMux(), cfg, db, logger}
 }
 
 func (s *Server) Run() error {
 	s.BindRoutes()
 
+	loggedMux := middleware.LoggingMiddleware(s.cfg, s.logger, s.mux)
+
 	server := &http.Server{
-		Addr:         s.cfg.Server.Port,
-		Handler:      s.mux,
-		ReadTimeout:  s.cfg.Server.ReadTimeout * time.Second,
-		WriteTimeout: s.cfg.Server.WriteTimeout * time.Second,
-		IdleTimeout:  s.cfg.Server.IdleTimeout * time.Second,
+		Addr:         s.cfg.Port,
+		Handler:      loggedMux,
+		ReadTimeout:  s.cfg.ReadTimeout * time.Second,
+		WriteTimeout: s.cfg.WriteTimeout * time.Second,
+		IdleTimeout:  s.cfg.IdleTimeout * time.Second,
 	}
 
 	go func() {
@@ -47,7 +50,7 @@ func (s *Server) Run() error {
 
 	<-quit
 
-	ctx, shutdown := context.WithTimeout(context.Background(), s.cfg.Server.ContextTimeout*time.Second)
+	ctx, shutdown := context.WithTimeout(context.Background(), s.cfg.ContextTimeout*time.Second)
 	defer shutdown()
 
 	return server.Shutdown(ctx)

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -20,6 +21,10 @@ type Logger interface {
 	Info(msg string, f ...slog.Attr)
 	Warn(msg string, f ...slog.Attr)
 	Error(msg string, f ...slog.Attr)
+	Debugf(format string, v ...interface{})
+	Infof(format string, v ...interface{})
+	Warnf(format string, v ...interface{})
+	Errorf(format string, v ...interface{})
 }
 
 type Log struct {
@@ -27,10 +32,10 @@ type Log struct {
 	slog *slog.Logger
 }
 
-func New(cfg *config.Config) Logger {
+func New(cfg *config.LoggerConfig) Logger {
 	options := &slog.HandlerOptions{}
 
-	if v, ok := levelMapping[cfg.Logger.Level]; ok {
+	if v, ok := levelMapping[cfg.Level]; ok {
 		options.Level = v
 	} else {
 		options.Level = slog.LevelInfo
@@ -38,16 +43,16 @@ func New(cfg *config.Config) Logger {
 
 	var handler slog.Handler
 
-	switch cfg.Logger.Format {
+	switch cfg.Format {
 	case "json":
 		handler = slog.NewJSONHandler(os.Stderr, options)
 	default:
 		handler = slog.NewTextHandler(os.Stderr, options)
 	}
 
-	logger := slog.New(handler)
+	log := slog.New(handler)
 
-	return &Log{context.Background(), logger}
+	return &Log{context.Background(), log}
 }
 
 func (l *Log) Debug(msg string, f ...slog.Attr) {
@@ -64,4 +69,24 @@ func (l *Log) Warn(msg string, f ...slog.Attr) {
 
 func (l *Log) Error(msg string, f ...slog.Attr) {
 	l.slog.LogAttrs(l.ctx, slog.LevelError, msg, f...)
+}
+
+func (l *Log) Debugf(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	l.slog.LogAttrs(l.ctx, slog.LevelDebug, msg)
+}
+
+func (l *Log) Infof(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	l.slog.LogAttrs(l.ctx, slog.LevelInfo, msg)
+}
+
+func (l *Log) Warnf(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	l.slog.LogAttrs(l.ctx, slog.LevelWarn, msg)
+}
+
+func (l *Log) Errorf(format string, v ...interface{}) {
+	msg := fmt.Sprintf(format, v...)
+	l.slog.LogAttrs(l.ctx, slog.LevelError, msg)
 }

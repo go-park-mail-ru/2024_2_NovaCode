@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -14,13 +13,12 @@ import (
 )
 
 type trackHandlers struct {
-	cfg     *config.Config
 	usecase track.Usecase
 	logger  logger.Logger
 }
 
-func NewTrackHandlers(cfg *config.Config, usecase track.Usecase, logger logger.Logger) track.Handlers {
-	return &trackHandlers{cfg, usecase, logger}
+func NewTrackHandlers(usecase track.Usecase, logger logger.Logger) track.Handlers {
+	return &trackHandlers{usecase, logger}
 }
 
 func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request *http.Request) {

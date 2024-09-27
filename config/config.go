@@ -10,8 +10,19 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
+	Service  ServiceConfig  `yaml:"service"`
+	Postgres PostgresConfig `yaml:"postgres"`
+}
+
+type ServiceConfig struct {
+	Port           string        `yaml:"port"`
+	ReadTimeout    time.Duration `yaml:"readTimeout"`
+	WriteTimeout   time.Duration `yaml:"writeTimeout"`
+	IdleTimeout    time.Duration `yaml:"idleTimeout"`
+	ContextTimeout time.Duration `yaml:"contextTimeout"`
+
 	Logger LoggerConfig `yaml:"logger"`
+	Auth   AuthConfig   `yaml:"auth"`
 }
 
 type LoggerConfig struct {
@@ -19,12 +30,35 @@ type LoggerConfig struct {
 	Format string `yaml:"format"`
 }
 
-type ServerConfig struct {
-	Port           string        `yaml:"port"`
-	ReadTimeout    time.Duration `yaml:"readTimeout"`
-	WriteTimeout   time.Duration `yaml:"writeTimeout"`
-	IdleTimeout    time.Duration `yaml:"idleTimeout"`
-	ContextTimeout time.Duration `yaml:"contextTimeout"`
+type AuthConfig struct {
+	Jwt JwtConfig `yaml:"jwt"`
+}
+
+type JwtConfig struct {
+	Secret string          `yaml:"secret"`
+	Expire time.Duration   `yaml:"expire"`
+	Cookie JwtCookieConfig `yaml:"cookie"`
+}
+
+type JwtCookieConfig struct {
+	Name     string `yaml:"name"`
+	MaxAge   int    `yaml:"maxAge"`
+	Secure   bool   `yaml:"secure"`
+	HttpOnly bool   `yaml:"httpOnly"`
+}
+
+type PostgresConfig struct {
+	Host                string `yaml:"host"`
+	Port                string `yaml:"port"`
+	User                string `yaml:"user"`
+	Password            string `yaml:"password"`
+	DBName              string `yaml:"dbName"`
+	SSLMode             bool   `yaml:"sslMode"`
+	Driver              string `yaml:"driver"`
+	MaxOpenConns        int    `yaml:"maxOpenConns"`
+	ConnMaxIdleLifetime int    `yaml:"connMaxLifetime"`
+	MaxIdleConns        int    `yaml:"maxIdleConns"`
+	ConnMaxIdleTime     int    `yaml:"connMaxIdleTime"`
 }
 
 func New() (*Config, error) {

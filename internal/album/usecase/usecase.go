@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
@@ -13,14 +12,13 @@ import (
 )
 
 type albumUsecase struct {
-	cfg        *config.Config
 	albumRepo  album.Repo
 	artistRepo artist.Repo
 	logger     logger.Logger
 }
 
-func NewAlbumUsecase(cfg *config.Config, albumRepo album.Repo, artistRepo artist.Repo, logger logger.Logger) album.Usecase {
-	return &albumUsecase{cfg, albumRepo, artistRepo, logger}
+func NewAlbumUsecase(albumRepo album.Repo, artistRepo artist.Repo, logger logger.Logger) album.Usecase {
+	return &albumUsecase{albumRepo, artistRepo, logger}
 }
 
 func (usecase *albumUsecase) View(ctx context.Context, albumID uint64) (*dto.AlbumDTO, error) {

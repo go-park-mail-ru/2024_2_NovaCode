@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -14,13 +13,12 @@ import (
 )
 
 type artistHandlers struct {
-	cfg     *config.Config
 	usecase artist.Usecase
 	logger  logger.Logger
 }
 
-func NewArtistHandlers(cfg *config.Config, usecase artist.Usecase, logger logger.Logger) artist.Handlers {
-	return &artistHandlers{cfg, usecase, logger}
+func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Handlers {
+	return &artistHandlers{usecase, logger}
 }
 
 func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, request *http.Request) {

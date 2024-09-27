@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -14,13 +13,12 @@ import (
 )
 
 type albumHandlers struct {
-	cfg     *config.Config
 	usecase album.Usecase
 	logger  logger.Logger
 }
 
-func NewAlbumHandlers(cfg *config.Config, usecase album.Usecase, logger logger.Logger) album.Handlers {
-	return &albumHandlers{cfg, usecase, logger}
+func NewAlbumHandlers(usecase album.Usecase, logger logger.Logger) album.Handlers {
+	return &albumHandlers{usecase, logger}
 }
 
 func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request *http.Request) {
