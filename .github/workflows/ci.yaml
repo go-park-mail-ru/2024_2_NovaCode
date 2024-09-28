@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into directory
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+        id: go
+
+      - name: Install required dependencies
+        run: go mod tidy
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: .
+          args: -c ./.golangci.yaml
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into directory
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+        id: go
+
+      - name: Install required dependency
+        run: go mod tidy
+
+      - name: Run test
+        run: make test
+
+      - name: View test coverage
+        run: make view-coverage
+
+      - name: Check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          profile: coverage.out
+          local-prefix: github.com/go-park-mail-ru/2024_2_NovaCode
+          threshold-total: 50
