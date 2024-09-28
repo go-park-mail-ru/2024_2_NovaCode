@@ -1,24 +1,18 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
-	"os"
+
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 )
 
-const (
-	allowMethods     = "POST, GET, OPTIONS, PUT, DELETE"
-	allowHeaders     = "Content-Type"
-	allowCredentials = "true"
-)
-
-func CORSMiddleware(next http.Handler) http.Handler {
+func CORSMiddleware(cfg *config.CORSConfig, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin := os.Getenv("CORS_ORIGIN")
-
-		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-		w.Header().Set("Access-Control-Allow-Methods", allowMethods)
-		w.Header().Set("Access-Control-Allow-Headers", allowHeaders)
-		w.Header().Set("Access-Control-Allow-Credentials", allowCredentials)
+		w.Header().Set("Access-Control-Allow-Origin", cfg.AllowOrigin)
+		w.Header().Set("Access-Control-Allow-Methods", cfg.AllowMethods)
+		w.Header().Set("Access-Control-Allow-Headers", cfg.AllowHeaders)
+		w.Header().Set("Access-Control-Allow-Credentials", fmt.Sprintf("%t", cfg.AllowCredentials))
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
