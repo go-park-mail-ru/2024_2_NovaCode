@@ -1,6 +1,6 @@
 module github.com/go-park-mail-ru/2024_2_NovaCode
 
-go 1.23.1
+go 1.22.6
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
