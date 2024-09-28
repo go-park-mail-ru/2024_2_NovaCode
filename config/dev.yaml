@@ -5,6 +5,12 @@ service:
   idleTimeout: 120
   contextTimeout: 5
 
+  cors:
+    allowOrigin: "http://localhost:3000"
+    allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
+    allowHeaders: "Content-Type"
+    allowCredentials: true
+
   logger:
     level: info
     format: json
