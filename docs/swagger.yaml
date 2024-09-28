@@ -1,0 +1,128 @@
+definitions:
+  dto.UserDTO:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.UserTokenDTO:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserDTO'
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  utils.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  utils.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with username and password
+      parameters:
+      - description: User login details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/dto.UserTokenDTO'
+        "400":
+          description: Invalid request body or missing fields
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Invalid username or password
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to return token
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Login user
+  /api/v1/auth/logout:
+    post:
+      description: Log out user and clear access token cookie
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/utils.MessageResponse'
+        "500":
+          description: Failed to log out
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Log out user
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user with username, email and password
+      parameters:
+      - description: User registration details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User registration successful
+          schema:
+            $ref: '#/definitions/dto.UserTokenDTO'
+        "400":
+          description: Invalid request body or missing fields
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to return token
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Register new user
+  /api/v1/health:
+    get:
+      description: Returns "OK" if the service is running
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health check
+swagger: "2.0"
