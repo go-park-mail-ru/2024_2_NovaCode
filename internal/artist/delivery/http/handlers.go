@@ -1,0 +1,93 @@
+package http
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/gorilla/mux"
+)
+
+type artistHandlers struct {
+	usecase artist.Usecase
+	logger  logger.Logger
+}
+
+func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Handlers {
+	return &artistHandlers{usecase, logger}
+}
+
+func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, request *http.Request) {
+	name := request.URL.Query().Get("name")
+	if name == "" {
+		utils.JSONError(response, http.StatusBadRequest, "Missing query parameter 'name'")
+		return
+	}
+
+	foundArtists, err := handlers.usecase.Search(request.Context(), name)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to find artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to find artists: %v", err))
+		return
+	} else if len(foundArtists) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No artists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(foundArtists); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	artistID, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
+		return
+	}
+
+	foundArtist, err := handlers.usecase.View(request.Context(), artistID)
+	if err != nil {
+		utils.JSONError(response, http.StatusNotFound, fmt.Sprintf("Artist wasn't found: %v", err))
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artist: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
+	artists, err := handlers.usecase.GetAll(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to load artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to load artists: %v", err))
+		return
+	} else if len(artists) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No artists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(artists); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}

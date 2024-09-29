@@ -3,15 +3,15 @@ module github.com/go-park-mail-ru/2024_2_NovaCode
 go 1.22.6
 
 require (
-	github.com/lib/pq v1.10.9
-	github.com/spf13/viper v1.19.0
-	github.com/swaggo/swag v1.16.3
+	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
-	golang.org/x/crypto v0.27.0
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/lib/pq v1.10.9
+	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/swaggo/swag v1.16.3
+	golang.org/x/crypto v0.27.0
 )
 
 require (
@@ -24,6 +24,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -32,6 +33,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
