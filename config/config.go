@@ -90,6 +90,8 @@ func newViper() (*viper.Viper, error) {
 	v.SetConfigName(os.Getenv("CONFIG_NAME"))
 	v.SetConfigType(os.Getenv("CONFIG_TYPE"))
 
+	fmt.Println(os.Getenv("CONFIG_PATH"), os.Getenv("CONFIG_NAME"), os.Getenv("CONFIG_TYPE"))
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return nil, errors.New("config file not found")
