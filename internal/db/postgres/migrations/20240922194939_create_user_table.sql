@@ -2,8 +2,7 @@
 -- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- DROP TYPE role_type;
--- CREATE TYPE role_type AS ENUM ('regular', 'admin');
+CREATE TYPE role_type AS ENUM ('regular', 'admin');
 
 CREATE TABLE IF NOT EXISTS "user" (
     user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -20,6 +19,5 @@ CREATE TABLE IF NOT EXISTS "user" (
 
 -- +goose Down
 -- +goose StatementBegin
--- DROP TYPE IF EXISTS role_type;
 DROP TABLE IF EXISTS "user";
 -- +goose StatementEnd
