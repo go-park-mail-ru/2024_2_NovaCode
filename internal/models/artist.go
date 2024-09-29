@@ -3,11 +3,11 @@ package models
 import "time"
 
 type Artist struct {
-	ID        uint64    `json:"id"`
-	Name      string    `json:"name"`
-	Bio       string    `json:"bio"`
-	Country   string    `json:"country"`
-	Image     string    `json:"image"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID        uint64
+	Name      string
+	Bio       string
+	Country   string
+	Image     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

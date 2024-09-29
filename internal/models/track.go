@@ -5,15 +5,15 @@ import (
 )
 
 type Track struct {
-	ID          uint64    `json:"id"`
-	Name        string    `json:"name"`
-	Genre       string    `json:"genre"`
-	Duration    uint64    `json:"duration"`
-	FilePath    string    `json:"filepath"`
-	Image       string    `json:"image"`
-	ArtistID    uint64    `json:"artistId"`
-	AlbumID     uint64    `json:"albumId"`
-	ReleaseDate time.Time `json:"release"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID          uint64
+	Name        string
+	Genre       string
+	Duration    uint64
+	FilePath    string
+	Image       string
+	ArtistID    uint64
+	AlbumID     uint64
+	ReleaseDate time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
