@@ -1,10 +1,12 @@
 services:
-  auth:
-    container_name: auth
+  novamusic-backend:
+    image: daronenko/novamusic-backend:latest
+    container_name: novamusic-backend
+    platform: linux/amd64
+    env_file: .env
     build:
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile.${ENV}
       context: ..
-    env_file: ../config/.dev.env
     ports:
       - 8080:8080
     restart: on-failure
@@ -13,9 +15,10 @@ services:
         condition: service_healthy
 
   postgres:
-    container_name: auth-postgres
+    container_name: novamusic-postgres
     image: postgres:16
-    env_file: ../config/.dev.env
+    platform: linux/amd64
+    env_file: .env
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -35,6 +38,21 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:3.22.1
+    platform: linux/amd64
+    restart: no
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=${POSTGRES_HOST} port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}
+      - GOOSE_VERBOSE=true
+    volumes:
+      - ../internal/db/postgres/migrations:/migrations
 
 volumes:
   postgres-data:
