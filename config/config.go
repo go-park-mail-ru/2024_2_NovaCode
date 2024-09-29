@@ -21,8 +21,16 @@ type ServiceConfig struct {
 	IdleTimeout    time.Duration `yaml:"idleTimeout"`
 	ContextTimeout time.Duration `yaml:"contextTimeout"`
 
+	CORS   CORSConfig   `yaml:"cors"`
 	Logger LoggerConfig `yaml:"logger"`
 	Auth   AuthConfig   `yaml:"auth"`
+}
+
+type CORSConfig struct {
+	AllowOrigin      string `yaml:"allowOrigin"`
+	AllowMethods     string `yaml:"allowMethods"`
+	AllowHeaders     string `yaml:"allowHeaders"`
+	AllowCredentials bool   `yaml:"allowCredentials"`
 }
 
 type LoggerConfig struct {

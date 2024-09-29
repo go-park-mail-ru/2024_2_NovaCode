@@ -29,11 +29,12 @@ func NewServer(cfg *config.ServiceConfig, db *sql.DB, logger logger.Logger) *Ser
 func (s *Server) Run() error {
 	s.BindRoutes()
 
-	loggedMux := middleware.LoggingMiddleware(s.cfg, s.logger, s.mux)
+	corsedMux := middleware.CORSMiddleware(&s.cfg.CORS, s.mux)
+	loggedCorsedMux := middleware.LoggingMiddleware(s.cfg, s.logger, corsedMux)
 
 	server := &http.Server{
 		Addr:         s.cfg.Port,
-		Handler:      loggedMux,
+		Handler:      loggedCorsedMux,
 		ReadTimeout:  s.cfg.ReadTimeout * time.Second,
 		WriteTimeout: s.cfg.WriteTimeout * time.Second,
 		IdleTimeout:  s.cfg.IdleTimeout * time.Second,
