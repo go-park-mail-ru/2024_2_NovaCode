@@ -50,9 +50,9 @@ func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request
 
 func (handlers *trackHandlers) ViewTrack(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	trackID, err := strconv.ParseUint(vars["track"], 10, 64)
+	trackID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Wrong track id: %v", err))
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
 		return
 	}
 

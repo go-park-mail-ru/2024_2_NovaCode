@@ -50,9 +50,9 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 
 func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	albumID, err := strconv.ParseUint(vars["album"], 10, 64)
+	albumID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Wrong album id: %v", err))
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
 		return
 	}
 

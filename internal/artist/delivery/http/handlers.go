@@ -50,9 +50,9 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 
 func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	artistID, err := strconv.ParseUint(vars["artist"], 10, 64)
+	artistID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Wrong artist id: %v", err))
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
 		return
 	}
 

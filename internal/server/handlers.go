@@ -35,9 +35,9 @@ func (s *Server) BindTrack() {
 	trackUsecase := trackUsecase.NewTrackUsecase(trackRepo, albumRepo, artistRepo, s.logger)
 	trackHandleres := trackHandlers.NewTrackHandlers(trackUsecase, s.logger)
 
-	s.mux.HandleFunc("/api/v1/track/{id}", trackHandleres.ViewTrack)
+	s.mux.HandleFunc("/track/{id}", trackHandleres.ViewTrack)
 	s.mux.HandleFunc("/api/v1/track/all", trackHandleres.GetAll)
-	s.mux.HandleFunc("/api/v1/track/", trackHandleres.SearchTrack)
+	s.mux.HandleFunc("/track/search/", trackHandleres.SearchTrack)
 }
 
 func (s *Server) BindArtist() {
@@ -45,9 +45,9 @@ func (s *Server) BindArtist() {
 	artistUsecase := artistUsecase.NewArtistUsecase(artistRepo, s.logger)
 	artistHandlers := artistHandlers.NewArtistHandlers(artistUsecase, s.logger)
 
-	s.mux.HandleFunc("/api/v1/artist/{id}", artistHandlers.ViewArtist)
+	s.mux.HandleFunc("/artist/{id}", artistHandlers.ViewArtist)
 	s.mux.HandleFunc("/api/v1/artist/all", artistHandlers.GetAll)
-	s.mux.HandleFunc("/api/v1/artist/", artistHandlers.SearchArtist)
+	s.mux.HandleFunc("/artist/search/", artistHandlers.SearchArtist)
 }
 
 func (s *Server) BindAlbum() {
@@ -56,9 +56,9 @@ func (s *Server) BindAlbum() {
 	albumUsecase := albumUsecase.NewAlbumUsecase(albumRepo, artistRepo, s.logger)
 	albumHandleres := albumHandlers.NewAlbumHandlers(albumUsecase, s.logger)
 
-	s.mux.HandleFunc("/api/v1/album/{id}", albumHandleres.ViewAlbum)
+	s.mux.HandleFunc("/album/{id}", albumHandleres.ViewAlbum)
 	s.mux.HandleFunc("/api/v1/album/all", albumHandleres.GetAll)
-	s.mux.HandleFunc("/api/v1/album/", albumHandleres.SearchAlbum)
+	s.mux.HandleFunc("/album/search/", albumHandleres.SearchAlbum)
 }
 
 func (s *Server) BindUser() {
