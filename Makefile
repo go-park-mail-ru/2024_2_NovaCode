@@ -121,12 +121,7 @@ docker-build:
 
 .PHONY: docker-migrate
 ## Start docker compose service of database and apply migrations.
-## Name of docker compose service must match in available database.
-## Available databases: postgres, mysql, mssql, redshift, tidb,
-## clickhouse, vertica, ydb.
-## Format: `docker-<database>-migrate`.
-## Example: `docker-postgres-migrate`.
-docker-%-migrate:
+docker-migrate:
 	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d migrations
 
 .PHONY: docker-start
