@@ -163,7 +163,7 @@ version ?= latest
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.$(ENV) -t daronenko/$(SERVICE_NAME):$(version) .
+	@docker build -f docker/Dockerfile.$(ENV) --platform linux/amd64 -t daronenko/$(SERVICE_NAME):$(version) .
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.
