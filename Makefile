@@ -1,4 +1,5 @@
-ENV_FILE = ./config/.dev.env
+ENV_FILE = ./docker/.env
+include $(ENV_FILE)
 
 POSTGRES_CONNECTION = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
 
@@ -7,12 +8,6 @@ MIGRATIONS_PATH = ./internal/db/$*/migrations
 BINARY_PATH = ./bin/main
 DOCKER_COMPOSE_PATH = ./docker/docker-compose.yaml
 GOLANGCI_LINT_PATH = ./.golangci.yaml
-
-# include env file
-ifneq ("$(wildcard $(ENV_FILE))","")
-    include $(ENV_FILE)
-    export
-endif
 
 # use `gawk` on mac os
 AWK := awk
@@ -122,9 +117,9 @@ lint:
 .PHONY: docker-build
 ## Build docker container with microservice binary.
 docker-build:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) build
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build
 
-.PHONY: docker-%-migrate
+.PHONY: docker-migrate
 ## Start docker compose service of database and apply migrations.
 ## Name of docker compose service must match in available database.
 ## Available databases: postgres, mysql, mssql, redshift, tidb,
@@ -132,16 +127,14 @@ docker-build:
 ## Format: `docker-<database>-migrate`.
 ## Example: `docker-postgres-migrate`.
 docker-%-migrate:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) up -d $*
-	@make $*-migrate
-	@docker compose -f $(DOCKER_COMPOSE_PATH) stop $*
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d migrations
 
 .PHONY: docker-start
 ## Start docker compose containers (all by default).
 ## Format: `docker-start [compose=<docker-compose-service>]`.
 ## Example: `docker-start`, `docker-stop compose=postgres`.
 docker-start:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) up -d $(compose)
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
 
 .PHONY: docker-stop
 ## Stop docker compose containers (all by default).
@@ -165,15 +158,17 @@ docker-psql:
 docker-clean:
 	@docker compose -f $(DOCKER_COMPOSE_PATH) down
 
+version ?= latest
+
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.prod -t daronenko/$(SERVICE_NAME):latest .
+	@docker build -f docker/Dockerfile.$(ENV) -t daronenko/$(SERVICE_NAME):$(version) .
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.
 push-image:
-	@docker push daronenko/$(SERVICE_NAME):latest
+	@docker push daronenko/$(SERVICE_NAME):$(version)
 
 ################################################################################
 # Cleaning
