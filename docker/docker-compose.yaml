@@ -1,6 +1,6 @@
 services:
   novamusic-backend:
-    image: daronenko/novamusic-backend:latest
+    image: daronenko/novamusic-backend:${VERSION}
     container_name: novamusic-backend
     platform: linux/amd64
     env_file: .env
