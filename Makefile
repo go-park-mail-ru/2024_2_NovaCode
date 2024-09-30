@@ -121,12 +121,7 @@ docker-build:
 
 .PHONY: docker-migrate
 ## Start docker compose service of database and apply migrations.
-## Name of docker compose service must match in available database.
-## Available databases: postgres, mysql, mssql, redshift, tidb,
-## clickhouse, vertica, ydb.
-## Format: `docker-<database>-migrate`.
-## Example: `docker-postgres-migrate`.
-docker-%-migrate:
+docker-migrate:
 	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d migrations
 
 .PHONY: docker-start
@@ -158,17 +153,15 @@ docker-psql:
 docker-clean:
 	@docker compose -f $(DOCKER_COMPOSE_PATH) down
 
-version ?= latest
-
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.$(ENV) --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(version) .
+	@docker build -f docker/Dockerfile.$(ENV) --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(VERSION) .
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.
 push-image:
-	@docker push daronenko/$(SERVICE_NAME)-backend:$(version)
+	@docker push daronenko/$(SERVICE_NAME)-backend:$(VERSION)
 
 ################################################################################
 # Cleaning
