@@ -21,56 +21,86 @@ func NewTrackHandlers(usecase track.Usecase, logger logger.Logger) track.Handler
 	return &trackHandlers{usecase, logger}
 }
 
+// SearchTrack godoc
+// @Summary Search tracks by name
+// @Description Searches for tracks based on the provided "name" query parameter.
+// @Param name query string true "Name of the track to search for"
+// @Success 200 {array}  dto.TrackDTO "List of found tracks"
+// @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
+// @Failure 404 {object} utils.ErrorResponse "No tracks found with the provided name"
+// @Failure 500 {object} utils.ErrorResponse "Failed to search or encode tracks"
+// @Router /api/v1/tracks/search [get]
 func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request *http.Request) {
 	name := request.URL.Query().Get("name")
 	if name == "" {
-		utils.JSONError(response, http.StatusBadRequest, "Missing query parameter 'name'")
+		handlers.logger.Error("Missing query parameter 'name'")
+		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
 	foundTracks, err := handlers.usecase.Search(request.Context(), name)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to find tracks: %v", err))
-		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to find tracks: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, "Can't find tracks")
 		return
 	} else if len(foundTracks) == 0 {
-		utils.JSONError(response, http.StatusNotFound, "No tracks were found")
+		handlers.logger.Error(fmt.Sprintf("No tracks with %s were found", name))
+		utils.JSONError(response, http.StatusNotFound, "No tracks")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(foundTracks); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err))
-		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
 }
 
+// ViewTrack godoc
+// @Summary Get track by ID
+// @Description Retrieves an track using the provided track ID in the URL path.
+// @Param id path uint64 true "Track ID"
+// @Success 200 {object} dto.TrackDTO "Track found"
+// @Failure 400 {object} utils.ErrorResponse "Invalid track ID"
+// @Failure 404 {object} utils.ErrorResponse "Track not found"
+// @Failure 500 {object} utils.ErrorResponse "Failed to encode the track data"
+// @Router /api/v1/tracks/{id} [get]
 func (handlers *trackHandlers) ViewTrack(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	trackID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
+		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
 		return
 	}
 
 	foundTrack, err := handlers.usecase.View(request.Context(), trackID)
 	if err != nil {
-		utils.JSONError(response, http.StatusNotFound, fmt.Sprintf("Track wasn't found: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Track wasn't found: %v", err))
+		utils.JSONError(response, http.StatusNotFound, "Can't find track")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(foundTrack); err != nil {
-		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode track: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode track: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
 }
 
+// GetAll godoc
+// @Summary Get all tracks
+// @Description Retrieves a list of all tracks from the database.
+// @Success 200 {array} dto.TrackDTO "List of all tracks"
+// @Failure 404 {object} utils.ErrorResponse "No tracks found"
+// @Failure 500 {object} utils.ErrorResponse "Failed to load tracks"
+// @Router /api/v1/tracks/all [get]
 func (handlers *trackHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
 	tracks, err := handlers.usecase.GetAll(request.Context())
 	if err != nil {
