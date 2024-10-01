@@ -23,3 +23,8 @@ backend репозиторий музыкального стриминговог
 
 * **[Backend](https://github.com/go-park-mail-ru/2024_2_NovaCode)**
 * [Frontend](https://github.com/frontend-park-mail-ru/2024_2_NovaCode)
+
+---
+
+* [Deploy](http://185.241.194.24/)
+* [Figma](https://www.figma.com/design/16wWhVERhLVaW8ofIYx6xw/NovaMusik?node-id=0-1&t=4gs3zelba1yH4e9U-1)
