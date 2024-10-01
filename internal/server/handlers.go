@@ -35,9 +35,9 @@ func (s *Server) BindTrack() {
 	trackUsecase := trackUsecase.NewTrackUsecase(trackRepo, albumRepo, artistRepo, s.logger)
 	trackHandleres := trackHandlers.NewTrackHandlers(trackUsecase, s.logger)
 
-	s.mux.HandleFunc("/track/{id}", trackHandleres.ViewTrack)
-	s.mux.HandleFunc("/api/v1/track/all", trackHandleres.GetAll)
-	s.mux.HandleFunc("/track/search/", trackHandleres.SearchTrack)
+	s.mux.HandleFunc("/api/v1/tracks/search", trackHandleres.SearchTrack).Methods("GET")
+	s.mux.HandleFunc("/api/v1/tracks/{id:[0-9]+}", trackHandleres.ViewTrack).Methods("GET")
+	s.mux.HandleFunc("/api/v1/tracks", trackHandleres.GetAll).Methods("GET")
 }
 
 func (s *Server) BindArtist() {
@@ -45,9 +45,9 @@ func (s *Server) BindArtist() {
 	artistUsecase := artistUsecase.NewArtistUsecase(artistRepo, s.logger)
 	artistHandlers := artistHandlers.NewArtistHandlers(artistUsecase, s.logger)
 
-	s.mux.HandleFunc("/artist/{id}", artistHandlers.ViewArtist)
-	s.mux.HandleFunc("/api/v1/artist/all", artistHandlers.GetAll)
-	s.mux.HandleFunc("/artist/search/", artistHandlers.SearchArtist)
+	s.mux.HandleFunc("/api/v1/artists/search", artistHandlers.SearchArtist).Methods("GET")
+	s.mux.HandleFunc("/api/v1/artists/{id:[0-9]+}", artistHandlers.ViewArtist).Methods("GET")
+	s.mux.HandleFunc("/api/v1/artists", artistHandlers.GetAll).Methods("GET")
 }
 
 func (s *Server) BindAlbum() {
@@ -56,9 +56,9 @@ func (s *Server) BindAlbum() {
 	albumUsecase := albumUsecase.NewAlbumUsecase(albumRepo, artistRepo, s.logger)
 	albumHandleres := albumHandlers.NewAlbumHandlers(albumUsecase, s.logger)
 
-	s.mux.HandleFunc("/album/{id}", albumHandleres.ViewAlbum)
-	s.mux.HandleFunc("/api/v1/album/all", albumHandleres.GetAll)
-	s.mux.HandleFunc("/album/search/", albumHandleres.SearchAlbum)
+	s.mux.HandleFunc("/api/v1/albums/search", albumHandleres.SearchAlbum).Methods("GET")
+	s.mux.HandleFunc("/api/v1/albums/{id:[0-9]+}", albumHandleres.ViewAlbum).Methods("GET")
+	s.mux.HandleFunc("/api/v1/albums", albumHandleres.GetAll).Methods("GET")
 }
 
 func (s *Server) BindUser() {
@@ -66,15 +66,14 @@ func (s *Server) BindUser() {
 	userUsecase := userUsecase.NewUserUsecase(&s.cfg.Auth, userRepo, s.logger)
 	userHandleres := userHandlers.NewUserHandlers(&s.cfg.Auth, userUsecase, s.logger)
 
-	s.mux.HandleFunc("GET /api/v1/health", userHandleres.Health)
+	s.mux.HandleFunc("/api/v1/health", userHandleres.Health).Methods("GET")
 
-	s.mux.HandleFunc("POST /api/v1/auth/register", userHandleres.Register)
-	s.mux.HandleFunc("POST /api/v1/auth/login", userHandleres.Login)
-	s.mux.HandleFunc("POST /api/v1/auth/logout", userHandleres.Logout)
+	s.mux.HandleFunc("/api/v1/auth/register", userHandleres.Register).Methods("POST")
+	s.mux.HandleFunc("/api/v1/auth/login", userHandleres.Login).Methods("POST")
+	s.mux.HandleFunc("/api/v1/auth/logout", userHandleres.Logout).Methods("POST")
 
-	// auth middleware usage example
 	s.mux.Handle(
-		"GET /api/v1/auth/health",
+		"/api/v1/auth/health",
 		middleware.AuthMiddleware(&s.cfg.Auth, s.logger, http.HandlerFunc(userHandleres.Health)),
-	)
+	).Methods("GET")
 }
