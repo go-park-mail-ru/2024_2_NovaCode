@@ -1,4 +1,49 @@
 definitions:
+  dto.AlbumDTO:
+    properties:
+      artistId:
+        type: string
+      genre:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      release:
+        type: string
+      trackCount:
+        type: integer
+    type: object
+  dto.ArtistDTO:
+    properties:
+      bio:
+        type: string
+      country:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.TrackDTO:
+    properties:
+      album:
+        type: string
+      artist:
+        type: string
+      duration:
+        type: integer
+      filepath:
+        type: string
+      genre:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      release:
+        type: string
+    type: object
   dto.UserDTO:
     properties:
       email:
@@ -15,7 +60,7 @@ definitions:
     type: object
   models.User:
     properties:
-      created_at:
+      createdAt:
         type: string
       email:
         type: string
@@ -23,9 +68,9 @@ definitions:
         type: string
       role:
         type: string
-      updated_at:
+      updatedAt:
         type: string
-      user_id:
+      userID:
         type: string
       username:
         type: string
@@ -43,6 +88,156 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/albums/{id}:
+    get:
+      description: Retrieves an album using the provided album ID in the URL path.
+      parameters:
+      - description: Album ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Album found
+          schema:
+            $ref: '#/definitions/dto.AlbumDTO'
+        "400":
+          description: Invalid album ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Album not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to encode the album data
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get album by ID
+  /api/v1/albums/all:
+    get:
+      description: Retrieves a list of all albums from the database.
+      responses:
+        "200":
+          description: List of all albums
+          schema:
+            items:
+              $ref: '#/definitions/dto.AlbumDTO'
+            type: array
+        "404":
+          description: No albums found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load albums
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all albums
+  /api/v1/albums/search:
+    get:
+      description: Searches for albums based on the provided "name" query parameter.
+      parameters:
+      - description: Name of the album to search for
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: List of found albums
+          schema:
+            items:
+              $ref: '#/definitions/dto.AlbumDTO'
+            type: array
+        "400":
+          description: Missing or invalid query parameter
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: No albums found with the provided name
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to search or encode albums
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Search albums by name
+  /api/v1/artists/{id}:
+    get:
+      description: Retrieves an artist using the provided artist ID in the URL path.
+      parameters:
+      - description: Artist ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Artist found
+          schema:
+            $ref: '#/definitions/dto.ArtistDTO'
+        "400":
+          description: Invalid artist ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Artist not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to encode the artist data
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get artist by ID
+  /api/v1/artists/all:
+    get:
+      description: Retrieves a list of all artists from the database.
+      responses:
+        "200":
+          description: List of all artists
+          schema:
+            items:
+              $ref: '#/definitions/dto.ArtistDTO'
+            type: array
+        "404":
+          description: No artists found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load artists
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all artists
+  /api/v1/artists/search:
+    get:
+      description: Searches for artists based on the provided "name" query parameter.
+      parameters:
+      - description: Name of the artist to search for
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: List of found artists
+          schema:
+            items:
+              $ref: '#/definitions/dto.ArtistDTO'
+            type: array
+        "400":
+          description: Missing or invalid query parameter
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: No artists found with the provided name
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to search or encode artists
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Search artists by name
   /api/v1/auth/login:
     post:
       consumes:
@@ -125,4 +320,79 @@ paths:
           schema:
             type: string
       summary: Health check
+  /api/v1/tracks/{id}:
+    get:
+      description: Retrieves an track using the provided track ID in the URL path.
+      parameters:
+      - description: Track ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Track found
+          schema:
+            $ref: '#/definitions/dto.TrackDTO'
+        "400":
+          description: Invalid track ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Track not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to encode the track data
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get track by ID
+  /api/v1/tracks/all:
+    get:
+      description: Retrieves a list of all tracks from the database.
+      responses:
+        "200":
+          description: List of all tracks
+          schema:
+            items:
+              $ref: '#/definitions/dto.TrackDTO'
+            type: array
+        "404":
+          description: No tracks found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load tracks
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all tracks
+  /api/v1/tracks/search:
+    get:
+      description: Searches for tracks based on the provided "name" query parameter.
+      parameters:
+      - description: Name of the track to search for
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: List of found tracks
+          schema:
+            items:
+              $ref: '#/definitions/dto.TrackDTO'
+            type: array
+        "400":
+          description: Missing or invalid query parameter
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: No tracks found with the provided name
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to search or encode tracks
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Search tracks by name
 swagger: "2.0"
