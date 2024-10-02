@@ -28,16 +28,16 @@ func TestAlbumHandlers_SearchAlbums(t *testing.T) {
 	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
 
 	t.Run("Successful search", func(t *testing.T) {
-		now := time.Now().Truncate(time.Second)
+		releaseDate := time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC)
 		albums := []*dto.AlbumDTO{
 			{
-				Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1", Artist: "1",
+				Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "1", Artist: "1",
 			},
 			{
-				Name: "test", Genre: "2", TrackCount: uint64(1), ReleaseDate: now, Image: "2", Artist: "2",
+				Name: "test", Genre: "2", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "2", Artist: "2",
 			},
 			{
-				Name: "album", Genre: "3", TrackCount: uint64(1), ReleaseDate: now, Image: "3", Artist: "3",
+				Name: "album", Genre: "3", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "3", Artist: "3",
 			},
 		}
 
@@ -94,9 +94,9 @@ func TestAlbumHandlers_ViewAlbum(t *testing.T) {
 	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
 
 	t.Run("Successful view", func(t *testing.T) {
-		now := time.Now().Truncate(time.Second)
+		releaseDate := time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC)
 		album := dto.AlbumDTO{
-			Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1", Artist: "1",
+			Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "1", Artist: "1",
 		}
 
 		usecaseMock.EXPECT().View(gomock.Any(), uint64(1)).Return(&album, nil)
@@ -159,16 +159,16 @@ func TestAlbumHandlers_GetAllAlbums(t *testing.T) {
 	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
 
 	t.Run("Successful got all albums", func(t *testing.T) {
-		now := time.Now().Truncate(time.Second)
+		releaseDate := time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC)
 		albums := []*dto.AlbumDTO{
 			{
-				Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1", Artist: "1",
+				Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "1", Artist: "1",
 			},
 			{
-				Name: "test", Genre: "2", TrackCount: uint64(1), ReleaseDate: now, Image: "2", Artist: "2",
+				Name: "test", Genre: "2", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "2", Artist: "2",
 			},
 			{
-				Name: "album", Genre: "3", TrackCount: uint64(1), ReleaseDate: now, Image: "3", Artist: "3",
+				Name: "album", Genre: "3", TrackCount: uint64(1), ReleaseDate: releaseDate, Image: "3", Artist: "3",
 			},
 		}
 
