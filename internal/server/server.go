@@ -13,17 +13,18 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 type Server struct {
-	mux    *http.ServeMux
+	mux    *mux.Router
 	cfg    *config.ServiceConfig
 	db     *sql.DB
 	logger logger.Logger
 }
 
 func NewServer(cfg *config.ServiceConfig, db *sql.DB, logger logger.Logger) *Server {
-	return &Server{http.NewServeMux(), cfg, db, logger}
+	return &Server{mux.NewRouter(), cfg, db, logger}
 }
 
 func (s *Server) Run() error {
