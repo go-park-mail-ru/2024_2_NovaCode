@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS "track" (
   release_date TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT current_timestamp,
-  FOREIGN KEY (artist_id) REFERENCES artist (id),
-  FOREIGN KEY (album_id) REFERENCES album (id)
+  FOREIGN KEY (artist_id) REFERENCES artist (id) ON DELETE CASCADE,
+  FOREIGN KEY (album_id) REFERENCES album (id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 

@@ -20,4 +20,5 @@ CREATE TABLE IF NOT EXISTS "user" (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS "user";
+DROP TYPE IF EXISTS role_type;
 -- +goose StatementEnd

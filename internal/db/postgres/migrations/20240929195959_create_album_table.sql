@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "album" (
   artist_id INT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT current_timestamp,
-  FOREIGN KEY (artist_id) REFERENCES artist (id)
+  FOREIGN KEY (artist_id) REFERENCES artist (id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 

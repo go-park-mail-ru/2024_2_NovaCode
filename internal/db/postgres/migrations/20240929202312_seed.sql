@@ -29,9 +29,9 @@ VALUES
     ('Houdini', 'Hip-Hop', 123, 'test filepath', 'tracks/Houdini.jpeg', 5, 5);
 -- +goose StatementEnd
 
--- +goose Down
--- +goose StatementBegin
-TRUNCATE TABLE artist;
-TRUNCATE TABLE album;
-TRUNCATE TABLE track;
--- +goose StatementEnd
+-- -- +goose Down
+-- -- +goose StatementBegin
+-- TRUNCATE TABLE artist;
+-- TRUNCATE TABLE album;
+-- TRUNCATE TABLE track;
+-- -- +goose StatementEnd
