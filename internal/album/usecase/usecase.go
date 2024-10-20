@@ -3,11 +3,13 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/httpErrors"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
@@ -25,14 +27,14 @@ func (usecase *albumUsecase) View(ctx context.Context, albumID uint64) (*dto.Alb
 	foundAlbum, err := usecase.albumRepo.FindById(ctx, albumID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Album wasn't found: %v", err))
-		return nil, fmt.Errorf("Album wasn't found")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Album wasn't found", err)
 	}
 	usecase.logger.Info("Album found")
 
 	dtoAlbum, err := usecase.convertAlbumToDTO(ctx, foundAlbum)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s album: %v", foundAlbum.Name, err))
-		return nil, fmt.Errorf("Can't create DTO")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 	}
 
 	return dtoAlbum, nil
@@ -42,7 +44,7 @@ func (usecase *albumUsecase) Search(ctx context.Context, name string) ([]*dto.Al
 	foundAlbums, err := usecase.albumRepo.FindByName(ctx, name)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Albums with name '%s' were not found: %v", name, err))
-		return nil, fmt.Errorf("Can't find albums")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find albums", err)
 	}
 	usecase.logger.Info("Albums found")
 
@@ -51,7 +53,7 @@ func (usecase *albumUsecase) Search(ctx context.Context, name string) ([]*dto.Al
 		dtoAlbum, err := usecase.convertAlbumToDTO(ctx, album)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s album: %v", album.Name, err))
-			return nil, fmt.Errorf("Can't create DTO")
+			return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 		}
 		dtoAlbums = append(dtoAlbums, dtoAlbum)
 	}
@@ -63,7 +65,7 @@ func (usecase *albumUsecase) GetAll(ctx context.Context) ([]*dto.AlbumDTO, error
 	albums, err := usecase.albumRepo.GetAll(ctx)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load albums: %v", err))
-		return nil, fmt.Errorf("Can't find albums")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find albums", err)
 	}
 	usecase.logger.Info("Albums found")
 
@@ -72,7 +74,7 @@ func (usecase *albumUsecase) GetAll(ctx context.Context) ([]*dto.AlbumDTO, error
 		dtoAlbum, err := usecase.convertAlbumToDTO(ctx, album)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s album: %v", album.Name, err))
-			return nil, fmt.Errorf("Can't create DTO")
+			return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 		}
 		dtoAlbums = append(dtoAlbums, dtoAlbum)
 	}
@@ -84,7 +86,7 @@ func (usecase *albumUsecase) convertAlbumToDTO(ctx context.Context, album *model
 	artist, err := usecase.artistRepo.FindById(ctx, album.ArtistID)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't find artist for album %s: %v", album.Name, err))
-		return nil, fmt.Errorf("Can't find artist for album")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find artist for album", err)
 	}
 
 	return dto.NewAlbumDTO(album, artist), nil

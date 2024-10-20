@@ -3,12 +3,14 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/httpErrors"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
@@ -27,14 +29,14 @@ func (usecase *trackUsecase) View(ctx context.Context, trackID uint64) (*dto.Tra
 	foundTrack, err := usecase.trackRepo.FindById(ctx, trackID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Track wasn't found: %v", err))
-		return nil, fmt.Errorf("Track wasn't found")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Track wasn't found", err)
 	}
 	usecase.logger.Info("Track found")
 
 	dtoTrack, err := usecase.convertTrackToDTO(ctx, foundTrack)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", foundTrack.Name, err))
-		return nil, fmt.Errorf("Can't create DTO")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 	}
 
 	return dtoTrack, nil
@@ -44,7 +46,7 @@ func (usecase *trackUsecase) Search(ctx context.Context, name string) ([]*dto.Tr
 	foundTracks, err := usecase.trackRepo.FindByName(ctx, name)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Tracks with name '%s' were not found: %v", name, err))
-		return nil, fmt.Errorf("Can't find tracks")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find tracks", err)
 	}
 	usecase.logger.Info("Tracks found")
 
@@ -53,7 +55,7 @@ func (usecase *trackUsecase) Search(ctx context.Context, name string) ([]*dto.Tr
 		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err))
-			return nil, fmt.Errorf("Can't create DTO")
+			return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 		}
 		dtoTracks = append(dtoTracks, dtoTrack)
 	}
@@ -65,7 +67,7 @@ func (usecase *trackUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error
 	tracks, err := usecase.trackRepo.GetAll(ctx)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load tracks: %v", err))
-		return nil, fmt.Errorf("Can't load tracks")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't load tracks", err)
 	}
 	usecase.logger.Info("Found tracks")
 
@@ -74,7 +76,7 @@ func (usecase *trackUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error
 		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err))
-			return nil, fmt.Errorf("Can't create DTO")
+			return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateDTOFailed, err)
 		}
 		dtoTracks = append(dtoTracks, dtoTrack)
 	}
@@ -86,13 +88,13 @@ func (usecase *trackUsecase) convertTrackToDTO(ctx context.Context, track *model
 	artist, err := usecase.artistRepo.FindById(ctx, track.ArtistID)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't find artist for track %s: %v", track.Name, err))
-		return nil, fmt.Errorf("Can't find artist for track")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find artist for track", err)
 	}
 
 	album, err := usecase.albumRepo.FindById(ctx, track.AlbumID)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't find album for track %s: %v", track.Name, err))
-		return nil, fmt.Errorf("Can't find album for track")
+		return nil, httpErrors.NewRestError(http.StatusBadRequest, "Can't find album for track", err)
 	}
 
 	return dto.NewTrackDTO(track, artist, album), nil
