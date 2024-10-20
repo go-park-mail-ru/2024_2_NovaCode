@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -50,13 +49,11 @@ func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundTracks); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundTracks); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // ViewTrack godoc
@@ -85,13 +82,11 @@ func (handlers *trackHandlers) ViewTrack(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundTrack); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundTrack); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode track: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // GetAll godoc
@@ -113,11 +108,9 @@ func (handlers *trackHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, tracks); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }

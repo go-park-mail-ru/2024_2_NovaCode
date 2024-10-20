@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -50,13 +49,11 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtists); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, albums); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // ViewArtist godoc
@@ -85,13 +82,11 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundArtist); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artist: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // GetAll godoc
@@ -113,11 +108,9 @@ func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *ht
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(artists); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, artists); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }

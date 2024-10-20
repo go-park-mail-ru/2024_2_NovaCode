@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -50,7 +49,7 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbums); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundAlbums); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
@@ -85,13 +84,11 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbum); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundAlbum); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // GetAll godoc
@@ -114,11 +111,9 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, albums); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }

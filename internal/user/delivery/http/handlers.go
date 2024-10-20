@@ -28,8 +28,7 @@ func NewUserHandlers(cfg *config.AuthConfig, usecase user.Usecase, logger logger
 // @Router /api/v1/health [get]
 func (handlers *userHandlers) Health(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
-	response.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("OK")); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, "OK"); err != nil {
 		handlers.logger.Errorf("error encoding health response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to get health status")
 		return
@@ -81,13 +80,11 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, userTokenDTO); err != nil {
 		handlers.logger.Errorf("error encoding userTokenDTO: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // Login godoc
@@ -132,13 +129,11 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, userTokenDTO); err != nil {
 		handlers.logger.Errorf("failed to encode userTokenDTO: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // Logout godoc
@@ -159,11 +154,9 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("successfully logged out")); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, "successfully logged out"); err != nil {
 		handlers.logger.Errorf("error encoding logout response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
