@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
