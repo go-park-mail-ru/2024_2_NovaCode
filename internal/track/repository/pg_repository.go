@@ -23,7 +23,6 @@ func (r *TrackRepository) Create(ctx context.Context, track *models.Track) (*mod
 		ctx,
 		createTrackQuery,
 		track.Name,
-		track.Genre,
 		track.Duration,
 		track.FilePath,
 		track.Image,
@@ -35,7 +34,6 @@ func (r *TrackRepository) Create(ctx context.Context, track *models.Track) (*mod
 	if err := row.Scan(
 		&createdTrack.ID,
 		&createdTrack.Name,
-		&createdTrack.Genre,
 		&createdTrack.Duration,
 		&createdTrack.FilePath,
 		&createdTrack.Image,
@@ -57,7 +55,6 @@ func (r *TrackRepository) FindById(ctx context.Context, trackID uint64) (*models
 	if err := row.Scan(
 		&track.ID,
 		&track.Name,
-		&track.Genre,
 		&track.Duration,
 		&track.FilePath,
 		&track.Image,
@@ -86,7 +83,6 @@ func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*model
 		err := rows.Scan(
 			&track.ID,
 			&track.Name,
-			&track.Genre,
 			&track.Duration,
 			&track.FilePath,
 			&track.Image,
@@ -120,7 +116,6 @@ func (r *TrackRepository) GetAll(ctx context.Context) ([]*models.Track, error) {
 		err := rows.Scan(
 			&track.ID,
 			&track.Name,
-			&track.Genre,
 			&track.Duration,
 			&track.FilePath,
 			&track.Image,

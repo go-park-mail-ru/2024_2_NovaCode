@@ -21,7 +21,6 @@ func TestTrackRepositoryCreate(t *testing.T) {
 	mockTrack := &models.Track{
 		ID:          1,
 		Name:        "ok im cool",
-		Genre:       "Rap",
 		Duration:    167,
 		FilePath:    "/songs/track_1.mp4",
 		Image:       "/imgs/tracks/track_1.jpg",
@@ -30,11 +29,10 @@ func TestTrackRepositoryCreate(t *testing.T) {
 		ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
 	}
 
-	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockTrack.ID,
 		mockTrack.Name,
-		mockTrack.Genre,
 		mockTrack.Duration,
 		mockTrack.FilePath,
 		mockTrack.Image,
@@ -47,7 +45,6 @@ func TestTrackRepositoryCreate(t *testing.T) {
 
 	mock.ExpectQuery(createTrackQuery).WithArgs(
 		mockTrack.Name,
-		mockTrack.Genre,
 		mockTrack.Duration,
 		mockTrack.FilePath,
 		mockTrack.Image,
@@ -72,7 +69,6 @@ func TestTrackRepositoryFindById(t *testing.T) {
 	mockTrack := &models.Track{
 		ID:          1,
 		Name:        "ok im cool",
-		Genre:       "Rap",
 		Duration:    167,
 		FilePath:    "/songs/track_1.mp4",
 		Image:       "/imgs/tracks/track_1.jpg",
@@ -81,11 +77,10 @@ func TestTrackRepositoryFindById(t *testing.T) {
 		ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
 	}
 
-	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockTrack.ID,
 		mockTrack.Name,
-		mockTrack.Genre,
 		mockTrack.Duration,
 		mockTrack.FilePath,
 		mockTrack.Image,
@@ -115,7 +110,6 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 		{
 			ID:          1,
 			Name:        "test song 1",
-			Genre:       "test",
 			Duration:    123,
 			FilePath:    "/songs/track_1.mp4",
 			Image:       "/imgs/tracks/track_1.jpg",
@@ -128,7 +122,6 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 		{
 			ID:          2,
 			Name:        "another song",
-			Genre:       "test",
 			Duration:    93,
 			FilePath:    "/songs/track_2.mp4",
 			Image:       "/imgs/tracks/track_2.jpg",
@@ -141,7 +134,6 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 		{
 			ID:          3,
 			Name:        "song test",
-			Genre:       "test",
 			Duration:    99,
 			FilePath:    "/songs/track_3.mp4",
 			Image:       "/imgs/tracks/track_3.jpg",
@@ -153,13 +145,12 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 		},
 	}
 
-	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
 			track.ID,
 			track.Name,
-			track.Genre,
 			track.Duration,
 			track.FilePath,
 			track.Image,
@@ -192,7 +183,6 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 		{
 			ID:          1,
 			Name:        "test song 1",
-			Genre:       "test",
 			Duration:    123,
 			FilePath:    "/songs/track_1.mp4",
 			Image:       "/imgs/tracks/track_1.jpg",
@@ -205,7 +195,6 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 		{
 			ID:          2,
 			Name:        "another song",
-			Genre:       "test",
 			Duration:    93,
 			FilePath:    "/songs/track_2.mp4",
 			Image:       "/imgs/tracks/track_2.jpg",
@@ -218,7 +207,6 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 		{
 			ID:          3,
 			Name:        "song test",
-			Genre:       "test",
 			Duration:    99,
 			FilePath:    "/songs/track_3.mp4",
 			Image:       "/imgs/tracks/track_3.jpg",
@@ -230,13 +218,12 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 		},
 	}
 
-	columns := []string{"id", "name", "genre", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
 			track.ID,
 			track.Name,
-			track.Genre,
 			track.Duration,
 			track.FilePath,
 			track.Image,

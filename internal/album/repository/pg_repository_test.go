@@ -21,18 +21,16 @@ func TestAlbumRepositoryCreate(t *testing.T) {
 	mockAlbum := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
-		Genre:       "Rock",
 		TrackCount:  12,
 		ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 		Image:       "/imgs/albums/album_1.jpg",
 		ArtistID:    1,
 	}
 
-	columns := []string{"id", "name", "genre", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
+	columns := []string{"id", "name", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockAlbum.ID,
 		mockAlbum.Name,
-		mockAlbum.Genre,
 		mockAlbum.TrackCount,
 		mockAlbum.ReleaseDate,
 		mockAlbum.Image,
@@ -43,7 +41,6 @@ func TestAlbumRepositoryCreate(t *testing.T) {
 
 	mock.ExpectQuery(createAlbumQuery).WithArgs(
 		mockAlbum.Name,
-		mockAlbum.Genre,
 		mockAlbum.TrackCount,
 		mockAlbum.ReleaseDate,
 		mockAlbum.Image,
@@ -66,18 +63,16 @@ func TestAlbumRepositoryFindById(t *testing.T) {
 	mockAlbum := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
-		Genre:       "Rock",
 		TrackCount:  12,
 		ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 		Image:       "/imgs/albums/album_1.jpg",
 		ArtistID:    1,
 	}
 
-	columns := []string{"id", "name", "genre", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
+	columns := []string{"id", "name", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockAlbum.ID,
 		mockAlbum.Name,
-		mockAlbum.Genre,
 		mockAlbum.TrackCount,
 		mockAlbum.ReleaseDate,
 		mockAlbum.Image,
@@ -105,7 +100,6 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 		{
 			ID:          1,
 			Name:        "Album for test 1",
-			Genre:       "Rock",
 			TrackCount:  12,
 			ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_1.jpg",
@@ -116,7 +110,6 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 		{
 			ID:          2,
 			Name:        "Album for test 2",
-			Genre:       "Rock",
 			TrackCount:  9,
 			ReleaseDate: time.Date(2021, 02, 3, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_2.jpg",
@@ -127,7 +120,6 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 		{
 			ID:          3,
 			Name:        "Another album",
-			Genre:       "Rock",
 			TrackCount:  4,
 			ReleaseDate: time.Date(2019, 01, 5, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_3.jpg",
@@ -137,13 +129,12 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 		},
 	}
 
-	columns := []string{"id", "name", "genre", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
+	columns := []string{"id", "name", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, album := range albums {
 		rows.AddRow(
 			album.ID,
 			album.Name,
-			album.Genre,
 			album.TrackCount,
 			album.ReleaseDate,
 			album.Image,
@@ -174,7 +165,6 @@ func TestAlbumRepositoryGetAll(t *testing.T) {
 		{
 			ID:          1,
 			Name:        "Album for test 1",
-			Genre:       "Rock",
 			TrackCount:  12,
 			ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_1.jpg",
@@ -185,7 +175,6 @@ func TestAlbumRepositoryGetAll(t *testing.T) {
 		{
 			ID:          2,
 			Name:        "Album for test 2",
-			Genre:       "Rock",
 			TrackCount:  9,
 			ReleaseDate: time.Date(2021, 02, 3, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_2.jpg",
@@ -196,7 +185,6 @@ func TestAlbumRepositoryGetAll(t *testing.T) {
 		{
 			ID:          3,
 			Name:        "Another album",
-			Genre:       "Rock",
 			TrackCount:  4,
 			ReleaseDate: time.Date(2019, 01, 5, 0, 0, 0, 0, time.UTC),
 			Image:       "/imgs/albums/album_3.jpg",
@@ -206,13 +194,12 @@ func TestAlbumRepositoryGetAll(t *testing.T) {
 		},
 	}
 
-	columns := []string{"id", "name", "genre", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
+	columns := []string{"id", "name", "track_count", "release", "image", "artist_id", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, album := range albums {
 		rows.AddRow(
 			album.ID,
 			album.Name,
-			album.Genre,
 			album.TrackCount,
 			album.ReleaseDate,
 			album.Image,

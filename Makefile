@@ -195,7 +195,7 @@ clean-all: clean clean-test
 ## Example: `postgres-state`.
 %-state:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) status
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) status
 
 .PHONY: %-migration
 ## Create migrations with specifed name and type (`sql` - default, `go`).
@@ -206,7 +206,7 @@ clean-all: clean clean-test
 ## `postgres-migration name=create_table type=go`.
 %-migration:
 	$(eval type := $(or $(type), sql))
-	@goose -dir $(MIGRATIONS_PATH) $* -s create $(name) $(type)
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) create $(name) $(type)
 
 .PHONY: %-migrate
 ## Apply all available migrations to the database.
@@ -216,7 +216,7 @@ clean-all: clean clean-test
 ## Example: `postgres-migrate`.
 %-migrate:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) up
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) up
 
 .PHONY: %-migrate-to
 ## Migrate up to a specific version.
@@ -226,7 +226,7 @@ clean-all: clean clean-test
 ## Example: `postgres-migrate-to version=20170506082420`.
 %-migrate-to:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) up-to $(version)
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) up-to $(version)
 
 .PHONY: %-rollback
 ## Roll back a single migration from the current version.
@@ -236,7 +236,7 @@ clean-all: clean clean-test
 ## Example: `postgres-rollback`.
 %-rollback:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) down	
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) down	
 
 .PHONY: %-rollback-to
 ## Roll back migrations to a specific version.
@@ -246,7 +246,7 @@ clean-all: clean clean-test
 ## Example: `postgres-rollback-to version=20170506082527`.
 %-rollback-to:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) down-to $(version)
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) down-to $(version)
 
 .PHONY: %-reset
 ## Roll back all migrations.
@@ -256,4 +256,4 @@ clean-all: clean clean-test
 ## Example: `postgres-reset`.
 %-reset:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
-	@goose -dir $(MIGRATIONS_PATH) $* $($(DB)_CONNECTION) reset
+	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) reset

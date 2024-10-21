@@ -29,15 +29,15 @@ func TestTrackHandlers_SearchTrack(t *testing.T) {
 	t.Run("Successful search", func(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
-				Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist1", Album: "album1",
 			},
 			{
-				Name: "track", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist2", Album: "album2",
 			},
 			{
-				Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist3", Album: "album3",
 			},
 		}
@@ -96,7 +96,7 @@ func TestTrackHandlers_ViewTrack(t *testing.T) {
 
 	t.Run("Successful view", func(t *testing.T) {
 		track := dto.TrackDTO{
-			Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+			Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 			Artist: "artist1", Album: "album1",
 		}
 
@@ -162,15 +162,15 @@ func TestTrackHandlers_GetAllTracks(t *testing.T) {
 	t.Run("Successful got all tracks", func(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
-				Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist1", Album: "album1",
 			},
 			{
-				Name: "track", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist2", Album: "album2",
 			},
 			{
-				Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 				Artist: "artist3", Album: "album3",
 			},
 		}
