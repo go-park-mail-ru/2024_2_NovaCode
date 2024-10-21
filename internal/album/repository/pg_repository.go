@@ -23,7 +23,6 @@ func (r *AlbumRepository) Create(ctx context.Context, album *models.Album) (*mod
 		ctx,
 		createAlbumQuery,
 		album.Name,
-		album.Genre,
 		album.TrackCount,
 		album.ReleaseDate,
 		album.Image,
@@ -33,7 +32,6 @@ func (r *AlbumRepository) Create(ctx context.Context, album *models.Album) (*mod
 	if err := row.Scan(
 		&createdAlbum.ID,
 		&createdAlbum.Name,
-		&createdAlbum.Genre,
 		&createdAlbum.TrackCount,
 		&createdAlbum.ReleaseDate,
 		&createdAlbum.Image,
@@ -53,7 +51,6 @@ func (r *AlbumRepository) FindById(ctx context.Context, albumID uint64) (*models
 	if err := row.Scan(
 		&albums.ID,
 		&albums.Name,
-		&albums.Genre,
 		&albums.TrackCount,
 		&albums.ReleaseDate,
 		&albums.Image,
@@ -80,7 +77,6 @@ func (r *AlbumRepository) FindByName(ctx context.Context, name string) ([]*model
 		err := rows.Scan(
 			&album.ID,
 			&album.Name,
-			&album.Genre,
 			&album.TrackCount,
 			&album.ReleaseDate,
 			&album.Image,
@@ -112,7 +108,6 @@ func (r *AlbumRepository) GetAll(ctx context.Context) ([]*models.Album, error) {
 		err := rows.Scan(
 			&album.ID,
 			&album.Name,
-			&album.Genre,
 			&album.TrackCount,
 			&album.ReleaseDate,
 			&album.Image,

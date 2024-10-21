@@ -21,7 +21,7 @@ func TestInsert_Regular(t *testing.T) {
 
 	postgresRepo := NewUserPostgresRepository(db)
 
-	columns := []string{"user_id", "username", "email", "password", "role", "created_at", "updated_at"}
+	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -91,7 +91,7 @@ func TestFindByID_Regular(t *testing.T) {
 
 	postgresRepo := NewUserPostgresRepository(db)
 
-	columns := []string{"user_id", "username", "email", "password", "role", "created_at", "updated_at"}
+	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -165,7 +165,7 @@ func TestFindByUsername_Regular(t *testing.T) {
 
 	postgresRepo := NewUserPostgresRepository(db)
 
-	columns := []string{"user_id", "username", "email", "password", "role", "created_at", "updated_at"}
+	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -239,7 +239,7 @@ func TestFindByEmail_Regular(t *testing.T) {
 
 	postgresRepo := NewUserPostgresRepository(db)
 
-	columns := []string{"user_id", "username", "email", "password", "role", "created_at", "updated_at"}
+	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
