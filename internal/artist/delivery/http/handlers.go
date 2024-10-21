@@ -49,7 +49,7 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := utils.WriteResponse(response, http.StatusOK, albums); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, foundArtists); err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
