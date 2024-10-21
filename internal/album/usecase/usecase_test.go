@@ -121,7 +121,7 @@ func TestUsecase_Search_FoundAlbums(t *testing.T) {
 
 	albums := []*models.Album{
 		{
-			ID: uint64(1), Name: "test", ID: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ID: uint64(1), Name: "test", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
 			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
 		},
 		{
