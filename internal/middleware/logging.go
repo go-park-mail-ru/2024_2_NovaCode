@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -30,8 +31,8 @@ func LoggingMiddleware(cfg *config.ServiceConfig, logger logger.Logger, next htt
 				wrapped.WriteHeader(http.StatusInternalServerError)
 				logger.Error(
 					"error occurred while executing handler",
-					slog.Any("err", err),
-					slog.String("trace", string(debug.Stack())),
+					zap.Any("err", err),
+					zap.String("trace", string(debug.Stack())),
 				)
 			}
 		}()
@@ -42,10 +43,10 @@ func LoggingMiddleware(cfg *config.ServiceConfig, logger logger.Logger, next htt
 
 		logger.Info(
 			"request completed",
-			slog.Int("status", wrapped.status),
-			slog.String("method", request.Method),
-			slog.String("path", request.URL.EscapedPath()),
-			slog.Int64("duration_ms", duration.Milliseconds()),
+			zap.Int("status", wrapped.status),
+			zap.String("method", request.Method),
+			zap.String("path", request.URL.EscapedPath()),
+			zap.Int64("duration_ms", duration.Milliseconds()),
 		)
 	})
 }
