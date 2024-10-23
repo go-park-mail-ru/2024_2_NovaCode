@@ -8,7 +8,6 @@ type GenreDTO struct {
 	ID      uint64 `json:"id"`
 	Name    string `json:"name"`
 	RusName string `json:"rusName"`
-
 }
 
 func NewGenreDTO(genre *models.Genre) *GenreDTO {

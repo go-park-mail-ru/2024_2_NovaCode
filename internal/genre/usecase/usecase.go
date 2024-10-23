@@ -12,7 +12,7 @@ import (
 
 type genreUsecase struct {
 	genreRepo genre.Repo
-	logger     logger.Logger
+	logger    logger.Logger
 }
 
 func NewGenreUsecase(genreRepo genre.Repo, logger logger.Logger) genre.Usecase {
