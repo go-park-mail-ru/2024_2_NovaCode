@@ -5,9 +5,9 @@ import (
 )
 
 type Genre struct {
-	ID      uint64
-	Name    string
-	RusName string
+	ID        uint64
+	Name      string
+	RusName   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
