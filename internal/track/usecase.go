@@ -10,4 +10,5 @@ type Usecase interface {
 	View(ctx context.Context, trackID uint64) (*dto.TrackDTO, error)
 	Search(ctx context.Context, name string) ([]*dto.TrackDTO, error)
 	GetAll(ctx context.Context) ([]*dto.TrackDTO, error)
+	GetAllByArtistID(ctx context.Context, artistID int) ([]*dto.TrackDTO, error)
 }

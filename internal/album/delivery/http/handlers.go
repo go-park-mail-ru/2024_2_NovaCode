@@ -122,3 +122,42 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 
 	response.WriteHeader(http.StatusOK)
 }
+
+// GetAllByArtistID godoc
+// @Summary Get all albums by artist ID
+// @Description Retrieves a list of all albums for a given artist ID from the database.
+// @Param artistID path int true "Artist ID"
+// @Success 200 {array} dto.AlbumDTO "List of albums by artist"
+// @Failure 404 {object} utils.ErrorResponse "No albums found for the artist"
+// @Failure 500 {object} utils.ErrorResponse "Failed to load albums"
+// @Router /api/v1/albums/artist/{artistID} [get]
+func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	artistIDStr := vars["artistId"]
+	artistID, err := strconv.Atoi(artistIDStr)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err))
+		utils.JSONError(response, http.StatusBadRequest, "Invalid artist ID")
+		return
+	}
+
+	albums, err := handlers.usecase.GetAllByArtistID(request.Context(), artistID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to load albums by artist ID: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, "Albums load fail")
+		return
+	} else if len(albums) == 0 {
+		handlers.logger.Error(fmt.Sprintf("No albums found for artist ID: %d", artistID))
+		utils.JSONError(response, http.StatusNotFound, "No albums found for the artist")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(albums); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
