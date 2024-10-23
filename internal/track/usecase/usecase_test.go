@@ -40,7 +40,6 @@ func TestUsecase_View_FoundTrack(t *testing.T) {
 	track := &models.Track{
 		ID:          1,
 		Name:        "ok im cool",
-		Genre:       "Rap",
 		Duration:    167,
 		FilePath:    "/songs/track_1.mp4",
 		Image:       "/imgs/tracks/track_1.jpg",
@@ -60,7 +59,6 @@ func TestUsecase_View_FoundTrack(t *testing.T) {
 	album := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
-		Genre:       "Rock",
 		TrackCount:  12,
 		ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 		Image:       "/imgs/albums/album_1.jpg",
@@ -134,15 +132,15 @@ func TestUsecase_Search_FoundTracks(t *testing.T) {
 	now := time.Now()
 	tracks := []*models.Track{
 		{
-			ID: uint64(1), Name: "test", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+			ID: uint64(1), Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
 			ArtistID: uint64(1), AlbumID: uint64(1), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "none", Genre: "2", Duration: uint64(2), FilePath: "2", Image: "2",
+			ID: uint64(2), Name: "none", Duration: uint64(2), FilePath: "2", Image: "2",
 			ArtistID: uint64(2), AlbumID: uint64(2), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "test", Genre: "3", Duration: uint64(3), FilePath: "3", Image: "3",
+			ID: uint64(3), Name: "test", Duration: uint64(3), FilePath: "3", Image: "3",
 			ArtistID: uint64(3), AlbumID: uint64(3), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 	}
@@ -155,15 +153,15 @@ func TestUsecase_Search_FoundTracks(t *testing.T) {
 
 	albums := []*models.Album{
 		{
-			ID: uint64(1), Name: "album1", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ID: uint64(1), Name: "album1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
 			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "album2", Genre: "2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
+			ID: uint64(2), Name: "album2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
 			ArtistID: uint64(2), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "album3", Genre: "3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
+			ID: uint64(3), Name: "album3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
 			ArtistID: uint64(3), CreatedAt: now, UpdatedAt: now,
 		},
 	}
@@ -237,15 +235,15 @@ func TestUsecase_GetAll_FoundTracks(t *testing.T) {
 	now := time.Now()
 	tracks := []*models.Track{
 		{
-			ID: uint64(1), Name: "test1", Genre: "1", Duration: uint64(1), FilePath: "1", Image: "1",
+			ID: uint64(1), Name: "test1", Duration: uint64(1), FilePath: "1", Image: "1",
 			ArtistID: uint64(1), AlbumID: uint64(1), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "test2", Genre: "2", Duration: uint64(2), FilePath: "2", Image: "2",
+			ID: uint64(2), Name: "test2", Duration: uint64(2), FilePath: "2", Image: "2",
 			ArtistID: uint64(2), AlbumID: uint64(2), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "test3", Genre: "3", Duration: uint64(3), FilePath: "3", Image: "3",
+			ID: uint64(3), Name: "test3", Duration: uint64(3), FilePath: "3", Image: "3",
 			ArtistID: uint64(3), AlbumID: uint64(3), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
 		},
 	}
@@ -258,15 +256,15 @@ func TestUsecase_GetAll_FoundTracks(t *testing.T) {
 
 	albums := []*models.Album{
 		{
-			ID: uint64(1), Name: "album1", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ID: uint64(1), Name: "album1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
 			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "album2", Genre: "2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
+			ID: uint64(2), Name: "album2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
 			ArtistID: uint64(2), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "album3", Genre: "3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
+			ID: uint64(3), Name: "album3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
 			ArtistID: uint64(3), CreatedAt: now, UpdatedAt: now,
 		},
 	}

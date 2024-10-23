@@ -491,9 +491,6 @@ const docTemplate = `{
                 "artistId": {
                     "type": "string"
                 },
-                "genre": {
-                    "type": "string"
-                },
                 "image": {
                     "type": "string"
                 },
@@ -538,9 +535,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "filepath": {
-                    "type": "string"
-                },
-                "genre": {
                     "type": "string"
                 },
                 "image": {

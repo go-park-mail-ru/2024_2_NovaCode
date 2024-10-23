@@ -5,6 +5,7 @@ import (
 )
 
 type ArtistDTO struct {
+	ID      uint64 `json:"id"`
 	Name    string `json:"name"`
 	Bio     string `json:"bio"`
 	Country string `json:"country"`
@@ -13,6 +14,7 @@ type ArtistDTO struct {
 
 func NewArtistDTO(artist *models.Artist) *ArtistDTO {
 	return &ArtistDTO{
+		artist.ID,
 		artist.Name,
 		artist.Bio,
 		artist.Country,

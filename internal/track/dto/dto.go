@@ -8,7 +8,6 @@ import (
 
 type TrackDTO struct {
 	Name        string    `json:"name"`
-	Genre       string    `json:"genre"`
 	Duration    uint64    `json:"duration"`
 	FilePath    string    `json:"filepath"`
 	Image       string    `json:"image"`
@@ -20,7 +19,6 @@ type TrackDTO struct {
 func NewTrackDTO(track *models.Track, artist *models.Artist, album *models.Album) *TrackDTO {
 	return &TrackDTO{
 		track.Name,
-		track.Genre,
 		track.Duration,
 		track.FilePath,
 		track.Image,
