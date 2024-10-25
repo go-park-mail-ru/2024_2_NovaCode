@@ -2,11 +2,10 @@
 -- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE role_type AS ENUM ('regular', 'admin');
-
 CREATE TABLE IF NOT EXISTS "user" (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  role role_type NOT NULL DEFAULT 'regular',
+  role TEXT NOT NULL DEFAULT 'regular',
+    CONSTRAINT role_type_enum CHECK (role IN ('regular', 'admin')),
   username TEXT NOT NULL UNIQUE,
     CONSTRAINT username_length CHECK (char_length(username) <= 31),
   email TEXT NOT NULL UNIQUE,
@@ -14,6 +13,14 @@ CREATE TABLE IF NOT EXISTS "user" (
   password TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT current_timestamp
+);
+
+CREATE TABLE IF NOT EXISTS "genre" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name TEXT NOT NULL UNIQUE,
+    CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
+  rus_name TEXT NOT NULL UNIQUE,
+    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31)
 );
 
 CREATE TABLE IF NOT EXISTS "artist" (
@@ -30,21 +37,13 @@ CREATE TABLE IF NOT EXISTS "artist" (
   updated_at TIMESTAMPTZ DEFAULT current_timestamp
 );
 
-CREATE TABLE IF NOT EXISTS "genre" (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name TEXT NOT NULL UNIQUE,
-    CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
-  rus_name TEXT NOT NULL UNIQUE,
-    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31)
-);
-
 CREATE TABLE IF NOT EXISTS "album" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name TEXT NOT NULL UNIQUE
+  name TEXT NOT NULL UNIQUE,
     CONSTRAINT album_name_length CHECK (char_length(name) <= 31),
   track_count INT DEFAULT 0,
   release_date TIMESTAMPTZ DEFAULT NOW(),
-  image TEXT
+  image TEXT,
     CONSTRAINT album_image_length CHECK (char_length(image) <= 255),
   artist_id INT REFERENCES artist (id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -105,9 +104,6 @@ CREATE TABLE IF NOT EXISTS "genre_track" (
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
   UNIQUE (genre_id, track_id)
 );
-
-
-
 -- +goose StatementEnd
 
 -- +goose Down
@@ -122,5 +118,4 @@ DROP TABLE IF EXISTS "album";
 DROP TABLE IF EXISTS "genre";
 DROP TABLE IF EXISTS "artist";
 DROP TABLE IF EXISTS "user";
-DROP TYPE IF EXISTS role_type;
 -- +goose StatementEnd
