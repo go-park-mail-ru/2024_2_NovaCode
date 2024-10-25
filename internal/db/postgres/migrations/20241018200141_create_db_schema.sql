@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS "user" (
 CREATE TABLE IF NOT EXISTS "profile" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE UNIQUE,
-  avatar_filename TEXT,
-    CONSTRAINT profile_avatar_filename_length CHECK (char_length(avatar_filename) <= 255),
+  image TEXT,
+    CONSTRAINT profile_image_length CHECK (char_length(image) <= 255),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT current_timestamp 
 );
