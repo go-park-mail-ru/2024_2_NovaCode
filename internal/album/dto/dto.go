@@ -8,7 +8,6 @@ import (
 
 type AlbumDTO struct {
 	Name        string    `json:"name"`
-	Genre       string    `json:"genre"`
 	TrackCount  uint64    `json:"trackCount"`
 	ReleaseDate time.Time `json:"release"`
 	Image       string    `json:"image"`
@@ -18,7 +17,6 @@ type AlbumDTO struct {
 func NewAlbumDTO(album *models.Album, artist *models.Artist) *AlbumDTO {
 	return &AlbumDTO{
 		album.Name,
-		album.Genre,
 		album.TrackCount,
 		album.ReleaseDate,
 		album.Image,

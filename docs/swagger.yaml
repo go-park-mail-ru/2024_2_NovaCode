@@ -3,8 +3,6 @@ definitions:
     properties:
       artistId:
         type: string
-      genre:
-        type: string
       image:
         type: string
       name:
@@ -34,8 +32,6 @@ definitions:
       duration:
         type: integer
       filepath:
-        type: string
-      genre:
         type: string
       image:
         type: string

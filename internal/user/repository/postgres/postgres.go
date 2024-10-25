@@ -14,18 +14,18 @@ const (
 	insertUserQuery = `
 		INSERT INTO "user" (username, email, password, role)
 		VALUES ($1, $2, $3, $4)
-		RETURNING user_id, username, email, password, role, created_at, updated_at
+		RETURNING id, username, email, password, role, created_at, updated_at
 	`
 	findByIDQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
-		FROM "user" WHERE user_id = $1
+		SELECT id, username, email, role, password, created_at, updated_at
+		FROM "user" WHERE id = $1
 	`
 	findByUsernameQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, created_at, updated_at
 		FROM "user" WHERE username = $1
 	`
 	findByEmailQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, created_at, updated_at
 		FROM "user" WHERE email = $1
 	`
 )

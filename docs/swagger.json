@@ -480,9 +480,6 @@
                 "artistId": {
                     "type": "string"
                 },
-                "genre": {
-                    "type": "string"
-                },
                 "image": {
                     "type": "string"
                 },
@@ -527,9 +524,6 @@
                     "type": "integer"
                 },
                 "filepath": {
-                    "type": "string"
-                },
-                "genre": {
                     "type": "string"
                 },
                 "image": {
