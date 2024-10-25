@@ -15,6 +15,29 @@ CREATE TABLE IF NOT EXISTS "user" (
   updated_at TIMESTAMPTZ DEFAULT current_timestamp
 );
 
+CREATE TABLE IF NOT EXISTS "profile" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE UNIQUE,
+  avatar_filename TEXT,
+    CONSTRAINT profile_avatar_filename_length CHECK (char_length(avatar_filename) <= 255),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT current_timestamp 
+);
+
+CREATE OR REPLACE FUNCTION create_profile()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profile (user_id)
+  VALUES (NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_user_insert
+AFTER INSERT ON "user"
+FOR EACH ROW
+EXECUTE FUNCTION create_profile();
+
 CREATE TABLE IF NOT EXISTS "genre" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE,
@@ -117,5 +140,9 @@ DROP TABLE IF EXISTS "playlist";
 DROP TABLE IF EXISTS "album";
 DROP TABLE IF EXISTS "genre";
 DROP TABLE IF EXISTS "artist";
+DROP TABLE IF EXISTS "profile";
 DROP TABLE IF EXISTS "user";
+
+DROP TRIGGER IF EXISTS after_user_insert ON "user";
+DROP FUNCTION IF EXISTS create_profile();
 -- +goose StatementEnd
