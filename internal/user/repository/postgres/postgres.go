@@ -14,18 +14,18 @@ const (
 	insertUserQuery = `
 		INSERT INTO "user" (username, email, password, role)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, username, email, password, role, created_at, updated_at
+		RETURNING id, username, email, password, role, image, created_at, updated_at
 	`
 	findByIDQuery = `
-		SELECT id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, image, created_at, updated_at
 		FROM "user" WHERE id = $1
 	`
 	findByUsernameQuery = `
-		SELECT id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, image, created_at, updated_at
 		FROM "user" WHERE username = $1
 	`
 	findByEmailQuery = `
-		SELECT id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, image, created_at, updated_at
 		FROM "user" WHERE email = $1
 	`
 )
@@ -54,6 +54,7 @@ func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*m
 		&insertedUser.Email,
 		&insertedUser.Password,
 		&insertedUser.Role,
+		&insertedUser.Image,
 		&insertedUser.CreatedAt,
 		&insertedUser.UpdatedAt,
 	); err != nil {
@@ -72,6 +73,7 @@ func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*mo
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
@@ -90,6 +92,7 @@ func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username strin
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
@@ -108,6 +111,7 @@ func (repo *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*m
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {

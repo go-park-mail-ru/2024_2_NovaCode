@@ -5,12 +5,14 @@ import "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 type UserDTO struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	Image    string `json:"image"`
 }
 
 func NewUserDTO(user *models.User) *UserDTO {
 	return &UserDTO{
 		user.Username,
 		user.Email,
+		user.Image,
 	}
 }
 
