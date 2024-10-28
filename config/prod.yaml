@@ -38,3 +38,10 @@ postgres:
   connMaxLifetime: 120
   maxIdleConns: 30
   connMaxIdleTime: 20
+
+minio:
+  externalURL: http://185.241.194.24:9000
+  innerURL: minio:9000
+  user: user
+  password: password
+  sslMode: false
