@@ -144,7 +144,7 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 		return nil, fmt.Errorf("failed to save user image")
 	}
 
-	imageURL := usecase.generateS3URL(file.Bucket, uploadInfo.Key)
+	imageURL := usecase.generateImageURL(file.Bucket, uploadInfo.Key)
 
 	updatedUserDTO, err := usecase.Update(ctx, &models.User{
 		UserID: user.UserID,
@@ -158,7 +158,7 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 	return updatedUserDTO, nil
 }
 
-func (usecase *userUsecase) generateS3URL(bucket string, key string) string {
+func (usecase *userUsecase) generateImageURL(bucket string, key string) string {
 	return fmt.Sprintf("/%s/%s", bucket, key)
 }
 
