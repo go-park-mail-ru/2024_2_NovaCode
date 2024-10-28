@@ -35,7 +35,9 @@ CREATE TABLE IF NOT EXISTS "genre" (
   name TEXT NOT NULL UNIQUE,
     CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
   rus_name TEXT NOT NULL UNIQUE,
-    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31)
+    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT current_timestamp
 );
 
 CREATE TABLE IF NOT EXISTS "album" (

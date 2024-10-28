@@ -207,3 +207,80 @@ func TestTrackHandlers_GetAllTracks(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 }
+
+func TestTrackHandlers_GetAllByArtistIDTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	trackHandlers := NewTrackHandlers(usecaseMock, logger)
+
+	t.Run("Successful got all tracks by artist ID", func(t *testing.T) {
+		tracks := []*dto.TrackDTO{
+			{
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist1", Album: "album1",
+			},
+			{
+				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist1", Album: "album2",
+			},
+			{
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist1", Album: "album3",
+			},
+		}
+		usecaseMock.EXPECT().GetAllByArtistID(gomock.Any(), uint64(1)).Return(tracks, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byArtistId/{artistId}", trackHandlers.GetAllByArtistID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byArtistId/1", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		defer res.Body.Close()
+		var foundTracks []*dto.TrackDTO
+		err = json.NewDecoder(res.Body).Decode(&foundTracks)
+		assert.NoError(t, err)
+
+		assert.Equal(t, tracks, foundTracks)
+	})
+
+	t.Run("Can't find tracks by artist ID", func(t *testing.T) {
+		usecaseMock.EXPECT().GetAllByArtistID(gomock.Any(), uint64(1)).Return([]*dto.TrackDTO{}, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byArtistId/{artistId}", trackHandlers.GetAllByArtistID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byArtistId/1", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	})
+
+	t.Run("Invalid artist ID", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byArtistId/{artistId}", trackHandlers.GetAllByArtistID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byArtistId/abc", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+}

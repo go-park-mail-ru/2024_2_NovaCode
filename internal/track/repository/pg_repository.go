@@ -133,3 +133,34 @@ func (r *TrackRepository) GetAll(ctx context.Context) ([]*models.Track, error) {
 
 	return tracks, nil
 }
+
+func (r *TrackRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}

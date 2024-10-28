@@ -19,6 +19,10 @@ import (
 	albumHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/album/delivery/http"
 	albumRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/album/repository"
 	albumUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/album/usecase"
+
+	genreHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/delivery/http"
+	genreRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/repository"
+	genreUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/usecase"
 )
 
 func (s *Server) BindRoutes() {
@@ -26,6 +30,7 @@ func (s *Server) BindRoutes() {
 	s.BindTrack()
 	s.BindArtist()
 	s.BindAlbum()
+	s.BindGenre()
 }
 
 func (s *Server) BindTrack() {
@@ -38,6 +43,7 @@ func (s *Server) BindTrack() {
 	s.mux.HandleFunc("/api/v1/tracks/search", trackHandleres.SearchTrack).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks/{id:[0-9]+}", trackHandleres.ViewTrack).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks", trackHandleres.GetAll).Methods("GET")
+	s.mux.HandleFunc("/api/v1/tracks/byArtistId/{artistId:[0-9]+}", trackHandleres.GetAllByArtistID).Methods("GET")
 }
 
 func (s *Server) BindArtist() {
@@ -59,6 +65,7 @@ func (s *Server) BindAlbum() {
 	s.mux.HandleFunc("/api/v1/albums/search", albumHandleres.SearchAlbum).Methods("GET")
 	s.mux.HandleFunc("/api/v1/albums/{id:[0-9]+}", albumHandleres.ViewAlbum).Methods("GET")
 	s.mux.HandleFunc("/api/v1/albums", albumHandleres.GetAll).Methods("GET")
+	s.mux.HandleFunc("/api/v1/albums/byArtistId/{artistId:[0-9]+}", albumHandleres.GetAllByArtistID).Methods("GET")
 }
 
 func (s *Server) BindUser() {
@@ -76,4 +83,15 @@ func (s *Server) BindUser() {
 		"/api/v1/auth/health",
 		middleware.AuthMiddleware(&s.cfg.Auth, s.logger, http.HandlerFunc(userHandleres.Health)),
 	).Methods("GET")
+}
+
+func (s *Server) BindGenre() {
+	genreRepo := genreRepo.NewGenrePGRepository(s.db)
+	genreUsecase := genreUsecase.NewGenreUsecase(genreRepo, s.logger)
+	genreHandleres := genreHandlers.NewGenreHandlers(genreUsecase, s.logger)
+
+	s.mux.HandleFunc("/api/v1/genres", genreHandleres.GetAll).Methods("GET")
+	s.mux.HandleFunc("/api/v1/genres/byArtistId/{artistId:[0-9]+}", genreHandleres.GetAllByArtistID).Methods("GET")
+	s.mux.HandleFunc("/api/v1/genres/byAlbumId/{albumId:[0-9]+}", genreHandleres.GetAllByAlbumID).Methods("GET")
+	s.mux.HandleFunc("/api/v1/genres/byTrackId/{trackId:[0-9]+}", genreHandleres.GetAllByTrackID).Methods("GET")
 }
