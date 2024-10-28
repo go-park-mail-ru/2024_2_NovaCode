@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 )
 
@@ -15,6 +16,12 @@ const (
 		INSERT INTO "user" (username, email, password, role)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, username, email, password, role, image, created_at, updated_at
+	`
+	updateUserQuery = `
+		UPDATE "user"
+		SET username = $1, email = $2, image = $3
+		WHERE id = $4
+		RETURNING id, username, email, image, created_at, updated_at
 	`
 	findByIDQuery = `
 		SELECT id, username, email, role, password, image, created_at, updated_at
@@ -31,11 +38,12 @@ const (
 )
 
 type UserPostgresRepo struct {
-	db *sql.DB
+	db     *sql.DB
+	logger logger.Logger
 }
 
-func NewUserPostgresRepository(db *sql.DB) user.Repo {
-	return &UserPostgresRepo{db}
+func NewUserPostgresRepository(db *sql.DB, logger logger.Logger) user.PostgresRepo {
+	return &UserPostgresRepo{db, logger}
 }
 
 func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*models.User, error) {
@@ -62,6 +70,30 @@ func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*m
 	}
 
 	return &insertedUser, nil
+}
+
+func (repo *UserPostgresRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
+	var updatedUser models.User
+
+	if err := repo.db.QueryRowContext(
+		ctx,
+		updateUserQuery,
+		user.Username,
+		user.Email,
+		user.Image,
+		user.UserID,
+	).Scan(
+		&updatedUser.UserID,
+		&updatedUser.Username,
+		&updatedUser.Email,
+		&updatedUser.Image,
+		&updatedUser.CreatedAt,
+		&updatedUser.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return &updatedUser, nil
 }
 
 func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*models.User, error) {
