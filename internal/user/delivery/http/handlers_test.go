@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -12,10 +13,36 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/mock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestUserHandlers_Health(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mock.NewMockUsecase(ctrl)
+	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
+
+	request := httptest.NewRequest(http.MethodGet, "/health", nil)
+	response := httptest.NewRecorder()
+
+	userHandlers.Health(response, request)
+
+	result := response.Result()
+
+	assert.Equal(t, http.StatusOK, result.StatusCode)
+
+	expectedBody := `{"message": "OK"}`
+	assert.JSONEq(t, expectedBody, response.Body.String())
+}
 
 func TestUserHandlers_Register(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -255,5 +282,247 @@ func TestUserHandlers_Logout(t *testing.T) {
 		err := json.NewDecoder(response.Body).Decode(&responseMsg)
 		assert.NoError(t, err)
 		assert.Equal(t, "successfully logged out", responseMsg["message"])
+	})
+}
+
+func TestUserHandlers_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
+				},
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mock.NewMockUsecase(ctrl)
+	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
+
+	userID := uuid.New()
+	ctx := context.WithValue(context.Background(), contextKey("userID"), userID)
+
+	t.Run("successful update", func(t *testing.T) {
+		user := models.User{
+			UserID:   userID,
+			Email:    "updated@example.com",
+			Password: "newpassword",
+		}
+
+		userDTO := &dto.UserDTO{
+			ID:       user.UserID,
+			Username: user.Username,
+		}
+
+		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(userDTO, nil)
+
+		body, _ := json.Marshal(user)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body)).WithContext(ctx)
+		response := httptest.NewRecorder()
+
+		userHandlers.Update(response, request)
+
+		assert.Equal(t, http.StatusOK, response.Result().StatusCode)
+
+		var responseMsg dto.UserDTO
+		err := json.NewDecoder(response.Body).Decode(&responseMsg)
+		assert.NoError(t, err)
+		assert.Equal(t, userDTO, &responseMsg)
+	})
+
+	t.Run("invalid request body", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBufferString("invalid json")).WithContext(ctx)
+		response := httptest.NewRecorder()
+
+		userHandlers.Update(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+
+	t.Run("usecase update error", func(t *testing.T) {
+		user := models.User{
+			UserID:   userID,
+			Username: "updated_user",
+			Email:    "updated@example.com",
+			Password: "newpassword",
+		}
+
+		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))
+
+		body, _ := json.Marshal(user)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body)).WithContext(ctx)
+		response := httptest.NewRecorder()
+
+		userHandlers.Update(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Result().StatusCode)
+	})
+}
+
+func TestUserHandlers_GetUserByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
+				},
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mock.NewMockUsecase(ctrl)
+	userHandlers := NewUserHandlers(nil, usecaseMock, logger)
+
+	t.Run("successful get user by ID", func(t *testing.T) {
+		userID := uuid.New()
+		userDTO := &dto.UserDTO{
+			ID:       userID,
+			Username: "test_user",
+			Email:    "test@example.com",
+		}
+		publicUserDTO := dto.NewPublicUserDTO(userDTO)
+
+		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(userDTO, nil)
+
+		request := httptest.NewRequest(http.MethodGet, "/users/"+userID.String(), nil)
+		request = mux.SetURLVars(request, map[string]string{"user_id": userID.String()})
+		response := httptest.NewRecorder()
+
+		userHandlers.GetUserByID(response, request)
+
+		result := response.Result()
+		assert.Equal(t, http.StatusOK, result.StatusCode)
+		assert.Equal(t, "application/json", result.Header.Get("Content-Type"))
+
+		var responseDTO dto.PublicUserDTO
+		err := json.NewDecoder(response.Body).Decode(&responseDTO)
+		assert.NoError(t, err)
+		assert.Equal(t, *publicUserDTO, responseDTO)
+	})
+
+	t.Run("missing user ID", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodGet, "/users/", nil)
+		response := httptest.NewRecorder()
+
+		userHandlers.GetUserByID(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+
+	t.Run("invalid user ID format", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodGet, "/users/invalid-uuid", nil)
+		request = mux.SetURLVars(request, map[string]string{"user_id": "invalid-uuid"})
+		response := httptest.NewRecorder()
+
+		userHandlers.GetUserByID(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+
+	t.Run("user ID not found", func(t *testing.T) {
+		userID := uuid.New()
+		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(nil, errors.New("user not found"))
+
+		request := httptest.NewRequest(http.MethodGet, "/users/"+userID.String(), nil)
+		request = mux.SetURLVars(request, map[string]string{"user_id": userID.String()})
+		response := httptest.NewRecorder()
+
+		userHandlers.GetUserByID(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+}
+
+func TestUserHandlers_GetMe(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Auth: config.AuthConfig{
+				Jwt: config.JwtConfig{
+					Cookie: config.JwtCookieConfig{
+						Name:     "access_token",
+						MaxAge:   3600,
+						Secure:   true,
+						HttpOnly: true,
+					},
+				},
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mock.NewMockUsecase(ctrl)
+	userHandlers := NewUserHandlers(nil, usecaseMock, logger)
+
+	t.Run("successful get me", func(t *testing.T) {
+		userID := uuid.New()
+		userDTO := &dto.UserDTO{
+			ID:       userID,
+			Username: "test_user",
+			Email:    "test@example.com",
+		}
+
+		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(userDTO, nil)
+
+		request := httptest.NewRequest(http.MethodGet, "/me", nil)
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+
+		response := httptest.NewRecorder()
+
+		userHandlers.GetMe(response, request)
+
+		result := response.Result()
+		assert.Equal(t, http.StatusOK, result.StatusCode)
+		assert.Equal(t, "application/json", result.Header.Get("Content-Type"))
+
+		var responseDTO dto.UserDTO
+		err := json.NewDecoder(response.Body).Decode(&responseDTO)
+		assert.NoError(t, err)
+		assert.Equal(t, *userDTO, responseDTO)
+	})
+
+	t.Run("user id not found in context", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodGet, "/me", nil)
+		response := httptest.NewRecorder()
+
+		userHandlers.GetMe(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+
+	t.Run("user id not found in database", func(t *testing.T) {
+		userID := uuid.New()
+
+		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(nil, errors.New("user not found"))
+
+		request := httptest.NewRequest(http.MethodGet, "/me", nil)
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+		response := httptest.NewRecorder()
+
+		userHandlers.GetMe(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
 	})
 }
