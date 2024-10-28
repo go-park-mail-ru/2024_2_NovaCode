@@ -17,14 +17,6 @@ CREATE TABLE IF NOT EXISTS "user" (
   updated_at TIMESTAMPTZ DEFAULT current_timestamp
 );
 
-CREATE TABLE IF NOT EXISTS "genre" (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name TEXT NOT NULL UNIQUE,
-    CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
-  rus_name TEXT NOT NULL UNIQUE,
-    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31)
-);
-
 CREATE TABLE IF NOT EXISTS "artist" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE,
@@ -35,6 +27,16 @@ CREATE TABLE IF NOT EXISTS "artist" (
     CONSTRAINT artist_country_length CHECK (char_length(country) <= 31),
   image TEXT,
     CONSTRAINT artist_image_length CHECK (char_length(image) <= 255),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+);
+
+CREATE TABLE IF NOT EXISTS "genre" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name TEXT NOT NULL UNIQUE,
+    CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
+  rus_name TEXT NOT NULL UNIQUE,
+    CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT current_timestamp
 );

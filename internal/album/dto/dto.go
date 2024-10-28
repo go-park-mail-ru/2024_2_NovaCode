@@ -11,7 +11,7 @@ type AlbumDTO struct {
 	TrackCount  uint64    `json:"trackCount"`
 	ReleaseDate time.Time `json:"release"`
 	Image       string    `json:"image"`
-	Artist      string    `json:"artistId"`
+	Artist      string    `json:"artistName"`
 }
 
 func NewAlbumDTO(album *models.Album, artist *models.Artist) *AlbumDTO {
