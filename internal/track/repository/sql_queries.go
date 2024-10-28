@@ -11,5 +11,5 @@ const (
 
 	findByNameQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE name = $1`
 
-	getAllByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
+	getByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
 )

@@ -40,11 +40,11 @@ func (usecase *genreUsecase) GetAll(ctx context.Context) ([]*dto.GenreDTO, error
 	return dtoGenres, nil
 }
 
-func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID int) ([]*dto.GenreDTO, error) {
+func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.GenreDTO, error) {
 	genres, err := usecase.genreRepo.GetAllByArtistID(ctx, artistID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load genres by artist ID %d: %v", artistID, err))
-		return nil, fmt.Errorf("Can't find genres for the artist")
+		return nil, fmt.Errorf("Can't load genres by artist ID %d", artistID)
 	}
 	usecase.logger.Infof("Genres found for artist ID %d", artistID)
 
@@ -61,11 +61,11 @@ func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID int)
 	return dtoGenres, nil
 }
 
-func (usecase *genreUsecase) GetAllByAlbumID(ctx context.Context, albumID int) ([]*dto.GenreDTO, error) {
+func (usecase *genreUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.GenreDTO, error) {
 	genres, err := usecase.genreRepo.GetAllByAlbumID(ctx, albumID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load genres by album ID %d: %v", albumID, err))
-		return nil, fmt.Errorf("Can't find genres for the album")
+		return nil, fmt.Errorf("Can't load genres by album ID %d", albumID)
 	}
 	usecase.logger.Infof("Genres found for album ID %d", albumID)
 
@@ -82,11 +82,11 @@ func (usecase *genreUsecase) GetAllByAlbumID(ctx context.Context, albumID int) (
 	return dtoGenres, nil
 }
 
-func (usecase *genreUsecase) GetAllByTrackID(ctx context.Context, trackID int) ([]*dto.GenreDTO, error) {
+func (usecase *genreUsecase) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*dto.GenreDTO, error) {
 	genres, err := usecase.genreRepo.GetAllByTrackID(ctx, trackID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load genres by track ID %d: %v", trackID, err))
-		return nil, fmt.Errorf("Can't find genres for the track")
+		return nil, fmt.Errorf("Can't load genres by track ID %d", trackID)
 	}
 	usecase.logger.Infof("Genres found for track ID %d", trackID)
 

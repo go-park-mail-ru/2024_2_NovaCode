@@ -134,7 +134,7 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	artistIDStr := vars["artistId"]
-	artistID, err := strconv.Atoi(artistIDStr)
+	artistID, err := strconv.ParseUint(artistIDStr, 10, 64)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err))
 		utils.JSONError(response, http.StatusBadRequest, "Invalid artist ID")

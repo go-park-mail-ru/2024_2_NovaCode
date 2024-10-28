@@ -80,13 +80,13 @@ func (usecase *albumUsecase) GetAll(ctx context.Context) ([]*dto.AlbumDTO, error
 	return dtoAlbums, nil
 }
 
-func (usecase *albumUsecase) GetAllByArtistID(ctx context.Context, artistID int) ([]*dto.AlbumDTO, error) {
+func (usecase *albumUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.AlbumDTO, error) {
 	albums, err := usecase.albumRepo.GetAllByArtistID(ctx, artistID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load albums by artist ID %d: %v", artistID, err))
-		return nil, fmt.Errorf("Can't find albums for the artist")
+		return nil, fmt.Errorf("Can't load albums by artist ID %d", artistID)
 	}
-	usecase.logger.Infof("Albums found for artist ID %d", artistID)
+	usecase.logger.Infof("Found %d albums for artist ID %d", len(albums), artistID)
 
 	var dtoAlbums []*dto.AlbumDTO
 	for _, album := range albums {

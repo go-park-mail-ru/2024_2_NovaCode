@@ -8,7 +8,7 @@ import (
 
 type Usecase interface {
 	GetAll(ctx context.Context) ([]*dto.GenreDTO, error)
-	GetAllByArtistID(ctx context.Context, artistID int) ([]*dto.GenreDTO, error)
-	GetAllByAlbumID(ctx context.Context, albumID int) ([]*dto.GenreDTO, error)
-	GetAllByTrackID(ctx context.Context, trackID int) ([]*dto.GenreDTO, error)
+	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.GenreDTO, error)
+	GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.GenreDTO, error)
+	GetAllByTrackID(ctx context.Context, trackID uint64) ([]*dto.GenreDTO, error)
 }

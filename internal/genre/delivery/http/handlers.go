@@ -61,7 +61,7 @@ func (handlers *genreHandlers) GetAll(response http.ResponseWriter, request *htt
 func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	artistIDStr := vars["artistId"]
-	artistID, err := strconv.Atoi(artistIDStr)
+	artistID, err := strconv.ParseUint(artistIDStr, 10, 64)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err))
 		utils.JSONError(response, http.StatusBadRequest, "Invalid artist ID")
@@ -100,7 +100,7 @@ func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, re
 func (handlers *genreHandlers) GetAllByAlbumID(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	albumIDStr := vars["albumId"]
-	albumID, err := strconv.Atoi(albumIDStr)
+	albumID, err := strconv.ParseUint(albumIDStr, 10, 64)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err))
 		utils.JSONError(response, http.StatusBadRequest, "Invalid album ID")
@@ -139,7 +139,7 @@ func (handlers *genreHandlers) GetAllByAlbumID(response http.ResponseWriter, req
 func (handlers *genreHandlers) GetAllByTrackID(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	trackIDStr := vars["trackId"]
-	trackID, err := strconv.Atoi(trackIDStr)
+	trackID, err := strconv.ParseUint(trackIDStr, 10, 64)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err))
 		utils.JSONError(response, http.StatusBadRequest, "Invalid track ID")

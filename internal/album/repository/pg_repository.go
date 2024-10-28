@@ -124,9 +124,9 @@ func (r *AlbumRepository) GetAll(ctx context.Context) ([]*models.Album, error) {
 	return albums, nil
 }
 
-func (r *AlbumRepository) GetAllByArtistID(ctx context.Context, artistID int) ([]*models.Album, error) {
+func (r *AlbumRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Album, error) {
 	var albums []*models.Album
-	rows, err := r.db.QueryContext(ctx, getAllByArtistIDQuery, artistID)
+	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
 	}

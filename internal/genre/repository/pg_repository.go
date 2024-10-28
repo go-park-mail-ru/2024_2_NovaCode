@@ -39,10 +39,25 @@ func (r *GenreRepository) Create(ctx context.Context, genre *models.Genre) (*mod
 	return createdGenre, nil
 }
 
-// GetAll retrieves all genres from the database.
+func (r *GenreRepository) FindById(ctx context.Context, genreID uint64) (*models.Genre, error) {
+	genre := &models.Genre{}
+	row := r.db.QueryRowContext(ctx, findByIDQuery, genreID)
+	if err := row.Scan(
+		&genre.ID,
+		&genre.Name,
+		&genre.RusName,
+		&genre.CreatedAt,
+		&genre.UpdatedAt,
+	); err != nil {
+		return nil, errors.Wrap(err, "FindById.Query")
+	}
+
+	return genre, nil
+}
+
 func (r *GenreRepository) GetAll(ctx context.Context) ([]*models.Genre, error) {
 	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getAllGenresQuery)
+	rows, err := r.db.QueryContext(ctx, getAllQuery)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAll.Query")
 	}
@@ -50,7 +65,13 @@ func (r *GenreRepository) GetAll(ctx context.Context) ([]*models.Genre, error) {
 
 	for rows.Next() {
 		genre := &models.Genre{}
-		err := rows.Scan(&genre.ID, &genre.Name, &genre.RusName)
+		err := rows.Scan(
+			&genre.ID,
+			&genre.Name,
+			&genre.RusName,
+			&genre.CreatedAt,
+			&genre.UpdatedAt,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAll.Scan")
 		}
@@ -60,10 +81,9 @@ func (r *GenreRepository) GetAll(ctx context.Context) ([]*models.Genre, error) {
 	return genres, nil
 }
 
-// GetAllByArtistID retrieves all genres associated with a specific artist ID.
-func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID int) ([]*models.Genre, error) {
+func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Genre, error) {
 	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getAllGenresByArtistIDQuery, artistID)
+	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
 	}
@@ -71,7 +91,13 @@ func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID int) ([
 
 	for rows.Next() {
 		genre := &models.Genre{}
-		err := rows.Scan(&genre.ID, &genre.Name, &genre.RusName)
+		err := rows.Scan(
+			&genre.ID,
+			&genre.Name,
+			&genre.RusName,
+			&genre.CreatedAt,
+			&genre.UpdatedAt,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAllByArtistID.Scan")
 		}
@@ -81,10 +107,9 @@ func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID int) ([
 	return genres, nil
 }
 
-// GetAllByAlbumID retrieves all genres associated with a specific album ID.
-func (r *GenreRepository) GetAllByAlbumID(ctx context.Context, albumID int) ([]*models.Genre, error) {
+func (r *GenreRepository) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Genre, error) {
 	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getAllGenresByAlbumIDQuery, albumID)
+	rows, err := r.db.QueryContext(ctx, getByAlbumIDQuery, albumID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAllByAlbumID.Query")
 	}
@@ -92,7 +117,13 @@ func (r *GenreRepository) GetAllByAlbumID(ctx context.Context, albumID int) ([]*
 
 	for rows.Next() {
 		genre := &models.Genre{}
-		err := rows.Scan(&genre.ID, &genre.Name, &genre.RusName)
+		err := rows.Scan(
+			&genre.ID,
+			&genre.Name,
+			&genre.RusName,
+			&genre.CreatedAt,
+			&genre.UpdatedAt,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAllByAlbumID.Scan")
 		}
@@ -102,10 +133,9 @@ func (r *GenreRepository) GetAllByAlbumID(ctx context.Context, albumID int) ([]*
 	return genres, nil
 }
 
-// GetAllByTrackID retrieves all genres associated with a specific track ID.
-func (r *GenreRepository) GetAllByTrackID(ctx context.Context, trackID int) ([]*models.Genre, error) {
+func (r *GenreRepository) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*models.Genre, error) {
 	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getAllGenresByTrackIDQuery, trackID)
+	rows, err := r.db.QueryContext(ctx, getByTrackIDQuery, trackID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAllByTrackID.Query")
 	}
@@ -113,7 +143,13 @@ func (r *GenreRepository) GetAllByTrackID(ctx context.Context, trackID int) ([]*
 
 	for rows.Next() {
 		genre := &models.Genre{}
-		err := rows.Scan(&genre.ID, &genre.Name, &genre.RusName)
+		err := rows.Scan(
+			&genre.ID,
+			&genre.Name,
+			&genre.RusName,
+			&genre.CreatedAt,
+			&genre.UpdatedAt,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAllByTrackID.Scan")
 		}

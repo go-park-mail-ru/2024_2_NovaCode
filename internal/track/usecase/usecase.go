@@ -82,7 +82,7 @@ func (usecase *trackUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error
 	return dtoTracks, nil
 }
 
-func (usecase *trackUsecase) GetAllByArtistID(ctx context.Context, artistID int) ([]*dto.TrackDTO, error) {
+func (usecase *trackUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.TrackDTO, error) {
 	tracks, err := usecase.trackRepo.GetAllByArtistID(ctx, artistID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load tracks by artist ID %d: %v", artistID, err))
