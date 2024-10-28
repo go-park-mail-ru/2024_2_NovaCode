@@ -41,8 +41,8 @@ VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM genre;
-DELETE FROM artist;
-DELETE FROM album;
-DELETE FROM track;
+TRUNCATE TABLE artist CASCADE;
+TRUNCATE TABLE album CASCADE;
+TRUNCATE TABLE track CASCADE;
+TRUNCATE TABLE genre CASCADE;
 -- +goose StatementEnd
