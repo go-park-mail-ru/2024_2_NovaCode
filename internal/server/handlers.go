@@ -110,7 +110,7 @@ func (s *Server) BindUser() {
 }
 
 func (s *Server) BindGenre() {
-	genreRepo := genreRepo.NewGenrePGRepository(s.db)
+	genreRepo := genreRepo.NewGenrePGRepository(s.pg)
 	genreUsecase := genreUsecase.NewGenreUsecase(genreRepo, s.logger)
 	genreHandleres := genreHandlers.NewGenreHandlers(genreUsecase, s.logger)
 
