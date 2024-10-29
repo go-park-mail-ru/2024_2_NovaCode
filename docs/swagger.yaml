@@ -414,33 +414,6 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Search tracks by name
-  /api/v1/users/{user_id}:
-    get:
-      description: Retrieves public profile details for the specified user ID.
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User details retrieved successfully
-          schema:
-            $ref: '#/definitions/dto.PublicUserDTO'
-        "400":
-          description: Invalid or missing user ID
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "404":
-          description: User not found
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Get user by ID
-      tags:
-      - User
   /api/v1/users/{user_id}/image:
     post:
       consumes:
@@ -530,6 +503,33 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Update user details
+      tags:
+      - User
+  /api/v1/users/{username}:
+    get:
+      description: Retrieves public profile details for the specified username.
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.PublicUserDTO'
+        "400":
+          description: Invalid or missing username
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get user by username
       tags:
       - User
   /api/v1/users/me:

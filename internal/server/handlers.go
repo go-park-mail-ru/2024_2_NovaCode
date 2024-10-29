@@ -79,7 +79,7 @@ func (s *Server) BindUser() {
 		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Logout)),
 	).Methods("POST")
 
-	s.mux.HandleFunc("/api/v1/users/{user_id:[0-9a-fA-F-]+}", userHandleres.GetUserByID).Methods("GET")
+	s.mux.HandleFunc("/api/v1/users/{username:[a-zA-Z0-9-_]+}", userHandleres.GetUserByUsername).Methods("GET")
 
 	s.mux.Handle(
 		"/api/v1/users/me",

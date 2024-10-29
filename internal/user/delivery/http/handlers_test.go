@@ -368,7 +368,7 @@ func TestUserHandlers_Update(t *testing.T) {
 	})
 }
 
-func TestUserHandlers_GetUserByID(t *testing.T) {
+func TestUserHandlers_GetUserByUsername(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -391,22 +391,21 @@ func TestUserHandlers_GetUserByID(t *testing.T) {
 	usecaseMock := mock.NewMockUsecase(ctrl)
 	userHandlers := NewUserHandlers(nil, usecaseMock, logger)
 
-	t.Run("successful get user by ID", func(t *testing.T) {
-		userID := uuid.New()
+	t.Run("successful get user by username", func(t *testing.T) {
+		username := "test_user"
 		userDTO := &dto.UserDTO{
-			ID:       userID,
-			Username: "test_user",
+			Username: username,
 			Email:    "test@example.com",
 		}
 		publicUserDTO := dto.NewPublicUserDTO(userDTO)
 
-		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(userDTO, nil)
+		usecaseMock.EXPECT().GetByUsername(gomock.Any(), username).Return(userDTO, nil)
 
-		request := httptest.NewRequest(http.MethodGet, "/users/"+userID.String(), nil)
-		request = mux.SetURLVars(request, map[string]string{"user_id": userID.String()})
+		request := httptest.NewRequest(http.MethodGet, "/users/"+username, nil)
+		request = mux.SetURLVars(request, map[string]string{"username": username})
 		response := httptest.NewRecorder()
 
-		userHandlers.GetUserByID(response, request)
+		userHandlers.GetUserByUsername(response, request)
 
 		result := response.Result()
 		assert.Equal(t, http.StatusOK, result.StatusCode)
@@ -418,36 +417,26 @@ func TestUserHandlers_GetUserByID(t *testing.T) {
 		assert.Equal(t, *publicUserDTO, responseDTO)
 	})
 
-	t.Run("missing user ID", func(t *testing.T) {
+	t.Run("missing username", func(t *testing.T) {
 		request := httptest.NewRequest(http.MethodGet, "/users/", nil)
 		response := httptest.NewRecorder()
 
-		userHandlers.GetUserByID(response, request)
+		userHandlers.GetUserByUsername(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
 	})
 
-	t.Run("invalid user ID format", func(t *testing.T) {
-		request := httptest.NewRequest(http.MethodGet, "/users/invalid-uuid", nil)
-		request = mux.SetURLVars(request, map[string]string{"user_id": "invalid-uuid"})
+	t.Run("user not found", func(t *testing.T) {
+		username := "nonexistent_user"
+		usecaseMock.EXPECT().GetByUsername(gomock.Any(), username).Return(nil, errors.New("user not found"))
+
+		request := httptest.NewRequest(http.MethodGet, "/users/"+username, nil)
+		request = mux.SetURLVars(request, map[string]string{"username": username})
 		response := httptest.NewRecorder()
 
-		userHandlers.GetUserByID(response, request)
+		userHandlers.GetUserByUsername(response, request)
 
-		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
-	})
-
-	t.Run("user ID not found", func(t *testing.T) {
-		userID := uuid.New()
-		usecaseMock.EXPECT().GetByID(gomock.Any(), userID).Return(nil, errors.New("user not found"))
-
-		request := httptest.NewRequest(http.MethodGet, "/users/"+userID.String(), nil)
-		request = mux.SetURLVars(request, map[string]string{"user_id": userID.String()})
-		response := httptest.NewRecorder()
-
-		userHandlers.GetUserByID(response, request)
-
-		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.Result().StatusCode)
 	})
 }
 

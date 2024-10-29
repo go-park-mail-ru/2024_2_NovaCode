@@ -513,47 +513,6 @@
                 }
             }
         },
-        "/api/v1/users/{user_id}": {
-            "get": {
-                "description": "Retrieves public profile details for the specified user ID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get user by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "User details retrieved successfully",
-                        "schema": {
-                            "$ref": "#/definitions/dto.PublicUserDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid or missing user ID",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/users/{user_id}/image": {
             "post": {
                 "description": "Upload a profile image for the user. The image file should be in a supported image format.",
@@ -681,6 +640,47 @@
                     },
                     "500": {
                         "description": "Failed to update user details",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{username}": {
+            "get": {
+                "description": "Retrieves public profile details for the specified username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PublicUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing username",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }

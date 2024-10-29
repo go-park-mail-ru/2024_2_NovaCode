@@ -9,6 +9,6 @@ type Handlers interface {
 	Logout(response http.ResponseWriter, request *http.Request)
 	Update(response http.ResponseWriter, request *http.Request)
 	UploadImage(response http.ResponseWriter, request *http.Request)
-	GetUserByID(response http.ResponseWriter, request *http.Request)
+	GetUserByUsername(response http.ResponseWriter, request *http.Request)
 	GetMe(response http.ResponseWriter, request *http.Request)
 }

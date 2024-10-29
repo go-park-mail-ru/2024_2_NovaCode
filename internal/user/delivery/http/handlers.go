@@ -297,33 +297,27 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 	response.WriteHeader(http.StatusOK)
 }
 
-// GetUserByID godoc
+// GetUserByUsername godoc
 // @Tags User
-// @Summary Get user by ID
-// @Description Retrieves public profile details for the specified user ID.
+// @Summary Get user by username
+// @Description Retrieves public profile details for the specified username.
 // @Produce json
-// @Param user_id path string true "User ID"
+// @Param username path string true "Username"
 // @Success 200 {object} dto.PublicUserDTO "User details retrieved successfully"
-// @Failure 400 {object} utils.ErrorResponse "Invalid or missing user ID"
+// @Failure 400 {object} utils.ErrorResponse "Invalid or missing username"
 // @Failure 404 {object} utils.ErrorResponse "User not found"
-// @Router /api/v1/users/{user_id} [get]
-func (handlers *userHandlers) GetUserByID(response http.ResponseWriter, request *http.Request) {
+// @Router /api/v1/users/{username} [get]
+func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	userIDString, ok := vars["user_id"]
+	username, ok := vars["username"]
 	if !ok {
-		utils.JSONError(response, http.StatusBadRequest, "user id is required")
+		utils.JSONError(response, http.StatusBadRequest, "username is required")
 		return
 	}
 
-	userID, err := uuid.Parse(userIDString)
+	userDTO, err := handlers.usecase.GetByUsername(request.Context(), username)
 	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, "invalid user id")
-		return
-	}
-
-	userDTO, err := handlers.usecase.GetByID(request.Context(), userID)
-	if err != nil {
-		utils.JSONError(response, http.StatusBadRequest, "user id not found")
+		utils.JSONError(response, http.StatusNotFound, "username not found")
 		return
 	}
 	publicUserDTO := dto.NewPublicUserDTO(userDTO)

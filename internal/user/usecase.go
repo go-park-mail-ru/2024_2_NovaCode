@@ -15,4 +15,5 @@ type Usecase interface {
 	Update(ctx context.Context, user *models.User) (*dto.UserDTO, error)
 	UploadImage(ctx context.Context, userID uuid.UUID, file s3.Upload) (*dto.UserDTO, error)
 	GetByID(ctx context.Context, userID uuid.UUID) (*dto.UserDTO, error)
+	GetByUsername(ctx context.Context, username string) (*dto.UserDTO, error)
 }

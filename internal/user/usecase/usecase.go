@@ -172,3 +172,14 @@ func (usecase *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*dto
 	userDTO := dto.NewUserDTO(user)
 	return userDTO, nil
 }
+
+func (usecase *userUsecase) GetByUsername(ctx context.Context, username string) (*dto.UserDTO, error) {
+	user, err := usecase.pgRepo.FindByUsername(ctx, username)
+	if err != nil {
+		usecase.logger.Warnf("failed to find user by name '%s': %v", username, err)
+		return nil, fmt.Errorf("failed to find user")
+	}
+
+	userDTO := dto.NewUserDTO(user)
+	return userDTO, nil
+}

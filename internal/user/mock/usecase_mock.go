@@ -59,6 +59,21 @@ func (mr *MockUsecaseMockRecorder) GetByID(ctx, userID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), ctx, userID)
 }
 
+// GetByUsername mocks base method.
+func (m *MockUsecase) GetByUsername(ctx context.Context, username string) (*dto.UserDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUsername", ctx, username)
+	ret0, _ := ret[0].(*dto.UserDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUsername indicates an expected call of GetByUsername.
+func (mr *MockUsecaseMockRecorder) GetByUsername(ctx, username any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsecase)(nil).GetByUsername), ctx, username)
+}
+
 // Login mocks base method.
 func (m *MockUsecase) Login(ctx context.Context, user *models.User) (*dto.UserTokenDTO, error) {
 	m.ctrl.T.Helper()
