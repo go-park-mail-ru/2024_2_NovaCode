@@ -37,6 +37,27 @@ VALUES
     ('Rallikansa', 123, 'test filepath', 'tracks/Rallikansa.jpeg', 3, 3),
     ('Kolmistaan', 123, 'test filepath', 'tracks/Kolmistaan.jpeg', 4, 4),
     ('Houdini', 123, 'test filepath', 'tracks/Houdini.jpeg', 5, 5);
+
+INSERT INTO genre_artist (genre_id, artist_id) VALUES
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'Mirella')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM artist WHERE name = 'KUUMAA')),
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'JVG')),
+  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM artist WHERE name = 'Eminem')),
+  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM artist WHERE name = 'Robin Packalen'));
+
+INSERT INTO genre_track (genre_id, track_id) VALUES
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Luotathan')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'Satama')),
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Rallikansa')),
+  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM track WHERE name = 'Kolmistaan')),
+  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM track WHERE name = 'Houdini'));
+
+INSERT INTO genre_album (genre_id, album_id) VALUES
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Luotathan')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'Pisara meressä')),
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Rallikansa')),
+  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM album WHERE name = 'Kolmistaan')),
+  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM album WHERE name = 'The Death of Slim Shady'));
 -- +goose StatementEnd
 
 -- +goose Down
@@ -45,4 +66,7 @@ TRUNCATE TABLE artist CASCADE;
 TRUNCATE TABLE album CASCADE;
 TRUNCATE TABLE track CASCADE;
 TRUNCATE TABLE genre CASCADE;
+TRUNCATE TABLE genre_artist CASCADE;
+TRUNCATE TABLE genre_track CASCADE;
+TRUNCATE TABLE genre_album CASCADE;
 -- +goose StatementEnd

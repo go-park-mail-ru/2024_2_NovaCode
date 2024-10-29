@@ -1,10 +1,10 @@
-package track
+package genre
 
 import "net/http"
 
 type Handlers interface {
-	SearchTrack(response http.ResponseWriter, request *http.Request)
-	ViewTrack(response http.ResponseWriter, request *http.Request)
 	GetAll(response http.ResponseWriter, request *http.Request)
 	GetAllByArtistID(response http.ResponseWriter, request *http.Request)
+	GetAllByAlbumID(response http.ResponseWriter, request *http.Request)
+	GetAllByTrackID(response http.ResponseWriter, request *http.Request)
 }

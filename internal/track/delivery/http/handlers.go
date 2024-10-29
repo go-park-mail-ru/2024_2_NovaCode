@@ -121,3 +121,41 @@ func (handlers *trackHandlers) GetAll(response http.ResponseWriter, request *htt
 
 	response.WriteHeader(http.StatusOK)
 }
+
+// GetAllByArtistID godoc
+// @Summary Get all tracks by artist ID
+// @Description Retrieves a list of all tracks for a given artist ID.
+// @Param artistId path int true "Artist ID"
+// @Success 200 {array} dto.TrackDTO "List of tracks by artist"
+// @Failure 404 {object} utils.ErrorResponse "No tracks found for the given artist ID"
+// @Failure 500 {object} utils.ErrorResponse "Failed to load tracks by artist ID"
+// @Router /api/v1/tracks/byArtistId/{artistId} [get]
+func (handlers *trackHandlers) GetAllByArtistID(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	artistIDStr := vars["artistId"]
+	artistID, err := strconv.ParseUint(artistIDStr, 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err))
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid artist ID: %v", err))
+		return
+	}
+
+	tracks, err := handlers.usecase.GetAllByArtistID(request.Context(), artistID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get tracks by artist ID: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get tracks by artist ID: %v", err))
+		return
+	} else if len(tracks) == 0 {
+		utils.JSONError(response, http.StatusNotFound, fmt.Sprintf("No tracks found for artist ID %d", artistID))
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err))
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
