@@ -14,8 +14,8 @@ import (
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
-	uuid "github.com/google/uuid"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockPostgresRepo is a mock of PostgresRepo interface.

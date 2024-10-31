@@ -34,7 +34,7 @@ func TestAlbumHandlers_SearchAlbums(t *testing.T) {
 				Name: "test", ReleaseDate: releaseDate, Image: "1", Artist: "1",
 			},
 			{
-				Name: "test",  ReleaseDate: releaseDate, Image: "2", Artist: "2",
+				Name: "test", ReleaseDate: releaseDate, Image: "2", Artist: "2",
 			},
 			{
 				Name: "album", ReleaseDate: releaseDate, Image: "3", Artist: "3",

@@ -19,8 +19,6 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
-type contextKey string
-
 type userHandlers struct {
 	cfg     *config.AuthConfig
 	usecase user.Usecase
