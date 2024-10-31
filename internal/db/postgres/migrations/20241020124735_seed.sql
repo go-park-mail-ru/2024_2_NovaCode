@@ -32,11 +32,11 @@ VALUES
 INSERT INTO track
     (name, duration, filepath, image, artist_id, album_id)
 VALUES
-    ('Luotathan', 123, 'test filepath', 'tracks/Luotathan.jpeg', 1, 1),
-    ('Satama', 123, 'test filepath', 'tracks/Satama.jpeg', 2, 2),
-    ('Rallikansa', 123, 'test filepath', 'tracks/Rallikansa.jpeg', 3, 3),
-    ('Kolmistaan', 123, 'test filepath', 'tracks/Kolmistaan.jpeg', 4, 4),
-    ('Houdini', 123, 'test filepath', 'tracks/Houdini.jpeg', 5, 5);
+    ('Luotathan', 123, 'tracks/test_track_1.mp3', 'tracks/Luotathan.jpeg', 1, 1),
+    ('Satama', 123, 'tracks/test_track_2.mp3', 'tracks/Satama.jpeg', 2, 2),
+    ('Rallikansa', 123, 'tracks/test_track_3.mp3', 'tracks/Rallikansa.jpeg', 3, 3),
+    ('Kolmistaan', 123, 'tracks/test_track_4.mp3', 'tracks/Kolmistaan.jpeg', 4, 4),
+    ('Houdini', 123, 'tracks/test_track_5.mp3', 'tracks/Houdini.jpeg', 5, 5);
 
 INSERT INTO genre_artist (genre_id, artist_id) VALUES
   ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'Mirella')),
