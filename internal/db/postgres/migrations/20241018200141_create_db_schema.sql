@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS "album" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE,
     CONSTRAINT album_name_length CHECK (char_length(name) <= 31),
-  track_count INT DEFAULT 0,
   release_date TIMESTAMPTZ DEFAULT NOW(),
   image TEXT,
     CONSTRAINT album_image_length CHECK (char_length(image) <= 255),
@@ -58,7 +57,6 @@ CREATE TABLE IF NOT EXISTS "playlist" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE
     CONSTRAINT playlist_name_length CHECK (char_length(name) <= 31),
-  track_count INT DEFAULT 0,
   image TEXT
     CONSTRAINT playlist_image_length CHECK (char_length(image) <= 255),
   owner_id UUID REFERENCES "user" (id) ON DELETE CASCADE,

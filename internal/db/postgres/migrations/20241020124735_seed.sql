@@ -21,13 +21,13 @@ VALUES
 
 
 INSERT INTO album
-    (name, track_count, image, artist_id)
+    (name, image, artist_id)
 VALUES
-    ('Luotathan', 1, 'albums/Luotathan.jpeg', 1),
-    ('Pisara meressä', 1, 'albums/Pisara_meressa.jpeg', 1),
-    ('Rallikansa', 1, 'albums/Rallikansa.jpeg', 1),
-    ('Kolmistaan', 1, 'albums/Kolmistaan.jpeg', 1),
-    ('The Death of Slim Shady', 1, 'albums/The_Death_of_Slim_Shady.jpeg', 1);
+    ('Luotathan', 'albums/Luotathan.jpeg', 1),
+    ('Pisara meressä', 'albums/Pisara_meressa.jpeg', 1),
+    ('Rallikansa', 'albums/Rallikansa.jpeg', 1),
+    ('Kolmistaan', 'albums/Kolmistaan.jpeg', 1),
+    ('The Death of Slim Shady', 'albums/The_Death_of_Slim_Shady.jpeg', 1);
 
 INSERT INTO track
     (name, duration, filepath, image, artist_id, album_id)

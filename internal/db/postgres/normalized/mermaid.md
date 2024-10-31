@@ -37,7 +37,6 @@ album ||--o{ genre_album : "belongs_to"
 album {
     int id PK
     text name
-    int track_count
     timestamptz release_date
     text image
     int artist_id FK
@@ -49,7 +48,6 @@ playlist ||--o{ playlist_track : "contains"
 playlist {
     int id PK
     text name
-    int track_count
     text image
     uuid owner_id FK
     timestamptz created_at

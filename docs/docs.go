@@ -44,6 +44,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/albums/artist/{artistID}": {
+            "get": {
+                "description": "Retrieves a list of all albums for a given artist ID from the database.",
+                "summary": "Get all albums by artist ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Artist ID",
+                        "name": "artistID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of albums by artist",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.AlbumDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No albums found for the artist",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load albums",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/albums/search": {
             "get": {
                 "description": "Searches for albums based on the provided \"name\" query parameter.",
@@ -364,6 +402,149 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/genres/album/{albumID}": {
+            "get": {
+                "description": "Retrieves a list of all genres for a given album ID from the database.",
+                "summary": "Get all genres by album ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Album ID",
+                        "name": "albumID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of genres by album",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GenreDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No genres found for the album",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load genres",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/genres/all": {
+            "get": {
+                "description": "Retrieves a list of all genres from the database.",
+                "summary": "Get all genres",
+                "responses": {
+                    "200": {
+                        "description": "List of all genres",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GenreDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No genres found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load genres",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/genres/artist/{artistID}": {
+            "get": {
+                "description": "Retrieves a list of all genres for a given artist ID from the database.",
+                "summary": "Get all genres by artist ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Artist ID",
+                        "name": "artistID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of genres by artist",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GenreDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No genres found for the artist",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load genres",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/genres/track/{trackID}": {
+            "get": {
+                "description": "Retrieves a list of all genres for a given track ID from the database.",
+                "summary": "Get all genres by track ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track ID",
+                        "name": "trackID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of genres by track",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GenreDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No genres found for the track",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load genres",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/health": {
             "get": {
                 "description": "Returns \"OK\" if the service is running",
@@ -400,6 +581,44 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to load tracks",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tracks/byArtistId/{artistId}": {
+            "get": {
+                "description": "Retrieves a list of all tracks for a given artist ID.",
+                "summary": "Get all tracks by artist ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Artist ID",
+                        "name": "artistId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of tracks by artist",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.TrackDTO"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No tracks found for the given artist ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to load tracks by artist ID",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -524,70 +743,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/{user_id}/image": {
-            "post": {
-                "description": "Upload a profile image for the user. The image file should be in a supported image format.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Upload profile imag",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Profile image file",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Image uploaded successfully",
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserDTO"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid file format or missing file",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "User not authenticated",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Not enough permissions to upload image",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to upload image",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/users/{user_id}/update": {
+        "/api/v1/users/{user_id}": {
             "put": {
                 "description": "Update user profile information such as username and email. Requires a valid user ID in the request context.",
                 "consumes": [
@@ -658,6 +814,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/users/{user_id}/image": {
+            "post": {
+                "description": "Upload a profile image for the user. The image file should be in a supported image format.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upload profile imag",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile image file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image uploaded successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file format or missing file",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions to upload image",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to upload image",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/{username}": {
             "get": {
                 "description": "Retrieves public profile details for the specified username.",
@@ -704,7 +923,7 @@ const docTemplate = `{
         "dto.AlbumDTO": {
             "type": "object",
             "properties": {
-                "artistId": {
+                "artistName": {
                     "type": "string"
                 },
                 "image": {
@@ -715,9 +934,6 @@ const docTemplate = `{
                 },
                 "release": {
                     "type": "string"
-                },
-                "trackCount": {
-                    "type": "integer"
                 }
             }
         },
@@ -730,10 +946,27 @@ const docTemplate = `{
                 "country": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "image": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GenreDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rusName": {
                     "type": "string"
                 }
             }

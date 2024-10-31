@@ -103,14 +103,14 @@
 
 **Функциональные зависимости от потенциальных ключей:**
 ```
-{id} -> name, track_count, release_date, image, artist_id, created_at, updated_at
-{name} -> id, track_count, release_date, image, artist_id, created_at, updated_at
-{artist_id} -> id, name, track_count, release_date, image, created_at, updated_at
+{id} -> name, release_date, image, artist_id, created_at, updated_at
+{name} -> id, elease_date, image, artist_id, created_at, updated_at
+{artist_id} -> id, name, release_date, image, created_at, updated_at
 ```
 
 **Соответствие нормальным формам:**
 * 1 НФ
-Атрибуты id, name, track_count, release_date, image, artist_id, created_at, updated_at являются атомарными.
+Атрибуты id, name, release_date, image, artist_id, created_at, updated_at являются атомарными.
 
 * 2 НФ
   Неключевые атрибуты функционально полно зависят от каждого из потенциальных ключей, т.к. нет составных потенциальных ключей.
@@ -128,14 +128,14 @@
 
 **Функциональные зависимости от потенциальных ключей:**
 ```
-{id} -> name, track_count, image, owner_id, created_at, updated_at
-{name} -> id, track_count, image, owner_id, created_at, updated_at
-{owner_id} -> id, name, track_count, image, created_at, updated_at
+{id} -> name, image, owner_id, created_at, updated_at
+{name} -> id, image, owner_id, created_at, updated_at
+{owner_id} -> id, name, image, created_at, updated_at
 ```
 
 **Соответствие нормальным формам:**
 * 1 НФ
-Атрибуты id, name, track_count, image, owner_id, created_at, updated_at являются атомарными.
+Атрибуты id, name, image, owner_id, created_at, updated_at являются атомарными.
 
 * 2 НФ
   Неключевые атрибуты функционально полно зависят от каждого из потенциальных ключей, т.к. нет составных потенциальных ключей.

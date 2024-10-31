@@ -1,7 +1,7 @@
 definitions:
   dto.AlbumDTO:
     properties:
-      artistId:
+      artistName:
         type: string
       image:
         type: string
@@ -9,8 +9,6 @@ definitions:
         type: string
       release:
         type: string
-      trackCount:
-        type: integer
     type: object
   dto.ArtistDTO:
     properties:
@@ -18,9 +16,20 @@ definitions:
         type: string
       country:
         type: string
+      id:
+        type: integer
       image:
         type: string
       name:
+        type: string
+    type: object
+  dto.GenreDTO:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      rusName:
         type: string
     type: object
   dto.PublicUserDTO:
@@ -145,6 +154,31 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Get all albums
+  /api/v1/albums/artist/{artistID}:
+    get:
+      description: Retrieves a list of all albums for a given artist ID from the database.
+      parameters:
+      - description: Artist ID
+        in: path
+        name: artistID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: List of albums by artist
+          schema:
+            items:
+              $ref: '#/definitions/dto.AlbumDTO'
+            type: array
+        "404":
+          description: No albums found for the artist
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load albums
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all albums by artist ID
   /api/v1/albums/search:
     get:
       description: Searches for albums based on the provided "name" query parameter.
@@ -330,6 +364,100 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /api/v1/genres/album/{albumID}:
+    get:
+      description: Retrieves a list of all genres for a given album ID from the database.
+      parameters:
+      - description: Album ID
+        in: path
+        name: albumID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: List of genres by album
+          schema:
+            items:
+              $ref: '#/definitions/dto.GenreDTO'
+            type: array
+        "404":
+          description: No genres found for the album
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load genres
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all genres by album ID
+  /api/v1/genres/all:
+    get:
+      description: Retrieves a list of all genres from the database.
+      responses:
+        "200":
+          description: List of all genres
+          schema:
+            items:
+              $ref: '#/definitions/dto.GenreDTO'
+            type: array
+        "404":
+          description: No genres found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load genres
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all genres
+  /api/v1/genres/artist/{artistID}:
+    get:
+      description: Retrieves a list of all genres for a given artist ID from the database.
+      parameters:
+      - description: Artist ID
+        in: path
+        name: artistID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: List of genres by artist
+          schema:
+            items:
+              $ref: '#/definitions/dto.GenreDTO'
+            type: array
+        "404":
+          description: No genres found for the artist
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load genres
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all genres by artist ID
+  /api/v1/genres/track/{trackID}:
+    get:
+      description: Retrieves a list of all genres for a given track ID from the database.
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: List of genres by track
+          schema:
+            items:
+              $ref: '#/definitions/dto.GenreDTO'
+            type: array
+        "404":
+          description: No genres found for the track
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load genres
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all genres by track ID
   /api/v1/health:
     get:
       description: Returns "OK" if the service is running
@@ -385,6 +513,31 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Get all tracks
+  /api/v1/tracks/byArtistId/{artistId}:
+    get:
+      description: Retrieves a list of all tracks for a given artist ID.
+      parameters:
+      - description: Artist ID
+        in: path
+        name: artistId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: List of tracks by artist
+          schema:
+            items:
+              $ref: '#/definitions/dto.TrackDTO'
+            type: array
+        "404":
+          description: No tracks found for the given artist ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to load tracks by artist ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all tracks by artist ID
   /api/v1/tracks/search:
     get:
       description: Searches for tracks based on the provided "name" query parameter.
@@ -414,50 +567,7 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Search tracks by name
-  /api/v1/users/{user_id}/image:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Upload a profile image for the user. The image file should be in
-        a supported image format.
-      parameters:
-      - description: Profile image file
-        in: formData
-        name: file
-        required: true
-        type: file
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Image uploaded successfully
-          schema:
-            $ref: '#/definitions/dto.UserDTO'
-        "400":
-          description: Invalid file format or missing file
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "401":
-          description: User not authenticated
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "403":
-          description: Not enough permissions to upload image
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Failed to upload image
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Upload profile imag
-      tags:
-      - User
-  /api/v1/users/{user_id}/update:
+  /api/v1/users/{user_id}:
     put:
       consumes:
       - application/json
@@ -503,6 +613,49 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Update user details
+      tags:
+      - User
+  /api/v1/users/{user_id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a profile image for the user. The image file should be in
+        a supported image format.
+      parameters:
+      - description: Profile image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image uploaded successfully
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "400":
+          description: Invalid file format or missing file
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Not enough permissions to upload image
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to upload image
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Upload profile imag
       tags:
       - User
   /api/v1/users/{username}:
