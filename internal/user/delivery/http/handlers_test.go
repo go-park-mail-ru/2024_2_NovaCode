@@ -309,7 +309,6 @@ func TestUserHandlers_Update(t *testing.T) {
 	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
 
 	userID := uuid.New()
-	ctx := context.WithValue(context.Background(), contextKey("userID"), userID)
 
 	t.Run("successful update", func(t *testing.T) {
 		user := models.User{
@@ -326,7 +325,10 @@ func TestUserHandlers_Update(t *testing.T) {
 		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(userDTO, nil)
 
 		body, _ := json.Marshal(user)
-		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body)).WithContext(ctx)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+
 		response := httptest.NewRecorder()
 
 		userHandlers.Update(response, request)
@@ -340,7 +342,9 @@ func TestUserHandlers_Update(t *testing.T) {
 	})
 
 	t.Run("invalid request body", func(t *testing.T) {
-		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBufferString("invalid json")).WithContext(ctx)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBufferString("invalid json"))
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
 		response := httptest.NewRecorder()
 
 		userHandlers.Update(response, request)
@@ -359,7 +363,10 @@ func TestUserHandlers_Update(t *testing.T) {
 		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))
 
 		body, _ := json.Marshal(user)
-		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body)).WithContext(ctx)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+
 		response := httptest.NewRecorder()
 
 		userHandlers.Update(response, request)

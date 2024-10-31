@@ -82,6 +82,7 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	}
 
 	accessTokenCookie := http.Cookie{
+		Path:     "/",
 		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    userTokenDTO.Token,
 		MaxAge:   handlers.cfg.Jwt.Cookie.MaxAge,
@@ -134,6 +135,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	}
 
 	accessTokenCookie := http.Cookie{
+		Path:     "/",
 		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    userTokenDTO.Token,
 		MaxAge:   handlers.cfg.Jwt.Cookie.MaxAge,
@@ -162,6 +164,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 // @Router /api/v1/auth/logout [post]
 func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http.Request) {
 	accessTokenCookie := http.Cookie{
+		Path:     "/",
 		Name:     handlers.cfg.Jwt.Cookie.Name,
 		Value:    "",
 		MaxAge:   -1,
@@ -195,14 +198,14 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 // @Failure 403 {object} utils.ErrorResponse "Not enough permissions to update user details"
 // @Failure 404 {object} utils.ErrorResponse "User ID not found in context"
 // @Failure 500 {object} utils.ErrorResponse "Failed to update user details"
-// @Router /api/v1/users/{user_id}/update [put]
+// @Router /api/v1/users/{user_id} [put]
 func (handlers *userHandlers) Update(response http.ResponseWriter, request *http.Request) {
 	var user models.User
 
-	userID, ok := request.Context().Value(contextKey("userID")).(uuid.UUID)
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
 		handlers.logger.Errorf("user id not found in context")
-		utils.JSONError(response, http.StatusNotFound, "user id not found")
+		utils.JSONError(response, http.StatusBadRequest, "user id not found")
 		return
 	}
 	user.UserID = userID
