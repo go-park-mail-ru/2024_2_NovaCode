@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Service  ServiceConfig  `yaml:"service"`
 	Postgres PostgresConfig `yaml:"postgres"`
+	Minio    MinioConfig    `yaml:"minio"`
 }
 
 type ServiceConfig struct {
@@ -69,6 +70,13 @@ type PostgresConfig struct {
 	ConnMaxIdleTime     int    `yaml:"connMaxIdleTime"`
 }
 
+type MinioConfig struct {
+	InnerURL string `yaml:"innerURL"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	SSLMode  bool   `yaml:"sslMode"`
+}
+
 func New() (*Config, error) {
 	viper, err := newViper()
 	if err != nil {
@@ -87,10 +95,8 @@ func newViper() (*viper.Viper, error) {
 	v := viper.New()
 
 	v.AddConfigPath(os.Getenv("CONFIG_PATH"))
-	v.SetConfigName(os.Getenv("CONFIG_NAME"))
-	v.SetConfigType(os.Getenv("CONFIG_TYPE"))
-
-	fmt.Println(os.Getenv("CONFIG_PATH"), os.Getenv("CONFIG_NAME"), os.Getenv("CONFIG_TYPE"))
+	v.SetConfigName(os.Getenv("ENV"))
+	v.SetConfigType("yaml")
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

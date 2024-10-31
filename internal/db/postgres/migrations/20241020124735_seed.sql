@@ -62,11 +62,11 @@ INSERT INTO genre_album (genre_id, album_id) VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM genre;
-DELETE FROM artist;
-DELETE FROM album;
-DELETE FROM track;
-DELETE FROM genre_artist;
-DELETE FROM genre_track;
-DELETE FROM genre_album;
+TRUNCATE TABLE artist CASCADE;
+TRUNCATE TABLE album CASCADE;
+TRUNCATE TABLE track CASCADE;
+TRUNCATE TABLE genre CASCADE;
+TRUNCATE TABLE genre_artist CASCADE;
+TRUNCATE TABLE genre_track CASCADE;
+TRUNCATE TABLE genre_album CASCADE;
 -- +goose StatementEnd

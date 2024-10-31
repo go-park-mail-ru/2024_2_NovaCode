@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -19,9 +21,19 @@ func TestInsert_Regular(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
 
-	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	columns := []string{"id", "username", "email", "password", "role", "image", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -30,6 +42,7 @@ func TestInsert_Regular(t *testing.T) {
 		Email:    "test@email.com",
 		Password: "password",
 		Role:     "regular",
+		Image:    "avatar.jpeg",
 	}
 
 	rows := sqlmock.NewRows(columns).AddRow(
@@ -38,6 +51,7 @@ func TestInsert_Regular(t *testing.T) {
 		userMock.Email,
 		userMock.Password,
 		userMock.Role,
+		userMock.Image,
 		time.Now(),
 		time.Now(),
 	)
@@ -61,13 +75,24 @@ func TestInsert_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	userMock := &models.User{
 		Username: "test_user",
 		Email:    "test@email.com",
 		Password: "password",
 		Role:     "regular",
+		Image:    "avatar.jpeg",
 	}
 
 	mock.ExpectQuery(insertUserQuery).WithArgs(
@@ -75,6 +100,7 @@ func TestInsert_Error(t *testing.T) {
 		userMock.Email,
 		userMock.Password,
 		userMock.Role,
+		userMock.Image,
 	).WillReturnError(fmt.Errorf("some error"))
 
 	_, err = postgresRepo.Insert(context.Background(), userMock)
@@ -89,9 +115,19 @@ func TestFindByID_Regular(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
 
-	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	columns := []string{"id", "username", "email", "password", "role", "image", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -100,6 +136,7 @@ func TestFindByID_Regular(t *testing.T) {
 		Email:    "test@email.com",
 		Password: "password",
 		Role:     "admin",
+		Image:    "avatar.jpeg",
 	}
 
 	rows := sqlmock.NewRows(columns).AddRow(
@@ -108,6 +145,7 @@ func TestFindByID_Regular(t *testing.T) {
 		userMock.Email,
 		userMock.Password,
 		userMock.Role,
+		userMock.Image,
 		time.Now(),
 		time.Now(),
 	)
@@ -127,7 +165,17 @@ func TestFindByID_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	userUUID := uuid.New()
 
@@ -145,7 +193,17 @@ func TestFindByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	userUUID := uuid.New()
 
@@ -163,9 +221,19 @@ func TestFindByUsername_Regular(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
 
-	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	columns := []string{"id", "username", "email", "password", "role", "image", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -173,7 +241,8 @@ func TestFindByUsername_Regular(t *testing.T) {
 		Username: "test_user",
 		Email:    "test@email.com",
 		Password: "password",
-		Role:     "regular",
+		Role:     "admin",
+		Image:    "avatar.jpeg",
 	}
 
 	rows := sqlmock.NewRows(columns).AddRow(
@@ -182,6 +251,7 @@ func TestFindByUsername_Regular(t *testing.T) {
 		userMock.Email,
 		userMock.Password,
 		userMock.Role,
+		userMock.Image,
 		time.Now(),
 		time.Now(),
 	)
@@ -201,7 +271,17 @@ func TestFindByUsername_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	username := "test_user"
 
@@ -219,7 +299,17 @@ func TestFindByUsername_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	username := "test_user"
 
@@ -237,9 +327,19 @@ func TestFindByEmail_Regular(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
 
-	columns := []string{"id", "username", "email", "password", "role", "created_at", "updated_at"}
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	columns := []string{"id", "username", "email", "password", "role", "image", "created_at", "updated_at"}
 
 	userUUID := uuid.New()
 	userMock := &models.User{
@@ -248,6 +348,7 @@ func TestFindByEmail_Regular(t *testing.T) {
 		Email:    "test@email.com",
 		Password: "password",
 		Role:     "admin",
+		Image:    "avatar.jpeg",
 	}
 
 	rows := sqlmock.NewRows(columns).AddRow(
@@ -256,6 +357,7 @@ func TestFindByEmail_Regular(t *testing.T) {
 		userMock.Email,
 		userMock.Password,
 		userMock.Role,
+		userMock.Image,
 		time.Now(),
 		time.Now(),
 	)
@@ -275,7 +377,17 @@ func TestFindByEmail_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	email := "test@email.com"
 
@@ -293,7 +405,17 @@ func TestFindByEmail_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	postgresRepo := NewUserPostgresRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
 
 	email := "test@email.com"
 
@@ -302,4 +424,96 @@ func TestFindByEmail_NotFound(t *testing.T) {
 	_, err = postgresRepo.FindByEmail(context.Background(), email)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to find user by email")
+}
+
+func TestUpdate_Regular(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	columns := []string{"id", "username", "email", "image", "created_at", "updated_at"}
+
+	userUUID := uuid.New()
+	userMock := &models.User{
+		UserID:   userUUID,
+		Username: "updated_user",
+		Email:    "updated@email.com",
+		Image:    "new_avatar.jpeg",
+	}
+
+	rows := sqlmock.NewRows(columns).AddRow(
+		userUUID,
+		userMock.Username,
+		userMock.Email,
+		userMock.Image,
+		time.Now(),
+		time.Now(),
+	)
+
+	mock.ExpectQuery(updateUserQuery).WithArgs(
+		userMock.Username,
+		userMock.Email,
+		userMock.Image,
+		userMock.UserID,
+	).WillReturnRows(rows)
+
+	updatedUser, err := postgresRepo.Update(context.Background(), userMock)
+	require.NoError(t, err)
+	require.NotNil(t, updatedUser)
+	require.Equal(t, userMock.UserID, updatedUser.UserID)
+	require.Equal(t, userMock.Username, updatedUser.Username)
+	require.Equal(t, userMock.Email, updatedUser.Email)
+	require.Equal(t, userMock.Image, updatedUser.Image)
+}
+
+func TestUpdate_Error(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+	logger := logger.New(&cfg.Service.Logger)
+
+	postgresRepo := NewUserPostgresRepository(db, logger)
+
+	userMock := &models.User{
+		UserID:   uuid.New(),
+		Username: "updated_user",
+		Email:    "updated@email.com",
+		Image:    "new_avatar.jpeg",
+	}
+
+	mock.ExpectQuery(updateUserQuery).WithArgs(
+		userMock.Username,
+		userMock.Email,
+		userMock.Image,
+		userMock.UserID,
+	).WillReturnError(fmt.Errorf("some error"))
+
+	_, err = postgresRepo.Update(context.Background(), userMock)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to update user")
 }

@@ -6,13 +6,13 @@ service:
   contextTimeout: 5
 
   cors:
-    allowOrigin: "http://localhost"
+    allowOrigin: "http://localhost:3000"
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
     allowHeaders: "Content-Type"
     allowCredentials: true
 
   logger:
-    level: info
+    level: debug
     format: json
 
   auth:
@@ -38,3 +38,10 @@ postgres:
   connMaxLifetime: 120
   maxIdleConns: 30
   connMaxIdleTime: 20
+
+minio:
+  externalURL: localhost:9000
+  innerURL: minio:9000
+  user: user
+  password: password
+  sslMode: false

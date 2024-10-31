@@ -23,6 +23,15 @@ definitions:
       name:
         type: string
     type: object
+  dto.PublicUserDTO:
+    properties:
+      id:
+        type: string
+      image:
+        type: string
+      username:
+        type: string
+    type: object
   dto.TrackDTO:
     properties:
       album:
@@ -44,6 +53,10 @@ definitions:
     properties:
       email:
         type: string
+      id:
+        type: string
+      image:
+        type: string
       username:
         type: string
     type: object
@@ -59,6 +72,8 @@ definitions:
       createdAt:
         type: string
       email:
+        type: string
+      image:
         type: string
       password:
         type: string
@@ -238,7 +253,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate user with username and password
+      description: Authenticate a user using their username and password. On success,
+        returns an authentication token.
       parameters:
       - description: User login details
         in: body
@@ -250,7 +266,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Login successful
+          description: Login successful with token
           schema:
             $ref: '#/definitions/dto.UserTokenDTO'
         "400":
@@ -265,10 +281,12 @@ paths:
           description: Failed to return token
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Login user
+      summary: User Login
+      tags:
+      - Authentication
   /api/v1/auth/logout:
     post:
-      description: Log out user and clear access token cookie
+      description: Clears the access token cookie to log the user out.
       responses:
         "200":
           description: Logout successful
@@ -279,11 +297,14 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Log out user
+      tags:
+      - Authentication
   /api/v1/auth/register:
     post:
       consumes:
       - application/json
-      description: Register new user with username, email and password
+      description: Register a new user with a unique username, email, and password.
+        On success, returns a user token.
       parameters:
       - description: User registration details
         in: body
@@ -295,7 +316,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: User registration successful
+          description: User registration successful with token
           schema:
             $ref: '#/definitions/dto.UserTokenDTO'
         "400":
@@ -306,7 +327,9 @@ paths:
           description: Failed to return token
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Register new user
+      summary: Register a new user
+      tags:
+      - Authentication
   /api/v1/health:
     get:
       description: Returns "OK" if the service is running
@@ -391,4 +414,143 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Search tracks by name
+  /api/v1/users/{user_id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a profile image for the user. The image file should be in
+        a supported image format.
+      parameters:
+      - description: Profile image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image uploaded successfully
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "400":
+          description: Invalid file format or missing file
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Not enough permissions to upload image
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to upload image
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Upload profile imag
+      tags:
+      - User
+  /api/v1/users/{user_id}/update:
+    put:
+      consumes:
+      - application/json
+      description: Update user profile information such as username and email. Requires
+        a valid user ID in the request context.
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Updated user details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User update successful
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "400":
+          description: Invalid request body or missing fields
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Not enough permissions to update user details
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: User ID not found in context
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to update user details
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Update user details
+      tags:
+      - User
+  /api/v1/users/{username}:
+    get:
+      description: Retrieves public profile details for the specified username.
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.PublicUserDTO'
+        "400":
+          description: Invalid or missing username
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get user by username
+      tags:
+      - User
+  /api/v1/users/me:
+    get:
+      description: Retrieves profile details for the currently authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Failed to retrieve user details
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get current user details
+      tags:
+      - User
 swagger: "2.0"
