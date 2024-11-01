@@ -13,7 +13,7 @@ service:
 
   csrf:
     headerName: X-CSRF-Token
-    salt: salt
+    salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
 
   logger:
     level: info
