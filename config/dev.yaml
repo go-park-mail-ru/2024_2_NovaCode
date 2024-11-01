@@ -11,15 +11,15 @@ service:
     allowHeaders: "Content-Type"
     allowCredentials: true
 
-  csrf:
-    headerName: X-CSRF-Token
-    salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
-
   logger:
     level: debug
     format: json
 
   auth:
+    csrf:
+      headerName: X-CSRF-Token
+      salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
+
     jwt:
       secret: secret
       expire: 3600

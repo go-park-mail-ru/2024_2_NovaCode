@@ -23,7 +23,6 @@ type ServiceConfig struct {
 	ContextTimeout time.Duration `yaml:"contextTimeout"`
 
 	CORS   CORSConfig   `yaml:"cors"`
-	CSRF   CSRFConfig   `yaml:"csrf"`
 	Logger LoggerConfig `yaml:"logger"`
 	Auth   AuthConfig   `yaml:"auth"`
 }
@@ -35,18 +34,19 @@ type CORSConfig struct {
 	AllowCredentials bool   `yaml:"allowCredentials"`
 }
 
-type CSRFConfig struct {
-	headerName string `yaml:"headerName"`
-	salt       string `yaml:"salt"`
-}
-
 type LoggerConfig struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
 }
 
 type AuthConfig struct {
-	Jwt JwtConfig `yaml:"jwt"`
+	CSRF CSRFConfig `yaml:"csrf"`
+	Jwt  JwtConfig  `yaml:"jwt"`
+}
+
+type CSRFConfig struct {
+	headerName string `yaml:"headerName"`
+	salt       string `yaml:"salt"`
 }
 
 type JwtConfig struct {
