@@ -11,6 +11,10 @@ service:
     allowHeaders: "Content-Type"
     allowCredentials: true
 
+  csrf:
+    headerName: X-CSRF-Token
+    salt: salt
+
   logger:
     level: debug
     format: json
