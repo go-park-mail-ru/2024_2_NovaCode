@@ -45,8 +45,8 @@ type AuthConfig struct {
 }
 
 type CSRFConfig struct {
-	headerName string `yaml:"headerName"`
-	salt       string `yaml:"salt"`
+	HeaderName string `yaml:"headerName"`
+	Salt       string `yaml:"salt"`
 }
 
 type JwtConfig struct {
