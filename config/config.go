@@ -31,6 +31,7 @@ type CORSConfig struct {
 	AllowOrigin      string `yaml:"allowOrigin"`
 	AllowMethods     string `yaml:"allowMethods"`
 	AllowHeaders     string `yaml:"allowHeaders"`
+	ExposeHeaders    string `yaml:"exposeHeaders"`
 	AllowCredentials bool   `yaml:"allowCredentials"`
 }
 

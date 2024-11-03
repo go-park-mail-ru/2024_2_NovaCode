@@ -8,8 +8,9 @@ service:
   cors:
     allowOrigin: "http://localhost:3000"
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
-    allowHeaders: "Content-Type"
+    allowHeaders: "Content-Type,X-Csrf-Token"
     allowCredentials: true
+    exposeHeaders: "C-Csrf-Token"
 
   logger:
     level: debug
@@ -17,7 +18,7 @@ service:
 
   auth:
     csrf:
-      headerName: X-CSRF-Token
+      headerName: C-Csrf-Token
       salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
 
     jwt:
