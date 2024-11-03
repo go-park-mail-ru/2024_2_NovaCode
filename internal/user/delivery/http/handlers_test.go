@@ -14,6 +14,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/mock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/csrf"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -518,6 +519,56 @@ func TestUserHandlers_GetMe(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		userHandlers.GetMe(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+}
+
+func TestUserHandlers_GetCSRFToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "debug",
+				Format: "json",
+			},
+			Auth: config.AuthConfig{
+				CSRF: config.CSRFConfig{
+					HeaderName: "X-CSRF-Token",
+					Salt:       "yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=",
+				},
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mock.NewMockUsecase(ctrl)
+	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
+
+	t.Run("successful get csrf token", func(t *testing.T) {
+		userID := uuid.New()
+		expectedToken := csrf.Generate(userID.String(), cfg.Service.Auth.CSRF.Salt)
+
+		request := httptest.NewRequest(http.MethodGet, "/csrf", nil)
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+
+		response := httptest.NewRecorder()
+
+		userHandlers.GetCSRFToken(response, request)
+
+		result := response.Result()
+		assert.Equal(t, http.StatusOK, result.StatusCode)
+		assert.Equal(t, expectedToken, result.Header.Get(cfg.Service.Auth.CSRF.HeaderName))
+	})
+
+	t.Run("user id not found in context", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodGet, "/csrf", nil)
+		response := httptest.NewRecorder()
+
+		userHandlers.GetCSRFToken(response, request)
 
 		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
 	})

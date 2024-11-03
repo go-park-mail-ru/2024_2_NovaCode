@@ -15,11 +15,10 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/content"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/csrf"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
-
-type contextKey string
 
 type userHandlers struct {
 	cfg     *config.AuthConfig
@@ -177,6 +176,34 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("successfully logged out")); err != nil {
 		handlers.logger.Errorf("error encoding logout response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+// GetCSRFToken godoc
+// @Tags Authentication
+// @Summary Generate a CSRF token
+// @Description Generates a CSRF token for the authenticated user
+// @Success 200 {object} utils.MessageResponse "CSRF token generated successfully"
+// @Failure 401 {object} utils.ErrorResponse "unauthorized"
+// @Failure 403 {object} utils.ErrorResponse "forbidden"
+// @Router /api/v1/auth/csrf [get]
+func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request *http.Request) {
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Errorf("user id not found in context")
+		utils.JSONError(response, http.StatusBadRequest, "user id not found")
+		return
+	}
+
+	token := csrf.Generate(userID.String(), handlers.cfg.CSRF.Salt)
+
+	response.Header().Set(handlers.cfg.CSRF.HeaderName, token)
+	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("ok")); err != nil {
+		handlers.logger.Errorf("error encoding csrf token response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
