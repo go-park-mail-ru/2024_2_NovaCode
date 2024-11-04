@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
@@ -51,29 +50,29 @@ func (handlers *userHandlers) Health(response http.ResponseWriter, request *http
 // @Description Register a new user with a unique username, email, and password. On success, returns a user token.
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User registration details"
 // @Success 200 {object} dto.UserTokenDTO "User registration successful with token"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or missing fields"
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/register [post]
 func (handlers *userHandlers) Register(response http.ResponseWriter, request *http.Request) {
-	var user models.User
+	var regDTO dto.RegisterDTO
 
-	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&regDTO); err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	if user.Username == "" || user.Email == "" || user.Password == "" {
+	if regDTO.Username == "" || regDTO.Email == "" || regDTO.Password == "" {
 		utils.JSONError(response, http.StatusBadRequest, "username, email and password are required")
 		return
 	}
 
-	if user.Role == "" {
-		user.Role = "regular"
+	if regDTO.Role == "" {
+		regDTO.Role = "regular"
 	}
 
-	userTokenDTO, err := handlers.usecase.Register(request.Context(), &user)
+	user := dto.NewUserFromRegisterDTO(&regDTO)
+	userTokenDTO, err := handlers.usecase.Register(request.Context(), user)
 	if err != nil {
 		handlers.logger.Errorf("failed to register user: %v", err)
 		utils.JSONError(response, http.StatusBadRequest, "invalid username or password")
@@ -107,26 +106,26 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 // @Description Authenticate a user using their username and password. On success, returns an authentication token.
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User login details" example({ "username": "john_doe", "password": "password123" })
 // @Success 200 {object} dto.UserTokenDTO "Login successful with token"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or missing fields"
 // @Failure 401 {object} utils.ErrorResponse "Invalid username or password"
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/login [post]
 func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.Request) {
-	var user models.User
+	var loginDTO dto.LoginDTO
 
-	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&loginDTO); err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	if user.Username == "" || user.Password == "" {
+	if loginDTO.Username == "" || loginDTO.Password == "" {
 		utils.JSONError(response, http.StatusBadRequest, "username and password are required")
 		return
 	}
 
-	userTokenDTO, err := handlers.usecase.Login(request.Context(), &user)
+	user := dto.NewUserFromLoginDTO(&loginDTO)
+	userTokenDTO, err := handlers.usecase.Login(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warnf("failed to login user: %v", err)
 		utils.JSONError(response, http.StatusUnauthorized, "invalid username or password")
@@ -218,7 +217,6 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 // @Accept json
 // @Produce json
 // @Param user_id path string true "User ID"
-// @Param user body models.User true "Updated user details" example({ "username": "new_username", "email": "new_email@example.com" })
 // @Success 200 {object} dto.UserDTO "User update successful"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or missing fields"
 // @Failure 401 {object} utils.ErrorResponse "User not authenticated"
@@ -227,7 +225,7 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 // @Failure 500 {object} utils.ErrorResponse "Failed to update user details"
 // @Router /api/v1/users/{user_id} [put]
 func (handlers *userHandlers) Update(response http.ResponseWriter, request *http.Request) {
-	var user models.User
+	var updateDTO dto.UpdateDTO
 
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
@@ -235,14 +233,15 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 		utils.JSONError(response, http.StatusBadRequest, "user id not found")
 		return
 	}
-	user.UserID = userID
+	updateDTO.UserID = userID
 
-	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&updateDTO); err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	updatedUserDTO, err := handlers.usecase.Update(request.Context(), &user)
+	user := dto.NewUserFromUpdateDTO(&updateDTO)
+	updatedUserDTO, err := handlers.usecase.Update(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warnf("failed to update user: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to update user details")
