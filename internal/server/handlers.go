@@ -86,10 +86,7 @@ func (s *Server) BindUser() {
 		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.GetCSRFToken)),
 	).Methods("GET")
 
-	s.mux.Handle(
-		"/api/v1/auth/logout",
-		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Logout)),
-	).Methods("POST")
+	s.mux.HandleFunc("/api/v1/auth/logout", userHandleres.Logout).Methods("POST")
 
 	s.mux.HandleFunc("/api/v1/users/{username:[a-zA-Z0-9-_]+}", userHandleres.GetUserByUsername).Methods("GET")
 
