@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -29,11 +28,8 @@ type Logger interface {
 }
 
 type Log struct {
-	ctx context.Context
 	log *zap.Logger
 }
-
-type loggerKey struct{}
 
 var encoderCfg = zapcore.EncoderConfig{
 	TimeKey:        "ts",
@@ -64,57 +60,41 @@ func New(cfg *config.LoggerConfig) Logger {
 		zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
-	ctx := context.WithValue(context.Background(), loggerKey{}, logger)
-	return &Log{ctx, logger}
-}
-
-func ctxLogger(ctx context.Context) *zap.Logger {
-	if logger, _ := ctx.Value(loggerKey{}).(*zap.Logger); logger != nil {
-		return logger
-	}
-
-	logger := zap.New(zapcore.NewCore(
-		zapcore.NewJSONEncoder(encoderCfg),
-		zapcore.Lock(os.Stdout),
-		zap.DebugLevel,
-	), zap.AddCaller(), zap.AddCallerSkip(1))
-	zap.NewAtomicLevelAt(zap.InfoLevel)
-
-	return logger
+	return &Log{logger}
 }
 
 func (l *Log) Debug(msg string, f ...zap.Field) {
-	ctxLogger(l.ctx).Debug(msg, f...)
+	l.log.Debug(msg, f...)
 }
 
 func (l *Log) Info(msg string, f ...zap.Field) {
-	ctxLogger(l.ctx).Info(msg, f...)
+	l.log.Info(msg, f...)
 }
 
 func (l *Log) Warn(msg string, f ...zap.Field) {
-	ctxLogger(l.ctx).Warn(msg, f...)
+	l.log.Warn(msg, f...)
 }
 
 func (l *Log) Error(msg string, f ...zap.Field) {
-	ctxLogger(l.ctx).Error(msg, f...)
+	l.log.Error(msg, f...)
 }
 
 func (l *Log) Debugf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	ctxLogger(l.ctx).Debug(msg)
+	l.log.Debug(msg)
 }
 
 func (l *Log) Infof(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	ctxLogger(l.ctx).Info(msg)
+	l.log.Info(msg)
 }
 
 func (l *Log) Warnf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	ctxLogger(l.ctx).Warn(msg)
+	l.log.Warn(msg)
 }
 
 func (l *Log) Errorf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	ctxLogger(l.ctx).Error(msg)
+	l.log.Error(msg)
 }

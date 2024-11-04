@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -8,7 +9,9 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 type albumHandlers struct {
@@ -30,27 +33,30 @@ func NewAlbumHandlers(usecase album.Usecase, logger logger.Logger) album.Handler
 // @Failure 500 {object} utils.ErrorResponse "Failed to search or encode albums"
 // @Router /api/v1/albums/search [get]
 func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
 	name := request.URL.Query().Get("name")
 	if name == "" {
-		handlers.logger.Error("Missing query parameter 'name'")
+		handlers.logger.Error("Missing query parameter 'name'", zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
-	foundAlbums, err := handlers.usecase.Search(request.Context(), name)
+	foundAlbums, err := handlers.usecase.Search(ctx, name)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to find albums: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to find albums: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Can't find albums")
 		return
 	} else if len(foundAlbums) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No albums with %s were found", name))
+		handlers.logger.Error(fmt.Sprintf("No albums with %s were found", name), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusNotFound, "No albums")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := utils.WriteResponse(response, http.StatusOK, foundAlbums); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
@@ -68,24 +74,27 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 // @Failure 500 {object} utils.ErrorResponse "Failed to encode the album data"
 // @Router /api/v1/albums/{id} [get]
 func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
 	vars := mux.Vars(request)
 	albumID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
 		return
 	}
 
-	foundAlbum, err := handlers.usecase.View(request.Context(), albumID)
+	foundAlbum, err := handlers.usecase.View(ctx, albumID)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Album wasn't found: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Album wasn't found: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusNotFound, "Can't find album")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := utils.WriteResponse(response, http.StatusOK, foundAlbum); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
@@ -99,20 +108,23 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 // @Failure 500 {object} utils.ErrorResponse "Failed to load albums"
 // @Router /api/v1/albums/all [get]
 func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
-	albums, err := handlers.usecase.GetAll(request.Context())
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
+	albums, err := handlers.usecase.GetAll(ctx)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to load albums: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to load albums: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Albums load fail")
 		return
 	} else if len(albums) == 0 {
-		handlers.logger.Error("No albums were found")
+		handlers.logger.Error(fmt.Sprintf("No albums were found"), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusNotFound, "No albums were found")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := utils.WriteResponse(response, http.StatusOK, albums); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
