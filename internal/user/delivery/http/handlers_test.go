@@ -342,38 +342,37 @@ func TestUserHandlers_Update(t *testing.T) {
 		assert.Equal(t, userDTO, &responseMsg)
 	})
 
-	// t.Run("invalid request body", func(t *testing.T) {
-	// 	request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBufferString("invalid json"))
-	// 	ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
-	// 	request = request.WithContext(ctx)
-	// 	response := httptest.NewRecorder()
-	//
-	// 	userHandlers.Update(response, request)
-	//
-	// 	assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
-	// })
-	//
-	// t.Run("usecase update error", func(t *testing.T) {
-	// 	user := models.User{
-	// 		UserID:   userID,
-	// 		Username: "updated_user",
-	// 		Email:    "updated@example.com",
-	// 		Password: "newpassword",
-	// 	}
-	//
-	// 	usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))
-	//
-	// 	body, _ := json.Marshal(user)
-	// 	request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
-	// 	ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
-	// 	request = request.WithContext(ctx)
-	//
-	// 	response := httptest.NewRecorder()
-	//
-	// 	userHandlers.Update(response, request)
-	//
-	// 	assert.Equal(t, http.StatusInternalServerError, response.Result().StatusCode)
-	// })
+	t.Run("invalid request body", func(t *testing.T) {
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBufferString("invalid json"))
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+		response := httptest.NewRecorder()
+
+		userHandlers.Update(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Result().StatusCode)
+	})
+
+	t.Run("usecase update error", func(t *testing.T) {
+		user := models.User{
+			UserID:   userID,
+			Username: "updated_user",
+			Email:    "updated@example.com",
+		}
+
+		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))
+
+		body, _ := json.Marshal(user)
+		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
+		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
+		request = request.WithContext(ctx)
+
+		response := httptest.NewRecorder()
+
+		userHandlers.Update(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Result().StatusCode)
+	})
 }
 
 func TestUserHandlers_GetUserByUsername(t *testing.T) {
