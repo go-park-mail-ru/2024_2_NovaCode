@@ -88,8 +88,15 @@ services:
       /bin/sh -c "
       /usr/bin/mc config host rm local;
       /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
-      /usr/bin/mc mb --quiet local/users;
-      /usr/bin/mc policy set public local/users;
+      
+      /usr/bin/mc mb --quiet local/avatars;
+      /usr/bin/mc policy set public local/avatars;
+
+      /usr/bin/mc mb --quiet local/images;
+      /usr/bin/mc policy set public local/images;
+
+      /usr/bin/mc mb --quiet local/tracks;
+      /usr/bin/mc policy set public local/tracks;
       "
     depends_on:
       minio:
@@ -97,4 +104,15 @@ services:
 
 volumes:
   postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/novamusic/postgres-data
+
   minio-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/novamusic/minio-data
