@@ -1,16 +1,37 @@
 package dto
 
-import "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+import (
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/google/uuid"
+)
 
 type UserDTO struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email,omitempty"`
+	Username string    `json:"username,omitempty"`
+	Image    string    `json:"image,omitempty"`
 }
 
 func NewUserDTO(user *models.User) *UserDTO {
 	return &UserDTO{
-		user.Username,
+		user.UserID,
 		user.Email,
+		user.Username,
+		user.Image,
+	}
+}
+
+type PublicUserDTO struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username,omitempty"`
+	Image    string    `json:"image,omitempty"`
+}
+
+func NewPublicUserDTO(userDTO *UserDTO) *PublicUserDTO {
+	return &PublicUserDTO{
+		userDTO.ID,
+		userDTO.Username,
+		userDTO.Image,
 	}
 }
 

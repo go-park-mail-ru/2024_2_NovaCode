@@ -13,6 +13,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      minio:
+        condition: service_healthy
 
   postgres:
     container_name: novamusic-postgres
@@ -40,6 +42,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   migrations:
+    container_name: novamusic-postgres-migrations
     image: ghcr.io/kukymbr/goose-docker:3.22.1
     platform: linux/amd64
     restart: no
@@ -54,5 +57,44 @@ services:
     volumes:
       - ../internal/db/postgres/migrations:/migrations
 
+  minio:
+    container_name: novamusic-minio
+    image: minio/minio:latest
+    platform: linux/amd64
+    restart: always
+    env_file: .env
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+      - MINIO_SERVER_URL=http://${HOST}:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://${HOST}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server --console-address :9001 /data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - minio-data:/data
+
+  minio-client:
+    container_name: minio-client
+    image: minio/mc:latest
+    env_file: .env
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host rm local;
+      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
+      /usr/bin/mc mb --quiet local/users;
+      /usr/bin/mc policy set public local/users;
+      "
+    depends_on:
+      minio:
+        condition: service_healthy
+
 volumes:
   postgres-data:
+  minio-data:

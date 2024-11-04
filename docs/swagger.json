@@ -234,14 +234,17 @@
         },
         "/api/v1/auth/login": {
             "post": {
-                "description": "Authenticate user with username and password",
+                "description": "Authenticate a user using their username and password. On success, returns an authentication token.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Login user",
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Login",
                 "parameters": [
                     {
                         "description": "User login details",
@@ -255,7 +258,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Login successful",
+                        "description": "Login successful with token",
                         "schema": {
                             "$ref": "#/definitions/dto.UserTokenDTO"
                         }
@@ -283,7 +286,10 @@
         },
         "/api/v1/auth/logout": {
             "post": {
-                "description": "Log out user and clear access token cookie",
+                "description": "Clears the access token cookie to log the user out.",
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Log out user",
                 "responses": {
                     "200": {
@@ -303,14 +309,17 @@
         },
         "/api/v1/auth/register": {
             "post": {
-                "description": "Register new user with username, email and password",
+                "description": "Register a new user with a unique username, email, and password. On success, returns a user token.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Register new user",
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
                 "parameters": [
                     {
                         "description": "User registration details",
@@ -324,7 +333,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User registration successful",
+                        "description": "User registration successful with token",
                         "schema": {
                             "$ref": "#/definitions/dto.UserTokenDTO"
                         }
@@ -471,6 +480,213 @@
                     }
                 }
             }
+        },
+        "/api/v1/users/me": {
+            "get": {
+                "description": "Retrieves profile details for the currently authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get current user details",
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve user details",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{user_id}/image": {
+            "post": {
+                "description": "Upload a profile image for the user. The image file should be in a supported image format.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upload profile imag",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile image file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image uploaded successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file format or missing file",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions to upload image",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to upload image",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{user_id}/update": {
+            "put": {
+                "description": "Update user profile information such as username and email. Requires a valid user ID in the request context.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user details",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User update successful",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or missing fields",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions to update user details",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User ID not found in context",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update user details",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{username}": {
+            "get": {
+                "description": "Retrieves public profile details for the specified username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PublicUserDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing username",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -511,6 +727,20 @@
                 }
             }
         },
+        "dto.PublicUserDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.TrackDTO": {
             "type": "object",
             "properties": {
@@ -543,6 +773,12 @@
                 "email": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -566,6 +802,9 @@
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "password": {

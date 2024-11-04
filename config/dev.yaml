@@ -12,7 +12,7 @@ service:
     allowCredentials: true
 
   logger:
-    level: info
+    level: debug
     format: json
 
   auth:
@@ -38,3 +38,10 @@ postgres:
   connMaxLifetime: 120
   maxIdleConns: 30
   connMaxIdleTime: 20
+
+minio:
+  externalURL: localhost:9000
+  innerURL: minio:9000
+  user: user
+  password: password
+  sslMode: false
