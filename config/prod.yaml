@@ -10,7 +10,7 @@ service:
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
     allowHeaders: "Content-Type,X-Csrf-Token"
     allowCredentials: true
-    exposeHeaders: "C-Csrf-Token"
+    exposeHeaders: "X-Csrf-Token"
 
   logger:
     level: info
@@ -18,7 +18,7 @@ service:
 
   auth:
     csrf:
-      headerName: C-Csrf-Token
+      headerName: X-Csrf-Token
       salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
 
     jwt:
