@@ -13,30 +13,29 @@ VALUES
 INSERT INTO artist
     (name, bio, country, image)
 VALUES
-    ('Mirella', 'Artist', 'Finland', 'artists/Mirella.jpeg'),
-    ('KUUMAA', 'Artist', 'Finland', 'artists/KUUMAA.jpeg'),
-    ('JVG', 'Artist', 'Finland', 'artists/JVG.jpeg'),
-    ('Eminem', 'Artist', 'USA', 'artists/Eminem.jpeg'),
-    ('Robin Packalen', 'Artist', 'Finland', 'artists/Robin_Packalen.jpeg');
-
+    ('Mirella', 'Artist', 'Finland', 'Mirella.jpeg'),
+    ('KUUMAA', 'Artist', 'Finland', 'KUUMAA.jpeg'),
+    ('JVG', 'Artist', 'Finland', 'JVG.jpeg'),
+    ('Eminem', 'Artist', 'USA', 'Eminem.jpeg'),
+    ('Robin Packalen', 'Artist', 'Finland', 'Robin_Packalen.jpeg');
 
 INSERT INTO album
     (name, track_count, image, artist_id)
 VALUES
-    ('Luotathan', 1, 'albums/Luotathan.jpeg', 1),
-    ('Pisara meressä', 1, 'albums/Pisara_meressa.jpeg', 1),
-    ('Rallikansa', 1, 'albums/Rallikansa.jpeg', 1),
-    ('Kolmistaan', 1, 'albums/Kolmistaan.jpeg', 1),
-    ('The Death of Slim Shady', 1, 'albums/The_Death_of_Slim_Shady.jpeg', 1);
+    ('Luotathan', 1, 'Luotathan.jpeg', (SELECT id FROM artist WHERE name = 'Mirella')),
+    ('Pisara meressä', 1, 'Pisara_meressa.jpeg', (SELECT id FROM artist WHERE name = 'KUUMAA')),
+    ('Rallikansa', 1, 'Rallikansa.jpeg', (SELECT id FROM artist WHERE name = 'JVG')),
+    ('Kolmistaan', 1, 'Kolmistaan.jpeg', (SELECT id FROM artist WHERE name = 'Robin Packalen')),
+    ('The Death of Slim Shady', 1, 'The_Death_of_Slim_Shady.jpeg', (SELECT id FROM artist WHERE name = 'Eminem'));
 
 INSERT INTO track
     (name, duration, filepath, image, artist_id, album_id)
 VALUES
-    ('Luotathan', 123, 'tracks/test_track_1.mp3', 'tracks/Luotathan.jpeg', 1, 1),
-    ('Satama', 123, 'tracks/test_track_2.mp3', 'tracks/Satama.jpeg', 2, 2),
-    ('Rallikansa', 123, 'tracks/test_track_3.mp3', 'tracks/Rallikansa.jpeg', 3, 3),
-    ('Kolmistaan', 123, 'tracks/test_track_4.mp3', 'tracks/Kolmistaan.jpeg', 4, 4),
-    ('Houdini', 123, 'tracks/test_track_5.mp3', 'tracks/Houdini.jpeg', 5, 5);
+    ('Luotathan', 123, 'test_track_1.mp3', 'Luotathan.jpeg', (SELECT id FROM artist WHERE name = 'Mirella'), (SELECT id FROM album WHERE name = 'Luotathan')),
+    ('Satama', 123, 'test_track_2.mp3', 'Satama.jpeg', (SELECT id FROM artist WHERE name = 'KUUMAA'), (SELECT id FROM album WHERE name = 'Pisara meressä')),
+    ('Rallikansa', 123, 'test_track_3.mp3', 'Rallikansa.jpeg', (SELECT id FROM artist WHERE name = 'JVG'), (SELECT id FROM album WHERE name = 'Rallikansa')),
+    ('Kolmistaan', 123, 'test_track_4.mp3', 'Kolmistaan.jpeg', (SELECT id FROM artist WHERE name = 'Robin Packalen'), (SELECT id FROM album WHERE name = 'Kolmistaan')),
+    ('Houdini', 123, 'test_track_5.mp3', 'Houdini.jpeg', (SELECT id FROM artist WHERE name = 'Eminem'), (SELECT id FROM album WHERE name = 'The Death of Slim Shady'));
 
 INSERT INTO genre_artist (genre_id, artist_id) VALUES
   ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'Mirella')),
