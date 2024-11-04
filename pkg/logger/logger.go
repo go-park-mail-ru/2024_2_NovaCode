@@ -1,26 +1,26 @@
 package logger
 
 import (
-	"context"
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var levelMapping = map[string]slog.Level{
-	"debug": slog.LevelDebug,
-	"info":  slog.LevelInfo,
-	"warn":  slog.LevelWarn,
-	"error": slog.LevelError,
+var levelMapping = map[string]zapcore.Level{
+	"debug": zap.DebugLevel,
+	"info":  zap.InfoLevel,
+	"warn":  zap.WarnLevel,
+	"error": zap.ErrorLevel,
 }
 
 type Logger interface {
-	Debug(msg string, f ...slog.Attr)
-	Info(msg string, f ...slog.Attr)
-	Warn(msg string, f ...slog.Attr)
-	Error(msg string, f ...slog.Attr)
+	Debug(msg string, f ...zap.Field)
+	Info(msg string, f ...zap.Field)
+	Warn(msg string, f ...zap.Field)
+	Error(msg string, f ...zap.Field)
 	Debugf(format string, v ...interface{})
 	Infof(format string, v ...interface{})
 	Warnf(format string, v ...interface{})
@@ -28,65 +28,73 @@ type Logger interface {
 }
 
 type Log struct {
-	ctx  context.Context
-	slog *slog.Logger
+	log *zap.Logger
+}
+
+var encoderCfg = zapcore.EncoderConfig{
+	TimeKey:        "ts",
+	LevelKey:       "level",
+	NameKey:        "logger",
+	CallerKey:      "caller",
+	FunctionKey:    zapcore.OmitKey,
+	MessageKey:     "msg",
+	StacktraceKey:  "stacktrace",
+	LineEnding:     zapcore.DefaultLineEnding,
+	EncodeLevel:    zapcore.LowercaseLevelEncoder,
+	EncodeTime:     zapcore.ISO8601TimeEncoder,
+	EncodeDuration: zapcore.SecondsDurationEncoder,
+	EncodeCaller:   zapcore.ShortCallerEncoder,
 }
 
 func New(cfg *config.LoggerConfig) Logger {
-	options := &slog.HandlerOptions{}
+	core := zapcore.NewCore(zapcore.NewConsoleEncoder(encoderCfg), zapcore.Lock(os.Stdout), zap.DebugLevel)
+	if cfg.Format == "json" {
+		core = zapcore.NewCore(zapcore.NewJSONEncoder(encoderCfg), zapcore.Lock(os.Stdout), zap.DebugLevel)
+	}
+
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 
 	if v, ok := levelMapping[cfg.Level]; ok {
-		options.Level = v
+		zap.NewAtomicLevelAt(v)
 	} else {
-		options.Level = slog.LevelInfo
+		zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
-	var handler slog.Handler
-
-	switch cfg.Format {
-	case "json":
-		handler = slog.NewJSONHandler(os.Stderr, options)
-	default:
-		handler = slog.NewTextHandler(os.Stderr, options)
-	}
-
-	log := slog.New(handler)
-
-	return &Log{context.Background(), log}
+	return &Log{logger}
 }
 
-func (l *Log) Debug(msg string, f ...slog.Attr) {
-	l.slog.LogAttrs(l.ctx, slog.LevelDebug, msg, f...)
+func (l *Log) Debug(msg string, f ...zap.Field) {
+	l.log.Debug(msg, f...)
 }
 
-func (l *Log) Info(msg string, f ...slog.Attr) {
-	l.slog.LogAttrs(l.ctx, slog.LevelInfo, msg, f...)
+func (l *Log) Info(msg string, f ...zap.Field) {
+	l.log.Info(msg, f...)
 }
 
-func (l *Log) Warn(msg string, f ...slog.Attr) {
-	l.slog.LogAttrs(l.ctx, slog.LevelWarn, msg, f...)
+func (l *Log) Warn(msg string, f ...zap.Field) {
+	l.log.Warn(msg, f...)
 }
 
-func (l *Log) Error(msg string, f ...slog.Attr) {
-	l.slog.LogAttrs(l.ctx, slog.LevelError, msg, f...)
+func (l *Log) Error(msg string, f ...zap.Field) {
+	l.log.Error(msg, f...)
 }
 
 func (l *Log) Debugf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	l.slog.LogAttrs(l.ctx, slog.LevelDebug, msg)
+	l.log.Debug(msg)
 }
 
 func (l *Log) Infof(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	l.slog.LogAttrs(l.ctx, slog.LevelInfo, msg)
+	l.log.Info(msg)
 }
 
 func (l *Log) Warnf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	l.slog.LogAttrs(l.ctx, slog.LevelWarn, msg)
+	l.log.Warn(msg)
 }
 
 func (l *Log) Errorf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	l.slog.LogAttrs(l.ctx, slog.LevelError, msg)
+	l.log.Error(msg)
 }

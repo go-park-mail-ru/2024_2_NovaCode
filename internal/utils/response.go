@@ -30,3 +30,24 @@ func JSONError(response http.ResponseWriter, statusCode int, message string) {
 		http.Error(response, "failed to encode error message", http.StatusInternalServerError)
 	}
 }
+
+type Response struct {
+	StatusCode int         `json:"statusCode"`
+	Body       interface{} `json:"body"`
+}
+
+func WriteResponse(w http.ResponseWriter, statusCode int, body interface{}) error {
+	resStruct := Response{
+		StatusCode: statusCode,
+		Body:       body,
+	}
+	res, err := json.Marshal(resStruct)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(statusCode)
+	w.Write(res)
+
+	return nil
+}

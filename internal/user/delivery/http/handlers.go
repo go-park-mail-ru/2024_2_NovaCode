@@ -2,11 +2,12 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
@@ -17,6 +18,8 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/content"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type contextKey string
@@ -37,10 +40,11 @@ func NewUserHandlers(cfg *config.AuthConfig, usecase user.Usecase, logger logger
 // @Success 200 {string} utils.MessageResponse "OK"
 // @Router /api/v1/health [get]
 func (handlers *userHandlers) Health(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
+
 	response.Header().Set("Content-Type", "application/json")
-	response.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("OK")); err != nil {
-		handlers.logger.Errorf("error encoding health response: %v", err)
+	if err := utils.WriteResponse(response, http.StatusOK, "OK"); err != nil {
+		handlers.logger.Error(fmt.Sprintf("error encoding health response: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "failed to get health status")
 		return
 	}
@@ -58,6 +62,7 @@ func (handlers *userHandlers) Health(response http.ResponseWriter, request *http
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/register [post]
 func (handlers *userHandlers) Register(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
 	var user models.User
 
 	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
@@ -74,9 +79,11 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		user.Role = "regular"
 	}
 
-	userTokenDTO, err := handlers.usecase.Register(request.Context(), &user)
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
+	userTokenDTO, err := handlers.usecase.Register(ctx, &user)
 	if err != nil {
-		handlers.logger.Errorf("failed to register user: %v", err)
+		handlers.logger.Error(fmt.Sprintf("failed to register user: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusBadRequest, "invalid username or password")
 		return
 	}
@@ -93,13 +100,11 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
-		handlers.logger.Errorf("error encoding userTokenDTO: %v", err)
+	if err := utils.WriteResponse(response, http.StatusOK, userTokenDTO); err != nil {
+		handlers.logger.Error(fmt.Sprintf("error encoding userTokenDTO: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // Login godoc
@@ -115,6 +120,7 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/login [post]
 func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
 	var user models.User
 
 	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
@@ -127,9 +133,11 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 		return
 	}
 
-	userTokenDTO, err := handlers.usecase.Login(request.Context(), &user)
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
+	userTokenDTO, err := handlers.usecase.Login(ctx, &user)
 	if err != nil {
-		handlers.logger.Warnf("failed to login user: %v", err)
+		handlers.logger.Warn(fmt.Sprintf("failed to login user: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusUnauthorized, "invalid username or password")
 		return
 	}
@@ -146,13 +154,11 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
-		handlers.logger.Errorf("failed to encode userTokenDTO: %v", err)
+	if err := utils.WriteResponse(response, http.StatusOK, userTokenDTO); err != nil {
+		handlers.logger.Error(fmt.Sprintf("failed to encode userTokenDTO: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // Logout godoc
@@ -163,6 +169,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 // @Failure 500 {object} utils.ErrorResponse "Failed to log out"
 // @Router /api/v1/auth/logout [post]
 func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
 	accessTokenCookie := http.Cookie{
 		Path:     "/",
 		Name:     handlers.cfg.Jwt.Cookie.Name,
@@ -175,13 +182,11 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("successfully logged out")); err != nil {
-		handlers.logger.Errorf("error encoding logout response: %v", err)
+	if err := utils.WriteResponse(response, http.StatusOK, "successfully logged out"); err != nil {
+		handlers.logger.Error(fmt.Sprintf("error encoding logout response: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // Update godoc

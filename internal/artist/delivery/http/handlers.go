@@ -1,7 +1,7 @@
 package http
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,7 +9,9 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/artist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 type artistHandlers struct {
@@ -31,32 +33,33 @@ func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Hand
 // @Failure 500 {object} utils.ErrorResponse "Failed to search or encode artists"
 // @Router /api/v1/artists/search [get]
 func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
 	name := request.URL.Query().Get("name")
 	if name == "" {
-		handlers.logger.Error("Missing query parameter 'name'")
+		handlers.logger.Error("Missing query parameter 'name'", zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
-	foundArtists, err := handlers.usecase.Search(request.Context(), name)
+	foundArtists, err := handlers.usecase.Search(ctx, name)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to find artists: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to find artists: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Can't find artists")
 		return
 	} else if len(foundArtists) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No artists with %s were found", name))
+		handlers.logger.Error(fmt.Sprintf("No artists with %s were found", name), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusNotFound, "No artists")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtists); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
+	if err := utils.WriteResponse(response, http.StatusOK, foundArtists); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // ViewArtist godoc
@@ -69,29 +72,30 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 // @Failure 500 {object} utils.ErrorResponse "Failed to encode the artist data"
 // @Router /api/v1/artists/{id} [get]
 func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request *http.Request) {
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
 	vars := mux.Vars(request)
 	artistID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err))
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong id: %v", vars["id"], err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
 		return
 	}
 
-	foundArtist, err := handlers.usecase.View(request.Context(), artistID)
+	foundArtist, err := handlers.usecase.View(ctx, artistID)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Arist wasn't found: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Arist wasn't found: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusNotFound, "Can't find artist")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode artist: %v", err))
+	if err := utils.WriteResponse(response, http.StatusOK, foundArtist); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artist: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
 
 // GetAll godoc
@@ -102,9 +106,12 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 // @Failure 500 {object} utils.ErrorResponse "Failed to load artists"
 // @Router /api/v1/artists/all [get]
 func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
-	artists, err := handlers.usecase.GetAll(request.Context())
+	requestId := uuid.New()
+	ctx := context.WithValue(request.Context(), utils.RequestIdKey{}, requestId)
+
+	artists, err := handlers.usecase.GetAll(ctx)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to get artists: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to get artists: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get artists: %v", err))
 		return
 	} else if len(artists) == 0 {
@@ -113,11 +120,9 @@ func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *ht
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(artists); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err))
+	if err := utils.WriteResponse(response, http.StatusOK, artists); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), zap.String("request_id", requestId.String()))
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
-
-	response.WriteHeader(http.StatusOK)
 }
