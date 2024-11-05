@@ -7,6 +7,7 @@ erDiagram
         text username
         text email
         text password_hash
+        text image
         timestamptz created_at
         timestamptz updated_at
     }
@@ -67,6 +68,7 @@ erDiagram
         text image
         int artist_id FK
         int album_id FK
+        int track_order_in_album
         timestamptz release_date
         timestamptz created_at
         timestamptz updated_at
@@ -75,6 +77,7 @@ erDiagram
     playlist_track {
         int id PK
         int playlist_id FK
+        int track_order_in_playlist
         int track_id FK
     }
 

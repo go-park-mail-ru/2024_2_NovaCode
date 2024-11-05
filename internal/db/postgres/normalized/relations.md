@@ -153,13 +153,13 @@
 
 **Функциональные зависимости от потенциальных ключей:**
 ```
-{id} -> name, duration, filepath, image, artist_id, album_id, track_order, release_date, created_at, updated_at
-{name} -> id, duration, filepath, image, artist_id, album_id, track_order, release_date, created_at, updated_at
+{id} -> name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at
+{name} -> id, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at
 ```
 
 **Соответствие нормальным формам:**
 * 1 НФ
-Атрибуты id, name, duration, filepath, image, artist_id, album_id, track_order, release_date, created_at, updated_at являются атомарными.
+Атрибуты id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at являются атомарными.
 
 * 2 НФ
 Неключевые атрибуты функционально полно зависят от каждого из потенциальных ключей, т.к. нет составных потенциальных ключей.
@@ -177,13 +177,13 @@
 
 **Функциональные зависимости от потенциальных ключей:**
 ```
-{playlist_id, track_id} -> id, track_order
-{id} -> playlist_id, track_id, track_order
+{playlist_id, track_id} -> id, track_order_in_playlist
+{id} -> playlist_id, track_id, track_order_in_playlist
 ```
 
 **Соответствие нормальным формам:**
 * 1 НФ
-Атрибуты id, playlist_id, track_order, track_id являются атомарными.
+Атрибуты id, playlist_id, track_order_in_playlist, track_id являются атомарными.
 
 * 2 НФ
 Отношение находится в 2НФ, т.к. неключевые атрибуты функционально полно зависят от каждого из потенциальных ключей.
