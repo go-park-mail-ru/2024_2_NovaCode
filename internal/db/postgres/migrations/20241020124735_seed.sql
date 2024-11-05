@@ -13,51 +13,48 @@ VALUES
 INSERT INTO artist
     (name, bio, country, image)
 VALUES
-    ('Mirella', 'Artist', 'Finland', 'artists/Mirella.jpeg'),
-    ('KUUMAA', 'Artist', 'Finland', 'artists/KUUMAA.jpeg'),
-    ('JVG', 'Artist', 'Finland', 'artists/JVG.jpeg'),
-    ('Eminem', 'Artist', 'USA', 'artists/Eminem.jpeg'),
-    ('Robin Packalen', 'Artist', 'Finland', 'artists/Robin_Packalen.jpeg');
-
+    ('EKKSTACY', 'Khyree Zienty, professionally known as Ekkstacy, is a Canadian singer-songwriter from Vancouver, British Columbia.', 'Canada', 'ekkstacy.jpg'),
+    ('Sueco', 'William Henry Victor Schultz, better known by his stage name Sueco or SuecoTheChild, is an American rapper and singer-songwriter from Los Angeles.', 'California', 'sueco.jpeg');
 
 INSERT INTO album
     (name, track_count, image, artist_id)
 VALUES
-    ('Luotathan', 1, 'albums/Luotathan.jpeg', 1),
-    ('Pisara meressä', 1, 'albums/Pisara_meressa.jpeg', 1),
-    ('Rallikansa', 1, 'albums/Rallikansa.jpeg', 1),
-    ('Kolmistaan', 1, 'albums/Kolmistaan.jpeg', 1),
-    ('The Death of Slim Shady', 1, 'albums/The_Death_of_Slim_Shady.jpeg', 1);
+    ('misery', 5, 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY')),
+    ('Attempted Lover', 5, 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'));
 
 INSERT INTO track
     (name, duration, filepath, image, artist_id, album_id)
 VALUES
-    ('Luotathan', 123, 'test filepath', 'tracks/Luotathan.jpeg', 1, 1),
-    ('Satama', 123, 'test filepath', 'tracks/Satama.jpeg', 2, 2),
-    ('Rallikansa', 123, 'test filepath', 'tracks/Rallikansa.jpeg', 3, 3),
-    ('Kolmistaan', 123, 'test filepath', 'tracks/Kolmistaan.jpeg', 4, 4),
-    ('Houdini', 123, 'test filepath', 'tracks/Houdini.jpeg', 5, 5);
+    ('i just want to hide my face', 132, 'ekkstacy_misery_1.mp3', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY'), (SELECT id FROM album WHERE name = 'misery')),
+    ('im so happy', 139, 'ekkstacy_misery_2.mp3', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY'), (SELECT id FROM album WHERE name = 'misery')),
+    ('i wish you were pretty on the inside', 127, 'ekkstacy_misery_3.mp3', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY'), (SELECT id FROM album WHERE name = 'misery')),
+    ('christian death', 144, 'ekkstacy_misery_4.mp3', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY'), (SELECT id FROM album WHERE name = 'misery')),
+    ('i want to die in your arms', 136, 'ekkstacy_misery_5.mp3', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY'), (SELECT id FROM album WHERE name = 'misery')),
+    ('Wreck', 167, 'sueco_attempted_lover_1.mp3', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'), (SELECT id FROM album WHERE name = 'Attempted Lover')),
+    ('Wanna Feel Something', 203, 'sueco_attempted_lover_2.mp3', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'), (SELECT id FROM album WHERE name = 'Attempted Lover')),
+    ('452AM', 172, 'sueco_attempted_lover_3.mp3', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'), (SELECT id FROM album WHERE name = 'Attempted Lover')),
+    ('Bad Idea', 151, 'sueco_attempted_lover_4.mp3', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'), (SELECT id FROM album WHERE name = 'Attempted Lover')),
+    ('Never Even Left', 139, 'sueco_attempted_lover_5.mp3', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco'), (SELECT id FROM album WHERE name = 'Attempted Lover'));
 
 INSERT INTO genre_artist (genre_id, artist_id) VALUES
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'Mirella')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM artist WHERE name = 'KUUMAA')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM artist WHERE name = 'JVG')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM artist WHERE name = 'Eminem')),
-  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM artist WHERE name = 'Robin Packalen'));
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM artist WHERE name = 'EKKSTACY')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM artist WHERE name = 'Sueco'));
 
 INSERT INTO genre_track (genre_id, track_id) VALUES
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Luotathan')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'Satama')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Rallikansa')),
-  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM track WHERE name = 'Kolmistaan')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM track WHERE name = 'Houdini'));
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i just want to hide my face')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'im so happy')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i wish you were pretty on the inside')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'christian death')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i want to die in your arms')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM track WHERE name = 'Wreck')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM track WHERE name = 'Wanna Feel Something')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM track WHERE name = '452AM')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM track WHERE name = 'Bad Idea')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM track WHERE name = 'Never Even Left'));
 
 INSERT INTO genre_album (genre_id, album_id) VALUES
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Luotathan')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'Pisara meressä')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Rallikansa')),
-  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM album WHERE name = 'Kolmistaan')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM album WHERE name = 'The Death of Slim Shady'));
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'misery')),
+  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM album WHERE name = 'Attempted Lover'));
 -- +goose StatementEnd
 
 -- +goose Down

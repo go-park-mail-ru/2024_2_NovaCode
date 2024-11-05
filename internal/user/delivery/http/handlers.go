@@ -310,7 +310,7 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 	}
 
 	upload := s3.Upload{
-		Bucket:      "users",
+		Bucket:      "avatars",
 		File:        bytes.NewReader(fileBytes),
 		Filename:    header.Filename,
 		Size:        header.Size,
