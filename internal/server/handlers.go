@@ -97,14 +97,19 @@ func (s *Server) BindUser() {
 
 	s.mux.Handle(
 		"/api/v1/users/{user_id:[0-9a-fA-F-]+}",
-		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Update)),
+		middleware.CSRFMiddleware(
+			&s.cfg.Service.Auth.CSRF, s.logger,
+			middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Update)),
+		),
 	).Methods("PUT")
 
 	s.mux.Handle(
 		"/api/v1/users/{user_id:[0-9a-fA-F-]+}/image",
-		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.UploadImage)),
+		middleware.CSRFMiddleware(
+			&s.cfg.Service.Auth.CSRF, s.logger,
+			middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.UploadImage)),
+		),
 	).Methods("POST")
-
 	s.mux.Handle(
 		"/api/v1/auth/health",
 		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Health)),

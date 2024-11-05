@@ -206,8 +206,8 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 
 	token := csrf.Generate(userID.String(), handlers.cfg.CSRF.Salt)
 
-	response.Header().Set(handlers.cfg.CSRF.HeaderName, token)
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("ok")); err != nil {
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(utils.NewCSRFResponse(token)); err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding csrf token response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
