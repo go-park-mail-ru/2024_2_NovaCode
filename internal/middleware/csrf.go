@@ -14,7 +14,7 @@ func CSRFMiddleware(cfg *config.CSRFConfig, logger logger.Logger, next http.Hand
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		token := request.Header.Get(cfg.HeaderName)
 		if token == "" {
-			logger.Warn("csrf token not provided")
+			logger.Warnf("csrf token not provided")
 			utils.JSONError(response, http.StatusForbidden, "forbidden")
 			return
 		}
