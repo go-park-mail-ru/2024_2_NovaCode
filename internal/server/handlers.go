@@ -110,6 +110,7 @@ func (s *Server) BindUser() {
 			middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.UploadImage)),
 		),
 	).Methods("POST")
+
 	s.mux.Handle(
 		"/api/v1/auth/health",
 		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Health)),

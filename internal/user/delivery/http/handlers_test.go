@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -559,8 +560,18 @@ func TestUserHandlers_GetCSRFToken(t *testing.T) {
 		userHandlers.GetCSRFToken(response, request)
 
 		result := response.Result()
+		buff, err := io.ReadAll(result.Body)
+		defer result.Body.Close()
+		assert.Nil(t, err)
+
+		var csrfResponse struct {
+			CSRF string `json:"csrf"`
+		}
+		err = json.Unmarshal(buff, &csrfResponse)
+		assert.Nil(t, err)
+
 		assert.Equal(t, http.StatusOK, result.StatusCode)
-		assert.Equal(t, expectedToken, result.Header.Get(cfg.Service.Auth.CSRF.HeaderName))
+		assert.Equal(t, expectedToken, csrfResponse.CSRF)
 	})
 
 	t.Run("user id not found in context", func(t *testing.T) {
