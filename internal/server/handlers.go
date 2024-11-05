@@ -113,6 +113,5 @@ func (s *Server) BindGenre() {
 
 	s.mux.HandleFunc("/api/v1/genres", genreHandleres.GetAll).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byArtistId/{artistId:[0-9]+}", genreHandleres.GetAllByArtistID).Methods("GET")
-	s.mux.HandleFunc("/api/v1/genres/byAlbumId/{albumId:[0-9]+}", genreHandleres.GetAllByAlbumID).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byTrackId/{trackId:[0-9]+}", genreHandleres.GetAllByTrackID).Methods("GET")
 }

@@ -61,27 +61,6 @@ func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 	return dtoGenres, nil
 }
 
-func (usecase *genreUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.GenreDTO, error) {
-	genres, err := usecase.genreRepo.GetAllByAlbumID(ctx, albumID)
-	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Can't load genres by album ID %d: %v", albumID, err))
-		return nil, fmt.Errorf("Can't load genres by album ID %d", albumID)
-	}
-	usecase.logger.Infof("Genres found for album ID %d", albumID)
-
-	var dtoGenres []*dto.GenreDTO
-	for _, genre := range genres {
-		dtoGenre, err := usecase.convertGenreToDTO(ctx, genre)
-		if err != nil {
-			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err))
-			return nil, fmt.Errorf("Can't create DTO")
-		}
-		dtoGenres = append(dtoGenres, dtoGenre)
-	}
-
-	return dtoGenres, nil
-}
-
 func (usecase *genreUsecase) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*dto.GenreDTO, error) {
 	genres, err := usecase.genreRepo.GetAllByTrackID(ctx, trackID)
 	if err != nil {

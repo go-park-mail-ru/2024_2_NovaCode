@@ -60,11 +60,13 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 
 	if err := json.NewDecoder(request.Body).Decode(&user); err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
+		handlers.logger.Errorf("error encoding register response: %v", err)
 		return
 	}
 
 	if user.Username == "" || user.Email == "" || user.Password == "" {
 		utils.JSONError(response, http.StatusBadRequest, "username, email and password are required")
+		handlers.logger.Errorf("username, email and password are required")
 		return
 	}
 

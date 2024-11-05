@@ -191,7 +191,7 @@ func TestGenreRepositoryGetByArtistID(t *testing.T) {
 	require.Equal(t, foundGenres, expectedGenres)
 }
 
-func TestGenreRepositoryGetAllByAlbumID(t *testing.T) {
+func TestGenreRepositoryGetAllByTrackID(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	require.NoError(t, err)
@@ -235,9 +235,9 @@ func TestGenreRepositoryGetAllByAlbumID(t *testing.T) {
 	}
 
 	expectedGenres := []*models.Genre{&genres[0], &genres[1], &genres[2]}
-	mock.ExpectQuery(getByAlbumIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
+	mock.ExpectQuery(getByTrackIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
 
-	foundGenres, err := genrePGRepository.GetAllByAlbumID(context.Background(), uint64(1))
+	foundGenres, err := genrePGRepository.GetAllByTrackID(context.Background(), uint64(1))
 	require.NoError(t, err)
 	require.NotNil(t, foundGenres)
 	require.Equal(t, foundGenres, expectedGenres)
