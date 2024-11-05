@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -35,10 +36,11 @@ func NewUserHandlers(cfg *config.AuthConfig, usecase user.Usecase, logger logger
 // @Success 200 {string} utils.MessageResponse "OK"
 // @Router /api/v1/health [get]
 func (handlers *userHandlers) Health(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("OK")); err != nil {
-		handlers.logger.Errorf("error encoding health response: %v", err)
+		handlers.logger.Error(fmt.Sprintf("error encoding health response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to get health status")
 		return
 	}
@@ -55,6 +57,7 @@ func (handlers *userHandlers) Health(response http.ResponseWriter, request *http
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/register [post]
 func (handlers *userHandlers) Register(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	var regDTO dto.RegisterDTO
 
 	if err := json.NewDecoder(request.Body).Decode(&regDTO); err != nil {
@@ -74,7 +77,7 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	user := dto.NewUserFromRegisterDTO(&regDTO)
 	userTokenDTO, err := handlers.usecase.Register(request.Context(), user)
 	if err != nil {
-		handlers.logger.Errorf("failed to register user: %v", err)
+		handlers.logger.Error(fmt.Sprintf("failed to register user: %v", err), requestID)
 		utils.JSONError(response, http.StatusBadRequest, "invalid username or password")
 		return
 	}
@@ -112,6 +115,7 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 // @Failure 500 {object} utils.ErrorResponse "Failed to return token"
 // @Router /api/v1/auth/login [post]
 func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	var loginDTO dto.LoginDTO
 
 	if err := json.NewDecoder(request.Body).Decode(&loginDTO); err != nil {
@@ -127,7 +131,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	user := dto.NewUserFromLoginDTO(&loginDTO)
 	userTokenDTO, err := handlers.usecase.Login(request.Context(), user)
 	if err != nil {
-		handlers.logger.Warnf("failed to login user: %v", err)
+		handlers.logger.Warn(fmt.Sprintf("failed to login user: %v", err), requestID)
 		utils.JSONError(response, http.StatusUnauthorized, "invalid username or password")
 		return
 	}
@@ -145,7 +149,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
-		handlers.logger.Errorf("failed to encode userTokenDTO: %v", err)
+		handlers.logger.Error(fmt.Sprintf("failed to encode userTokenDTO: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
@@ -161,6 +165,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 // @Failure 500 {object} utils.ErrorResponse "Failed to log out"
 // @Router /api/v1/auth/logout [post]
 func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	accessTokenCookie := http.Cookie{
 		Path:     "/",
 		Name:     handlers.cfg.Jwt.Cookie.Name,
@@ -174,7 +179,7 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("successfully logged out")); err != nil {
-		handlers.logger.Errorf("error encoding logout response: %v", err)
+		handlers.logger.Error(fmt.Sprintf("error encoding logout response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
@@ -191,9 +196,10 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 // @Failure 403 {object} utils.ErrorResponse "forbidden"
 // @Router /api/v1/auth/csrf [get]
 func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
-		handlers.logger.Errorf("user id not found in context")
+		handlers.logger.Error("user id not found in context", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "user id not found")
 		return
 	}
@@ -202,7 +208,7 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 
 	response.Header().Set(handlers.cfg.CSRF.HeaderName, token)
 	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("ok")); err != nil {
-		handlers.logger.Errorf("error encoding csrf token response: %v", err)
+		handlers.logger.Error(fmt.Sprintf("error encoding csrf token response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
@@ -225,11 +231,12 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 // @Failure 500 {object} utils.ErrorResponse "Failed to update user details"
 // @Router /api/v1/users/{user_id} [put]
 func (handlers *userHandlers) Update(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	var updateDTO dto.UpdateDTO
 
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
-		handlers.logger.Errorf("user id not found in context")
+		handlers.logger.Error("user id not found in context", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "user id not found")
 		return
 	}
@@ -243,14 +250,14 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 	user := dto.NewUserFromUpdateDTO(&updateDTO)
 	updatedUserDTO, err := handlers.usecase.Update(request.Context(), user)
 	if err != nil {
-		handlers.logger.Warnf("failed to update user: %v", err)
+		handlers.logger.Warn(fmt.Sprintf("failed to update user: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to update user details")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(updatedUserDTO); err != nil {
-		handlers.logger.Errorf("error encoding updated user response: %v", err)
+		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
@@ -273,9 +280,10 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 // @Failure 500 {object} utils.ErrorResponse "Failed to upload image"
 // @Router /api/v1/users/{user_id}/image [post]
 func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
-		handlers.logger.Errorf("user id not found in context")
+		handlers.logger.Error("user id not found in context", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "failed to update user details")
 		return
 	}
@@ -289,14 +297,14 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		handlers.logger.Errorf("failed to read file: %v", err)
+		handlers.logger.Error(fmt.Sprintf("failed to read file: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to read file")
 		return
 	}
 
 	contentType, err := content.IsImage(fileBytes)
 	if err != nil {
-		handlers.logger.Errorf("invalid content type: %v", err)
+		handlers.logger.Error(fmt.Sprintf("invalid content type: %v", err), requestID)
 		utils.JSONError(response, http.StatusBadRequest, "invalid content type")
 		return
 	}
@@ -311,14 +319,14 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 
 	userDTO, err := handlers.usecase.UploadImage(request.Context(), userID, upload)
 	if err != nil {
-		handlers.logger.Errorf("failed to upload image: %v", err)
+		handlers.logger.Error(fmt.Sprintf("failed to upload image: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to upload image")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(userDTO); err != nil {
-		handlers.logger.Errorf("error encoding updated user response: %v", err)
+		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
@@ -370,9 +378,10 @@ func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, re
 // @Failure 500 {object} utils.ErrorResponse "Failed to retrieve user details"
 // @Router /api/v1/users/me [get]
 func (handlers *userHandlers) GetMe(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
-		handlers.logger.Errorf("user id not found in context")
+		handlers.logger.Error("user id not found in context", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "user id not found")
 		return
 	}
