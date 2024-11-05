@@ -45,7 +45,7 @@ postgres:
   connMaxIdleTime: 20
 
 minio:
-  externalURL: http://185.241.194.24:9000
+  externalURL: http://185.241.194.24:8010
   innerURL: minio:9000
   user: user
   password: password

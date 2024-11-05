@@ -39,7 +39,7 @@ services:
       timeout: 3s
       retries: 3
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-volume:/var/lib/postgresql/data
 
   migrations:
     container_name: novamusic-postgres-migrations
@@ -66,11 +66,11 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
-      - MINIO_SERVER_URL=http://${HOST}:9000
+      - MINIO_SERVER_URL=http://${HOST}:8010
       - MINIO_BROWSER_REDIRECT_URL=http://${HOST}
     ports:
-      - 9000:9000
-      - 9001:9001
+      - 8010:9000
+      - 8011:9001
     command: server --console-address :9001 /data
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
@@ -78,7 +78,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - minio-data:/data
+      - minio-volume:/data
 
   minio-client:
     container_name: minio-client
@@ -88,7 +88,7 @@ services:
       /bin/sh -c "
       /usr/bin/mc config host rm local;
       /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
-      
+
       /usr/bin/mc mb --quiet local/avatars;
       /usr/bin/mc policy set public local/avatars;
 
@@ -103,16 +103,5 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/lib/novamusic/postgres-data
-
-  minio-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /var/lib/novamusic/minio-data
+  postgres-volume:
+  minio-volume:
