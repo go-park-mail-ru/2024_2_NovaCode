@@ -315,7 +315,7 @@ func TestUserHandlers_Update(t *testing.T) {
 		user := models.User{
 			UserID:   userID,
 			Email:    "updated@example.com",
-			Password: "newpassword",
+			Username: "newusername",
 		}
 
 		userDTO := &dto.UserDTO{
@@ -358,7 +358,6 @@ func TestUserHandlers_Update(t *testing.T) {
 			UserID:   userID,
 			Username: "updated_user",
 			Email:    "updated@example.com",
-			Password: "newpassword",
 		}
 
 		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))

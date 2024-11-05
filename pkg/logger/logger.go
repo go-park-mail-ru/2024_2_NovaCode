@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -17,10 +18,10 @@ var levelMapping = map[string]zapcore.Level{
 }
 
 type Logger interface {
-	Debug(msg string, f ...zap.Field)
-	Info(msg string, f ...zap.Field)
-	Warn(msg string, f ...zap.Field)
-	Error(msg string, f ...zap.Field)
+	Debug(msg string, requestID any, f ...zap.Field)
+	Info(msg string, requestID any, f ...zap.Field)
+	Warn(msg string, requestID any, f ...zap.Field)
+	Error(msg string, requestID any, f ...zap.Field)
 	Debugf(format string, v ...interface{})
 	Infof(format string, v ...interface{})
 	Warnf(format string, v ...interface{})
@@ -43,7 +44,7 @@ var encoderCfg = zapcore.EncoderConfig{
 	EncodeLevel:    zapcore.LowercaseLevelEncoder,
 	EncodeTime:     zapcore.ISO8601TimeEncoder,
 	EncodeDuration: zapcore.SecondsDurationEncoder,
-	EncodeCaller:   zapcore.ShortCallerEncoder,
+	EncodeCaller:   zapcore.FullCallerEncoder,
 }
 
 func New(cfg *config.LoggerConfig) Logger {
@@ -63,19 +64,43 @@ func New(cfg *config.LoggerConfig) Logger {
 	return &Log{logger}
 }
 
-func (l *Log) Debug(msg string, f ...zap.Field) {
+func (l *Log) Debug(msg string, requestIDAny any, f ...zap.Field) {
+	requestID, ok := requestIDAny.(uuid.UUID)
+	if !ok {
+		l.log.Debug(msg, f...)
+		return
+	}
+	f = append(f, zap.String("request_id", requestID.String()))
 	l.log.Debug(msg, f...)
 }
 
-func (l *Log) Info(msg string, f ...zap.Field) {
+func (l *Log) Info(msg string, requestIDAny any, f ...zap.Field) {
+	requestID, ok := requestIDAny.(uuid.UUID)
+	if !ok {
+		l.log.Info(msg, f...)
+		return
+	}
+	f = append(f, zap.String("request_id", requestID.String()))
 	l.log.Info(msg, f...)
 }
 
-func (l *Log) Warn(msg string, f ...zap.Field) {
+func (l *Log) Warn(msg string, requestIDAny any, f ...zap.Field) {
+	requestID, ok := requestIDAny.(uuid.UUID)
+	if !ok {
+		l.log.Warn(msg, f...)
+		return
+	}
+	f = append(f, zap.String("request_id", requestID.String()))
 	l.log.Warn(msg, f...)
 }
 
-func (l *Log) Error(msg string, f ...zap.Field) {
+func (l *Log) Error(msg string, requestIDAny any, f ...zap.Field) {
+	requestID, ok := requestIDAny.(uuid.UUID)
+	if !ok {
+		l.log.Error(msg, f...)
+		return
+	}
+	f = append(f, zap.String("request_id", requestID.String()))
 	l.log.Error(msg, f...)
 }
 

@@ -42,41 +42,39 @@ func NewUserUsecase(authCfg *config.AuthConfig, minioCfg *config.MinioConfig, pg
 }
 
 func (usecase *userUsecase) Register(ctx context.Context, user *models.User) (*dto.UserTokenDTO, error) {
-
-	requestId := ctx.Value(utils.RequestIdKey{}).(uuid.UUID)
-
+	requestID := ctx.Value(utils.RequestIDKey{})
 	if foundUser, err := usecase.pgRepo.FindByUsername(ctx, user.Username); foundUser != nil {
-		usecase.logger.Warn(fmt.Sprintf("username '%s' is already taken", user.Username), zap.String("request_id", requestId.String()))
+		usecase.logger.Warn(fmt.Sprintf("username '%s' is already taken", user.Username), requestID)
 		return nil, fmt.Errorf("user with that username already exists")
 	} else if err == nil {
-		usecase.logger.Error(fmt.Sprintf("error checking username availability: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrUsernameAvailabilityFailed, err)
+		usecase.logger.Error(fmt.Sprintf("error checking username availability: %v", err), requestID)
+		return nil, fmt.Errorf("failed to check username availability: %w", err)
 	}
 
 	if foundUser, err := usecase.pgRepo.FindByEmail(ctx, user.Email); foundUser != nil {
-		usecase.logger.Warn(fmt.Sprintf("email '%s' is already taken", user.Email), zap.String("request_id", requestId.String()))
+		usecase.logger.Warn(fmt.Sprintf("email '%s' is already taken", user.Email), requestID)
 		return nil, fmt.Errorf("user with that email already exists")
 	} else if err == nil {
-		usecase.logger.Error(fmt.Sprintf("error checking email availability: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrEmailAvailabilityFailed, err)
+		usecase.logger.Error(fmt.Sprintf("error checking email availability: %v", err), requestID)
+		return nil, fmt.Errorf("failed to check email availability: %w", err)
 	}
 
 	if err := user.HashPassword(); err != nil {
-		usecase.logger.Error(fmt.Sprintf("error hashing user password: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrHashPasswordFailed, err)
+		usecase.logger.Error(fmt.Sprintf("error hashing user password: %v", err), requestID)
+		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	insertedUser, err := usecase.pgRepo.Insert(ctx, user)
 	if err != nil {
-		usecase.logger.Error(fmt.Sprintf("error inserting user into repository: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrCreateUserFailed, err)
+		usecase.logger.Error(fmt.Sprintf("error inserting user into repository: %v", err), requestID)
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 	usecase.logger.Info(fmt.Sprintf("user '%s' successfully registered", insertedUser.Username), zap.String("request_id", requestId.String()))
 
 	token, err := utils.GenerateJWT(&usecase.cfg.Auth.Jwt, insertedUser)
 	if err != nil {
-		usecase.logger.Error(fmt.Sprintf("error generating jwt token: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrGenerateTokenFailed, err)
+		usecase.logger.Error(fmt.Sprintf("error generating jwt token: %v", err), requestID)
+		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
 	userTokenDTO := dto.NewUserTokenDTO(insertedUser, token)
@@ -84,23 +82,23 @@ func (usecase *userUsecase) Register(ctx context.Context, user *models.User) (*d
 }
 
 func (usecase *userUsecase) Login(ctx context.Context, user *models.User) (*dto.UserTokenDTO, error) {
-	requestId := ctx.Value(utils.RequestIdKey{}).(uuid.UUID)
+	requestID := ctx.Value(utils.RequestIDKey{})
 	foundUser, err := usecase.pgRepo.FindByUsername(ctx, user.Username)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("user not found: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrInvalidUsernamePassword, err)
+		usecase.logger.Warn(fmt.Sprintf("user not found: %v", err), requestID)
+		return nil, fmt.Errorf("invalid username or password")
 	}
 	usecase.logger.Info(fmt.Sprintf("user found: %s", foundUser.Username), zap.String("request_id", requestId.String()))
 
 	if err := foundUser.ComparePasswords(user.Password); err != nil {
-		usecase.logger.Warn(fmt.Sprintf("password comparison failed for user '%s': %v", user.Username, err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrInvalidUsernamePassword, err)
+		usecase.logger.Warn(fmt.Sprintf("password comparison failed for user '%s': %v", user.Username, err), requestID)
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	token, err := utils.GenerateJWT(&usecase.cfg.Auth.Jwt, foundUser)
 	if err != nil {
-		usecase.logger.Error(fmt.Sprintf("failed to generate jwt token: %v", err), zap.String("request_id", requestId.String()))
-		return nil, httpErrors.NewRestError(http.StatusBadRequest, httpErrors.StrGenerateTokenFailed, err)
+		usecase.logger.Error(fmt.Sprintf("failed to generate jwt token: %v", err), requestID)
+		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
 	userTokenDTO := dto.NewUserTokenDTO(foundUser, token)
@@ -108,9 +106,10 @@ func (usecase *userUsecase) Login(ctx context.Context, user *models.User) (*dto.
 }
 
 func (usecase *userUsecase) Update(ctx context.Context, user *models.User) (*dto.UserDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	currentUser, err := usecase.pgRepo.FindByID(ctx, user.UserID)
 	if err != nil {
-		usecase.logger.Warnf("user not found: %v", err)
+		usecase.logger.Warn(fmt.Sprintf("user not found: %v", err), requestID)
 		return nil, fmt.Errorf("failed to find user")
 	}
 
@@ -129,7 +128,7 @@ func (usecase *userUsecase) Update(ctx context.Context, user *models.User) (*dto
 
 	updatedUser, err := usecase.pgRepo.Update(ctx, currentUser)
 	if err != nil {
-		usecase.logger.Errorf("error updating user: %v", err)
+		usecase.logger.Error(fmt.Sprintf("error updating user: %v", err), requestID)
 		return nil, fmt.Errorf("failed to update user")
 	}
 	usecase.logger.Infof("user '%s' successfully updated", updatedUser.UserID)
@@ -139,15 +138,16 @@ func (usecase *userUsecase) Update(ctx context.Context, user *models.User) (*dto
 }
 
 func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, file s3.Upload) (*dto.UserDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	user, err := usecase.pgRepo.FindByID(ctx, userID)
 	if err != nil {
-		usecase.logger.Warnf("user not found: %v", err)
+		usecase.logger.Warn(fmt.Sprintf("user not found: %v", err), requestID)
 		return nil, fmt.Errorf("user not found")
 	}
 
 	uploadInfo, err := usecase.s3Repo.Put(ctx, file)
 	if err != nil {
-		usecase.logger.Warnf("failed to save user image: %v", err)
+		usecase.logger.Warn(fmt.Sprintf("failed to save user image: %v", err), requestID)
 		return nil, fmt.Errorf("failed to save user image")
 	}
 
@@ -158,7 +158,7 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 		Image:  imageURL,
 	})
 	if err != nil {
-		usecase.logger.Warnf("failed to update user model: %v", err)
+		usecase.logger.Warn(fmt.Sprintf("failed to update user model: %v", err), requestID)
 		return nil, fmt.Errorf("failed to update user model")
 	}
 
@@ -166,9 +166,10 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 }
 
 func (usecase *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*dto.UserDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	user, err := usecase.pgRepo.FindByID(ctx, userID)
 	if err != nil {
-		usecase.logger.Warnf("failed to find user by id '%s': %v", userID, err)
+		usecase.logger.Warn(fmt.Sprintf("failed to find user by id '%s': %v", userID, err), requestID)
 		return nil, fmt.Errorf("failed to find user")
 	}
 
@@ -177,9 +178,10 @@ func (usecase *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*dto
 }
 
 func (usecase *userUsecase) GetByUsername(ctx context.Context, username string) (*dto.UserDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	user, err := usecase.pgRepo.FindByUsername(ctx, username)
 	if err != nil {
-		usecase.logger.Warnf("failed to find user by name '%s': %v", username, err)
+		usecase.logger.Warn(fmt.Sprintf("failed to find user by name '%s': %v", username, err), requestID)
 		return nil, fmt.Errorf("failed to find user")
 	}
 

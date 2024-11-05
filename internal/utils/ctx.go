@@ -1,4 +1,4 @@
 package utils
 
 type UserIDKey struct{}
-type RequestIdKey struct{}
+type RequestIDKey struct{}
