@@ -151,7 +151,7 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 		return nil, fmt.Errorf("failed to save user image")
 	}
 
-	imageURL := usecase.generateImageURL(file.Bucket, uploadInfo.Key)
+	imageURL := uploadInfo.Key
 
 	updatedUserDTO, err := usecase.Update(ctx, &models.User{
 		UserID: user.UserID,
@@ -163,10 +163,6 @@ func (usecase *userUsecase) UploadImage(ctx context.Context, userID uuid.UUID, f
 	}
 
 	return updatedUserDTO, nil
-}
-
-func (usecase *userUsecase) generateImageURL(bucket string, key string) string {
-	return fmt.Sprintf("/%s/%s", bucket, key)
 }
 
 func (usecase *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*dto.UserDTO, error) {

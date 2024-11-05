@@ -207,7 +207,7 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 	token := csrf.Generate(userID.String(), handlers.cfg.CSRF.Salt)
 
 	response.Header().Set(handlers.cfg.CSRF.HeaderName, token)
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("ok")); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, utils.NewMessageResponse("ok")); err != nil {
 		handlers.logger.Errorf("error encoding csrf token response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
@@ -255,7 +255,7 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(updatedUserDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, updatedUserDTO); err != nil {
 		handlers.logger.Errorf("error encoding updated user response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
@@ -308,7 +308,7 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 	}
 
 	upload := s3.Upload{
-		Bucket:      "users",
+		Bucket:      "avatars",
 		File:        bytes.NewReader(fileBytes),
 		Filename:    header.Filename,
 		Size:        header.Size,
@@ -323,7 +323,7 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, userDTO); err != nil {
 		handlers.logger.Errorf("error encoding updated user response: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
@@ -358,7 +358,7 @@ func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, re
 	publicUserDTO := dto.NewPublicUserDTO(userDTO)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(publicUserDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, publicUserDTO); err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
@@ -390,7 +390,7 @@ func (handlers *userHandlers) GetMe(response http.ResponseWriter, request *http.
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userDTO); err != nil {
+	if err := utils.WriteResponse(response, http.StatusOK, userDTO); err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
