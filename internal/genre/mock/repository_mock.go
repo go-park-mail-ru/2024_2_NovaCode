@@ -74,12 +74,6 @@ func (m *MockRepo) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*mode
 	return ret0, ret1
 }
 
-// GetAllByAlbumID indicates an expected call of GetAllByAlbumID.
-func (mr *MockRepoMockRecorder) GetAllByAlbumID(ctx, albumID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByAlbumID", reflect.TypeOf((*MockRepo)(nil).GetAllByAlbumID), ctx, albumID)
-}
-
 // GetAllByArtistID mocks base method.
 func (m *MockRepo) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Genre, error) {
 	m.ctrl.T.Helper()

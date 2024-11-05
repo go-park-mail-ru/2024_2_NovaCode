@@ -1,12 +1,12 @@
 ```mermaid
 erDiagram
-    user||--o{ playlist : owns
+    user ||--o{ playlist : owns
     user {
         uuid id PK
         role_type role
         text username
         text email
-        text password
+        text password_hash
         timestamptz created_at
         timestamptz updated_at
     }
@@ -30,6 +30,8 @@ erDiagram
         int id PK
         text name
         text rus_name
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     album ||--o{ track : contains
@@ -50,6 +52,7 @@ erDiagram
         text name
         text image
         uuid owner_id FK
+        bool is_private
         timestamptz created_at
         timestamptz updated_at
     }
@@ -83,7 +86,7 @@ erDiagram
 
     genre_album {
         int id PK
-        int genre_id
+        int genre_id FK
         int album_id FK
     }
 
@@ -91,5 +94,38 @@ erDiagram
         int id PK 
         int genre_id FK 
         int track_id FK 
+    }
+
+    playlist_user {
+        int id PK
+        int playlist_id FK
+        uuid user_id FK
+    }
+
+    artist_score {
+        int id PK
+        int artist_id FK
+        uuid user_id FK
+        int score
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    album_score {
+        int id PK
+        int album_id FK
+        uuid user_id FK
+        int score
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    track_score {
+        int id PK
+        int track_id FK
+        uuid user_id FK
+        int score
+        timestamptz created_at
+        timestamptz updated_at
     }
 ```

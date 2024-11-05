@@ -50,21 +50,6 @@ func (mr *MockUsecaseMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockUsecase)(nil).GetAll), ctx)
 }
 
-// GetAllByAlbumID mocks base method.
-func (m *MockUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.GenreDTO, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByAlbumID", ctx, albumID)
-	ret0, _ := ret[0].([]*dto.GenreDTO)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllByAlbumID indicates an expected call of GetAllByAlbumID.
-func (mr *MockUsecaseMockRecorder) GetAllByAlbumID(ctx, albumID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByAlbumID", reflect.TypeOf((*MockUsecase)(nil).GetAllByAlbumID), ctx, albumID)
-}
-
 // GetAllByArtistID mocks base method.
 func (m *MockUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.GenreDTO, error) {
 	m.ctrl.T.Helper()

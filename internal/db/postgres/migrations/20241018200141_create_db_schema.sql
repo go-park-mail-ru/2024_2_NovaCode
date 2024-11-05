@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS "user" (
     CONSTRAINT username_length CHECK (char_length(username) <= 31),
   email TEXT NOT NULL UNIQUE,
     CONSTRAINT email_length CHECK (char_length(email) <= 255),
-  password TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
   image TEXT DEFAULT '/users/default.jpeg',
     CONSTRAINT profile_image_length CHECK (char_length(image) <= 255), 
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "artist" (
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS "artist" (
     CONSTRAINT artist_country_length CHECK (char_length(country) <= 31),
   image TEXT,
     CONSTRAINT artist_image_length CHECK (char_length(image) <= 255),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "genre" (
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS "genre" (
     CONSTRAINT genre_name_length CHECK (char_length(name) <= 31),
   rus_name TEXT NOT NULL UNIQUE,
     CONSTRAINT genre_rus_name_length CHECK (char_length(name) <= 31),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "album" (
@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS "album" (
   image TEXT,
     CONSTRAINT album_image_length CHECK (char_length(image) <= 255),
   artist_id INT REFERENCES artist (id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "playlist" (
@@ -60,8 +60,9 @@ CREATE TABLE IF NOT EXISTS "playlist" (
   image TEXT
     CONSTRAINT playlist_image_length CHECK (char_length(image) <= 255),
   owner_id UUID REFERENCES "user" (id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  is_private BOOL NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "track" (
@@ -74,14 +75,16 @@ CREATE TABLE IF NOT EXISTS "track" (
     CONSTRAINT track_image_length CHECK (char_length(image) <= 255),
   artist_id INT NOT NULL REFERENCES artist (id) ON DELETE CASCADE,
   album_id INT NOT NULL REFERENCES album (id) ON DELETE CASCADE,
+  track_order_in_album SERIAL,
   release_date TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT current_timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS "playlist_track" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   playlist_id INT NOT NULL REFERENCES playlist (id) ON DELETE CASCADE,
+  track_order_in_playlist SERIAL,
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
   UNIQUE (playlist_id, track_id)
 );
@@ -93,25 +96,58 @@ CREATE TABLE IF NOT EXISTS "genre_artist" (
   UNIQUE (genre_id, artist_id)
 );
 
-CREATE TABLE IF NOT EXISTS "genre_album" (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  genre_id INT NOT NULL REFERENCES genre (id) ON DELETE CASCADE,
-  album_id INT NOT NULL REFERENCES album (id) ON DELETE CASCADE,
-  UNIQUE (genre_id, album_id)
-);
-
 CREATE TABLE IF NOT EXISTS "genre_track" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   genre_id INT NOT NULL REFERENCES genre (id) ON DELETE CASCADE,
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
   UNIQUE (genre_id, track_id)
 );
+
+CREATE TABLE IF NOT EXISTS "playlist_user" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  playlist_id INT NOT NULL REFERENCES playlist (id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  UNIQUE (playlist_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS "artist_score" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  artist_id INT NOT NULL REFERENCES artist (id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  score INT NOT NULL CHECK (score IN (-1, 1)),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (artist_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS "album_score" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  album_id INT NOT NULL REFERENCES album (id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  score INT NOT NULL CHECK (score IN (-1, 1)),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (album_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS "track_score" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  score INT NOT NULL CHECK (score IN (-1, 1)),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (track_id, user_id)
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE IF EXISTS "track_score";
+DROP TABLE IF EXISTS "album_score";
+DROP TABLE IF EXISTS "artist_score";
+DROP TABLE IF EXISTS "playlist_user";
 DROP TABLE IF EXISTS "genre_track";
-DROP TABLE IF EXISTS "genre_album";
 DROP TABLE IF EXISTS "genre_artist";
 DROP TABLE IF EXISTS "playlist_track";
 DROP TABLE IF EXISTS "track";

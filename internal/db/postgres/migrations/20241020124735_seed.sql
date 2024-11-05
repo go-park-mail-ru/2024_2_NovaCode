@@ -51,13 +51,6 @@ INSERT INTO genre_track (genre_id, track_id) VALUES
   ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Rallikansa')),
   ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM track WHERE name = 'Kolmistaan')),
   ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM track WHERE name = 'Houdini'));
-
-INSERT INTO genre_album (genre_id, album_id) VALUES
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Luotathan')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'Pisara meressä')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Rallikansa')),
-  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM album WHERE name = 'Kolmistaan')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM album WHERE name = 'The Death of Slim Shady'));
 -- +goose StatementEnd
 
 -- +goose Down
@@ -68,5 +61,4 @@ TRUNCATE TABLE track CASCADE;
 TRUNCATE TABLE genre CASCADE;
 TRUNCATE TABLE genre_artist CASCADE;
 TRUNCATE TABLE genre_track CASCADE;
-TRUNCATE TABLE genre_album CASCADE;
 -- +goose StatementEnd

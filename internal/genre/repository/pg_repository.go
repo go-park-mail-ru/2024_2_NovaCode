@@ -107,32 +107,6 @@ func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID uint64)
 	return genres, nil
 }
 
-func (r *GenreRepository) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Genre, error) {
-	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getByAlbumIDQuery, albumID)
-	if err != nil {
-		return nil, errors.Wrap(err, "GetAllByAlbumID.Query")
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		genre := &models.Genre{}
-		err := rows.Scan(
-			&genre.ID,
-			&genre.Name,
-			&genre.RusName,
-			&genre.CreatedAt,
-			&genre.UpdatedAt,
-		)
-		if err != nil {
-			return nil, errors.Wrap(err, "GetAllByAlbumID.Scan")
-		}
-		genres = append(genres, genre)
-	}
-
-	return genres, nil
-}
-
 func (r *GenreRepository) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*models.Genre, error) {
 	var genres []*models.Genre
 	rows, err := r.db.QueryContext(ctx, getByTrackIDQuery, trackID)
