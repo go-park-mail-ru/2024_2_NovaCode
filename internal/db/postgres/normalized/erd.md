@@ -113,22 +113,4 @@ erDiagram
         timestamptz created_at
         timestamptz updated_at
     }
-
-    album_score {
-        int id PK
-        int album_id FK
-        uuid user_id FK
-        int score
-        timestamptz created_at
-        timestamptz updated_at
-    }
-
-    track_score {
-        int id PK
-        int track_id FK
-        uuid user_id FK
-        int score
-        timestamptz created_at
-        timestamptz updated_at
-    }
 ```

@@ -119,32 +119,10 @@ CREATE TABLE IF NOT EXISTS "artist_score" (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (artist_id, user_id)
 );
-
-CREATE TABLE IF NOT EXISTS "album_score" (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  album_id INT NOT NULL REFERENCES album (id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-  score INT NOT NULL CHECK (score IN (-1, 1)),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE (album_id, user_id)
-);
-
-CREATE TABLE IF NOT EXISTS "track_score" (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-  score INT NOT NULL CHECK (score IN (-1, 1)),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE (track_id, user_id)
-);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS "track_score";
-DROP TABLE IF EXISTS "album_score";
 DROP TABLE IF EXISTS "artist_score";
 DROP TABLE IF EXISTS "playlist_user";
 DROP TABLE IF EXISTS "genre_track";
