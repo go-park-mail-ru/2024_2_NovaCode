@@ -65,13 +65,14 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		return
 	}
 
-	if regDTO.Username == "" || regDTO.Email == "" || regDTO.Password == "" {
-		utils.JSONError(response, http.StatusBadRequest, "username, email and password are required")
-		return
-	}
-
 	if regDTO.Role == "" {
 		regDTO.Role = "regular"
+	}
+
+	if err := regDTO.Validate(); err != nil {
+		handlers.logger.Warnf(fmt.Sprintf("validation error: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("validation error: %v", err))
+		return
 	}
 
 	user := dto.NewUserFromRegisterDTO(&regDTO)
@@ -123,8 +124,9 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 		return
 	}
 
-	if loginDTO.Username == "" || loginDTO.Password == "" {
-		utils.JSONError(response, http.StatusBadRequest, "username and password are required")
+	if err := loginDTO.Validate(); err != nil {
+		handlers.logger.Warnf(fmt.Sprintf("validation error: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("validation error: %v", err))
 		return
 	}
 
