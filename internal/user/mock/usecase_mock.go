@@ -16,8 +16,8 @@ import (
 	models "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	dto "github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/dto"
 	s3 "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
-	uuid "github.com/google/uuid"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockUsecase is a mock of Usecase interface.

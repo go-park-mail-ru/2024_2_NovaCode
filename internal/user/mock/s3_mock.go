@@ -14,8 +14,8 @@ import (
 	reflect "reflect"
 
 	s3 "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
-	v7 "github.com/minio/minio-go/v7"
 	gomock "github.com/golang/mock/gomock"
+	v7 "github.com/minio/minio-go/v7"
 )
 
 // MockS3Repo is a mock of S3Repo interface.
