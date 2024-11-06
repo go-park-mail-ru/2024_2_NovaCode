@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS "track" (
     CONSTRAINT track_image_length CHECK (char_length(image) <= 255),
   artist_id INT NOT NULL REFERENCES artist (id) ON DELETE CASCADE,
   album_id INT NOT NULL REFERENCES album (id) ON DELETE CASCADE,
-  track_order_in_album SERIAL,
+  track_order_in_album INT,
   release_date TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS "track" (
 CREATE TABLE IF NOT EXISTS "playlist_track" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   playlist_id INT NOT NULL REFERENCES playlist (id) ON DELETE CASCADE,
-  track_order_in_playlist SERIAL,
+  track_order_in_playlist INT,
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
   UNIQUE (playlist_id, track_id)
 );
