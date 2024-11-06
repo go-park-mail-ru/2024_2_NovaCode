@@ -7,7 +7,6 @@ import (
 type Track struct {
 	ID          uint64
 	Name        string
-	Genre       string
 	Duration    uint64
 	FilePath    string
 	Image       string

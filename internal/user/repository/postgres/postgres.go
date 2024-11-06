@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/user"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 )
 
@@ -14,28 +15,35 @@ const (
 	insertUserQuery = `
 		INSERT INTO "user" (username, email, password, role)
 		VALUES ($1, $2, $3, $4)
-		RETURNING user_id, username, email, password, role, created_at, updated_at
+		RETURNING id, username, email, password, role, image, created_at, updated_at
+	`
+	updateUserQuery = `
+		UPDATE "user"
+		SET username = $1, email = $2, image = $3
+		WHERE id = $4
+		RETURNING id, username, email, image, created_at, updated_at
 	`
 	findByIDQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
-		FROM "user" WHERE user_id = $1
+		SELECT id, username, email, role, password, image, created_at, updated_at
+		FROM "user" WHERE id = $1
 	`
 	findByUsernameQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, image, created_at, updated_at
 		FROM "user" WHERE username = $1
 	`
 	findByEmailQuery = `
-		SELECT user_id, username, email, role, password, created_at, updated_at
+		SELECT id, username, email, role, password, image, created_at, updated_at
 		FROM "user" WHERE email = $1
 	`
 )
 
 type UserPostgresRepo struct {
-	db *sql.DB
+	db     *sql.DB
+	logger logger.Logger
 }
 
-func NewUserPostgresRepository(db *sql.DB) user.Repo {
-	return &UserPostgresRepo{db}
+func NewUserPostgresRepository(db *sql.DB, logger logger.Logger) user.PostgresRepo {
+	return &UserPostgresRepo{db, logger}
 }
 
 func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*models.User, error) {
@@ -54,6 +62,7 @@ func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*m
 		&insertedUser.Email,
 		&insertedUser.Password,
 		&insertedUser.Role,
+		&insertedUser.Image,
 		&insertedUser.CreatedAt,
 		&insertedUser.UpdatedAt,
 	); err != nil {
@@ -61,6 +70,30 @@ func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*m
 	}
 
 	return &insertedUser, nil
+}
+
+func (repo *UserPostgresRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
+	var updatedUser models.User
+
+	if err := repo.db.QueryRowContext(
+		ctx,
+		updateUserQuery,
+		user.Username,
+		user.Email,
+		user.Image,
+		user.UserID,
+	).Scan(
+		&updatedUser.UserID,
+		&updatedUser.Username,
+		&updatedUser.Email,
+		&updatedUser.Image,
+		&updatedUser.CreatedAt,
+		&updatedUser.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return &updatedUser, nil
 }
 
 func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*models.User, error) {
@@ -72,6 +105,7 @@ func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*mo
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
@@ -90,6 +124,7 @@ func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username strin
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
@@ -108,6 +143,7 @@ func (repo *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*m
 		&user.Email,
 		&user.Role,
 		&user.Password,
+		&user.Image,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {

@@ -46,7 +46,6 @@ func TestUsecase_View_FoundAlbum(t *testing.T) {
 	album := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
-		Genre:       "Rock",
 		TrackCount:  12,
 		ReleaseDate: time.Date(2024, 07, 19, 0, 0, 0, 0, time.UTC),
 		Image:       "/imgs/albums/album_1.jpg",
@@ -122,15 +121,15 @@ func TestUsecase_Search_FoundAlbums(t *testing.T) {
 
 	albums := []*models.Album{
 		{
-			ID: uint64(1), Name: "test", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ID: uint64(1), Name: "test", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
 			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "test", Genre: "2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
+			ID: uint64(2), Name: "test", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
 			ArtistID: uint64(2), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "album3", Genre: "3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
+			ID: uint64(3), Name: "album3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
 			ArtistID: uint64(3), CreatedAt: now, UpdatedAt: now,
 		},
 	}
@@ -206,15 +205,15 @@ func TestUsecase_GetAll_FoundAlbums(t *testing.T) {
 
 	albums := []*models.Album{
 		{
-			ID: uint64(1), Name: "album1", Genre: "1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ID: uint64(1), Name: "album1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
 			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(2), Name: "album2", Genre: "2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
+			ID: uint64(2), Name: "album2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
 			ArtistID: uint64(2), CreatedAt: now, UpdatedAt: now,
 		},
 		{
-			ID: uint64(3), Name: "album3", Genre: "3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
+			ID: uint64(3), Name: "album3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
 			ArtistID: uint64(3), CreatedAt: now, UpdatedAt: now,
 		},
 	}
@@ -262,4 +261,92 @@ func TestUsecase_GetAll_NotFoundAlbums(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, dtoAlbums)
 	require.EqualError(t, err, "Can't find albums")
+}
+
+func TestUsecase_GetAllByArtistID_FoundAlbums(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistRepoMock, logger)
+
+	now := time.Now()
+	artist := &models.Artist{
+		ID:        uint64(1),
+		Name:      "artist1",
+		Bio:       "1",
+		Country:   "1",
+		Image:     "1",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	albums := []*models.Album{
+		{
+			ID: uint64(1), Name: "album1", TrackCount: uint64(1), ReleaseDate: now, Image: "1",
+			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
+		},
+		{
+			ID: uint64(2), Name: "album2", TrackCount: uint64(2), ReleaseDate: now, Image: "2",
+			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
+		},
+		{
+			ID: uint64(3), Name: "album3", TrackCount: uint64(3), ReleaseDate: now, Image: "3",
+			ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
+		},
+	}
+
+	ctx := context.Background()
+	artistRepoMock.EXPECT().FindById(ctx, artist.ID).Return(artist, nil).Times(3)
+	albumRepoMock.EXPECT().GetAllByArtistID(ctx, artist.ID).Return(albums, nil)
+
+	dtoAlbums, err := albumUsecase.GetAllByArtistID(ctx, artist.ID)
+
+	require.NoError(t, err)
+	require.NotNil(t, dtoAlbums)
+	require.Equal(t, len(albums), len(dtoAlbums))
+
+	for i := 0; i < len(albums); i++ {
+		require.Equal(t, artist.Name, dtoAlbums[i].Artist)
+		require.Equal(t, albums[i].Name, dtoAlbums[i].Name)
+	}
+}
+
+func TestUsecase_GetAllByArtistID_NotFoundAlbums(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistRepoMock, logger)
+
+	ctx := context.Background()
+	albumRepoMock.EXPECT().GetAllByArtistID(ctx, uint64(1)).Return(nil, errors.New("Can't load albums by artist ID 1"))
+
+	dtoAlbums, err := albumUsecase.GetAllByArtistID(ctx, uint64(1))
+
+	require.Error(t, err)
+	require.Nil(t, dtoAlbums)
+	require.EqualError(t, err, "Can't load albums by artist ID 1")
 }

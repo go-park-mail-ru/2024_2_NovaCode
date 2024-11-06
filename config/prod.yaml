@@ -8,14 +8,19 @@ service:
   cors:
     allowOrigin: "http://185.241.194.24"
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
-    allowHeaders: "Content-Type"
+    allowHeaders: "Content-Type,X-Csrf-Token"
     allowCredentials: true
+    exposeHeaders: "X-Csrf-Token"
 
   logger:
     level: info
     format: json
 
   auth:
+    csrf:
+      headerName: X-Csrf-Token
+      salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
+
     jwt:
       secret: secret
       expire: 3600
@@ -38,3 +43,10 @@ postgres:
   connMaxLifetime: 120
   maxIdleConns: 30
   connMaxIdleTime: 20
+
+minio:
+  externalURL: http://185.241.194.24:8010
+  innerURL: minio:9000
+  user: user
+  password: password
+  sslMode: false

@@ -1,13 +1,16 @@
 package middleware
 
 import (
-	"log/slog"
+	"context"
 	"net/http"
 	"runtime/debug"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type responseWriter struct {
@@ -25,27 +28,32 @@ func LoggingMiddleware(cfg *config.ServiceConfig, logger logger.Logger, next htt
 		// intercepting response status
 		wrapped := &responseWriter{ResponseWriter: response, status: http.StatusOK}
 
+		requestID := uuid.New()
+		ctx := context.WithValue(request.Context(), utils.RequestIDKey{}, requestID)
+
 		defer func() {
 			if err := recover(); err != nil {
 				wrapped.WriteHeader(http.StatusInternalServerError)
 				logger.Error(
 					"error occurred while executing handler",
-					slog.Any("err", err),
-					slog.String("trace", string(debug.Stack())),
+					requestID,
+					zap.Any("err", err),
+					zap.String("trace", string(debug.Stack())),
 				)
 			}
 		}()
 
 		start := time.Now()
-		next.ServeHTTP(wrapped, request)
+		next.ServeHTTP(wrapped, request.WithContext(ctx))
 		duration := time.Since(start)
 
 		logger.Info(
 			"request completed",
-			slog.Int("status", wrapped.status),
-			slog.String("method", request.Method),
-			slog.String("path", request.URL.EscapedPath()),
-			slog.Int64("duration_ms", duration.Milliseconds()),
+			requestID,
+			zap.Int("status", wrapped.status),
+			zap.String("method", request.Method),
+			zap.String("path", request.URL.EscapedPath()),
+			zap.Int64("duration_ms", duration.Milliseconds()),
 		)
 	})
 }

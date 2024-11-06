@@ -23,7 +23,6 @@ func (r *TrackRepository) Create(ctx context.Context, track *models.Track) (*mod
 		ctx,
 		createTrackQuery,
 		track.Name,
-		track.Genre,
 		track.Duration,
 		track.FilePath,
 		track.Image,
@@ -35,7 +34,6 @@ func (r *TrackRepository) Create(ctx context.Context, track *models.Track) (*mod
 	if err := row.Scan(
 		&createdTrack.ID,
 		&createdTrack.Name,
-		&createdTrack.Genre,
 		&createdTrack.Duration,
 		&createdTrack.FilePath,
 		&createdTrack.Image,
@@ -57,7 +55,6 @@ func (r *TrackRepository) FindById(ctx context.Context, trackID uint64) (*models
 	if err := row.Scan(
 		&track.ID,
 		&track.Name,
-		&track.Genre,
 		&track.Duration,
 		&track.FilePath,
 		&track.Image,
@@ -86,7 +83,6 @@ func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*model
 		err := rows.Scan(
 			&track.ID,
 			&track.Name,
-			&track.Genre,
 			&track.Duration,
 			&track.FilePath,
 			&track.Image,
@@ -120,7 +116,6 @@ func (r *TrackRepository) GetAll(ctx context.Context) ([]*models.Track, error) {
 		err := rows.Scan(
 			&track.ID,
 			&track.Name,
-			&track.Genre,
 			&track.Duration,
 			&track.FilePath,
 			&track.Image,
@@ -132,6 +127,37 @@ func (r *TrackRepository) GetAll(ctx context.Context) ([]*models.Track, error) {
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAll.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}
+
+func (r *TrackRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetAllByArtistID.Query")
 		}
 		tracks = append(tracks, track)
 	}

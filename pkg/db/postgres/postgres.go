@@ -9,7 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func New(cfg *config.PostgresConfig) (*sql.DB, error) {
+type Client *sql.DB
+
+func New(cfg *config.PostgresConfig) (Client, error) {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
 		cfg.Host,
 		cfg.Port,

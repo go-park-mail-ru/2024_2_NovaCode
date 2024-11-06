@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -12,33 +11,36 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/minio/minio-go/v7"
 )
 
 type Server struct {
 	mux    *mux.Router
-	cfg    *config.ServiceConfig
-	db     *sql.DB
+	cfg    *config.Config
+	pg     postgres.Client
+	s3     *minio.Client
 	logger logger.Logger
 }
 
-func NewServer(cfg *config.ServiceConfig, db *sql.DB, logger logger.Logger) *Server {
-	return &Server{mux.NewRouter(), cfg, db, logger}
+func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger) *Server {
+	return &Server{mux.NewRouter(), cfg, pg, s3, logger}
 }
 
 func (s *Server) Run() error {
 	s.BindRoutes()
 
-	corsedMux := middleware.CORSMiddleware(&s.cfg.CORS, s.mux)
-	loggedCorsedMux := middleware.LoggingMiddleware(s.cfg, s.logger, corsedMux)
+	corsedMux := middleware.CORSMiddleware(&s.cfg.Service.CORS, s.mux)
+	loggedCorsedMux := middleware.LoggingMiddleware(&s.cfg.Service, s.logger, corsedMux)
 
 	server := &http.Server{
-		Addr:         s.cfg.Port,
+		Addr:         s.cfg.Service.Port,
 		Handler:      loggedCorsedMux,
-		ReadTimeout:  s.cfg.ReadTimeout * time.Second,
-		WriteTimeout: s.cfg.WriteTimeout * time.Second,
-		IdleTimeout:  s.cfg.IdleTimeout * time.Second,
+		ReadTimeout:  s.cfg.Service.ReadTimeout * time.Second,
+		WriteTimeout: s.cfg.Service.WriteTimeout * time.Second,
+		IdleTimeout:  s.cfg.Service.IdleTimeout * time.Second,
 	}
 
 	go func() {
@@ -52,7 +54,7 @@ func (s *Server) Run() error {
 
 	<-quit
 
-	ctx, shutdown := context.WithTimeout(context.Background(), s.cfg.ContextTimeout*time.Second)
+	ctx, shutdown := context.WithTimeout(context.Background(), s.cfg.Service.ContextTimeout*time.Second)
 	defer shutdown()
 
 	return server.Shutdown(ctx)
