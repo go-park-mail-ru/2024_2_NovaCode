@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -39,6 +40,20 @@ func (user *User) HashPassword() error {
 
 func (user *User) ComparePasswords(password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+}
+
+func (user *User) Sanitize() error {
+	p := bluemonday.StrictPolicy()
+
+	if p.Sanitize(user.Username) != user.Username {
+		return fmt.Errorf("username is sanitized for safety")
+	}
+
+	if p.Sanitize(user.Email) != user.Email {
+		return fmt.Errorf("email is sanitized for safety")
+	}
+
+	return nil
 }
 
 func (user *User) Validate() error {
