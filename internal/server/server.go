@@ -44,7 +44,7 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil {
+		if err := server.ListenAndServeTLS(s.cfg.Service.TLS.CertPath, s.cfg.Service.TLS.KeyPath); err != nil {
 			log.Fatalf("failed to start server: %s", err)
 		}
 	}()

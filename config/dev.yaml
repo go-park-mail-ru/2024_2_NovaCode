@@ -5,8 +5,12 @@ service:
   idleTimeout: 120
   contextTimeout: 5
 
+  tls:
+    certPath: "/etc/ssl/nova-music.ru/fullchain.pem"
+    keyPath: "/etc/ssl/nova-music.ru/privkey.pem"
+
   cors:
-    allowOrigin: "http://localhost:3000"
+    allowOrigin: "https://localhost"
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
     allowHeaders: "Content-Type,X-Csrf-Token"
     allowCredentials: true
@@ -27,7 +31,7 @@ service:
       cookie:
         name: jwt-token
         maxAge: 86400
-        secure: false
+        secure: true
         httpOnly: true
 
 postgres:
@@ -49,4 +53,4 @@ minio:
   innerURL: minio:9000
   user: user
   password: password
-  sslMode: false
+  sslMode: true
