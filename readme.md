@@ -26,5 +26,5 @@ backend репозиторий музыкального стриминговог
 
 ---
 
-* [Deploy](http://185.241.194.24/)
+* [Deploy](https://nova-music.ru)
 * [Figma](https://www.figma.com/design/16wWhVERhLVaW8ofIYx6xw/NovaMusik?node-id=0-1&t=4gs3zelba1yH4e9U-1)
