@@ -49,8 +49,7 @@ postgres:
   connMaxIdleTime: 20
 
 minio:
-  externalURL: localhost:8010
-  innerURL: minio:9000
+  url: localhost:8010
   user: user
   password: password
   sslMode: true

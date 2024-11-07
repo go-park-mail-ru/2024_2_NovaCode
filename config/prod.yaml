@@ -49,8 +49,7 @@ postgres:
   connMaxIdleTime: 20
 
 minio:
-  externalURL: https://nova-music.ru:8010
-  innerURL: minio:9000
+  url: nova-music.ru:8010
   user: user
   password: password
   sslMode: true

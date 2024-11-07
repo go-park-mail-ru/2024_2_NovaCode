@@ -84,7 +84,7 @@ type PostgresConfig struct {
 }
 
 type MinioConfig struct {
-	InnerURL string `yaml:"innerURL"`
+	URL      string `yaml:"url"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	SSLMode  bool   `yaml:"sslMode"`
