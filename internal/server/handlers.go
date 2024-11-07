@@ -36,9 +36,9 @@ func (s *Server) BindRoutes() {
 }
 
 func (s *Server) BindTrack() {
-	trackRepo := trackRepo.NewTrackPGRepository(s.pg)
-	albumRepo := albumRepo.NewAlbumPGRepository(s.pg)
-	artistRepo := artistRepo.NewArtistPGRepository(s.pg)
+	trackRepo := trackRepo.NewTrackPGRepository(s.pg, s.logger)
+	albumRepo := albumRepo.NewAlbumPGRepository(s.pg, s.logger)
+	artistRepo := artistRepo.NewArtistPGRepository(s.pg, s.logger)
 	trackUsecase := trackUsecase.NewTrackUsecase(trackRepo, albumRepo, artistRepo, s.logger)
 	trackHandleres := trackHandlers.NewTrackHandlers(trackUsecase, s.logger)
 
@@ -49,7 +49,7 @@ func (s *Server) BindTrack() {
 }
 
 func (s *Server) BindArtist() {
-	artistRepo := artistRepo.NewArtistPGRepository(s.pg)
+	artistRepo := artistRepo.NewArtistPGRepository(s.pg, s.logger)
 	artistUsecase := artistUsecase.NewArtistUsecase(artistRepo, s.logger)
 	artistHandlers := artistHandlers.NewArtistHandlers(artistUsecase, s.logger)
 
@@ -59,8 +59,8 @@ func (s *Server) BindArtist() {
 }
 
 func (s *Server) BindAlbum() {
-	artistRepo := artistRepo.NewArtistPGRepository(s.pg)
-	albumRepo := albumRepo.NewAlbumPGRepository(s.pg)
+	artistRepo := artistRepo.NewArtistPGRepository(s.pg, s.logger)
+	albumRepo := albumRepo.NewAlbumPGRepository(s.pg, s.logger)
 	albumUsecase := albumUsecase.NewAlbumUsecase(albumRepo, artistRepo, s.logger)
 	albumHandleres := albumHandlers.NewAlbumHandlers(albumUsecase, s.logger)
 
@@ -118,7 +118,7 @@ func (s *Server) BindUser() {
 }
 
 func (s *Server) BindGenre() {
-	genreRepo := genreRepo.NewGenrePGRepository(s.pg)
+	genreRepo := genreRepo.NewGenrePGRepository(s.pg, s.logger)
 	genreUsecase := genreUsecase.NewGenreUsecase(genreRepo, s.logger)
 	genreHandleres := genreHandlers.NewGenreHandlers(genreUsecase, s.logger)
 
