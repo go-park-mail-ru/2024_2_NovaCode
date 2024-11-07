@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +19,18 @@ func TestAlbumRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	albumPGRepository := NewAlbumPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumPGRepository := NewAlbumPGRepository(db, logger)
 	mockAlbum := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
@@ -59,7 +72,18 @@ func TestAlbumRepositoryFindById(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	albumPGRepository := NewAlbumPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumPGRepository := NewAlbumPGRepository(db, logger)
 	mockAlbum := &models.Album{
 		ID:          1,
 		Name:        "Attempted Lover",
@@ -95,7 +119,18 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	albumPGRepository := NewAlbumPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumPGRepository := NewAlbumPGRepository(db, logger)
 	albums := []models.Album{
 		{
 			ID:          1,
@@ -160,7 +195,18 @@ func TestAlbumRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	albumPGRepository := NewAlbumPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumPGRepository := NewAlbumPGRepository(db, logger)
 	albums := []models.Album{
 		{
 			ID:          1,
@@ -224,7 +270,18 @@ func TestAlbumRepositoryGetAllByArtistID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	albumPGRepository := NewAlbumPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumPGRepository := NewAlbumPGRepository(db, logger)
 	albums := []models.Album{
 		{
 			ID:          1,

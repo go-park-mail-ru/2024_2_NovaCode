@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +19,18 @@ func TestArtistRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	artistPGRepository := NewArtistPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistPGRepository := NewArtistPGRepository(db, logger)
 	mockArtist := &models.Artist{
 		ID:      1,
 		Name:    "quinn",
@@ -56,7 +69,18 @@ func TestArtistRepositoryFindById(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	artistPGRepository := NewArtistPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistPGRepository := NewArtistPGRepository(db, logger)
 	mockArtist := &models.Artist{
 		ID:      1,
 		Name:    "quinn",
@@ -90,7 +114,18 @@ func TestArtistRepositoryFindByName(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	artistPGRepository := NewArtistPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistPGRepository := NewArtistPGRepository(db, logger)
 	artists := []models.Artist{
 		{
 			ID:        1,
@@ -151,7 +186,18 @@ func TestArtistRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	artistPGRepository := NewArtistPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistPGRepository := NewArtistPGRepository(db, logger)
 	artists := []models.Artist{
 		{
 			ID:        1,

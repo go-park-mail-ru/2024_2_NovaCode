@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +19,18 @@ func TestTrackRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	mockTrack := &models.Track{
 		ID:          1,
 		Name:        "ok im cool",
@@ -65,7 +78,18 @@ func TestTrackRepositoryFindById(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	mockTrack := &models.Track{
 		ID:          1,
 		Name:        "ok im cool",
@@ -105,7 +129,18 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:          1,
@@ -178,7 +213,18 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:          1,
@@ -251,7 +297,18 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 
 	tracks := []models.Track{
 		{
