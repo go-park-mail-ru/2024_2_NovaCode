@@ -13,10 +13,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      # minio:
-      #   condition: service_healthy
-    volumes:
-      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+      minio:
+        condition: service_healthy
 
   postgres:
     container_name: novamusic-postgres
@@ -68,20 +66,19 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
-      - MINIO_SERVER_URL=https://${HOST}:9000
-      - MINIO_BROWSER_REDIRECT_URL=https://${HOST}
+      - MINIO_SERVER_URL=http://${HOST}:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://${HOST}:3000
     ports:
       - 8010:9000
       - 8011:9001
     command: server --console-address :9001 /data
-    # healthcheck:
-    #   test: ["CMD", "mc", "ready", "local"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - minio-volume2:/data
-      - /etc/ssl/nova-music.ru:/root/.minio/certs:ro
 
   minio-client:
     container_name: minio-client
@@ -90,7 +87,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host rm local;
-      /usr/bin/mc config host add --quiet --api s3v4 local https://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
+      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
 
       /usr/bin/mc mb --quiet local/avatars;
       /usr/bin/mc policy set public local/avatars;
@@ -101,9 +98,9 @@ services:
       /usr/bin/mc mb --quiet local/tracks;
       /usr/bin/mc policy set public local/tracks;
       "
-    # depends_on:
-    #   minio:
-    #     condition: service_healthy
+    depends_on:
+      minio:
+        condition: service_healthy
 
 volumes:
   postgres-volume2:

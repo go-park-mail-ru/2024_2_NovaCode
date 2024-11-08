@@ -44,7 +44,16 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
-		if err := server.ListenAndServeTLS(s.cfg.Service.TLS.CertPath, s.cfg.Service.TLS.KeyPath); err != nil {
+		env := os.Getenv("ENV")
+		var err error
+
+		if env == "prod" {
+			err = server.ListenAndServeTLS(s.cfg.Service.TLS.CertPath, s.cfg.Service.TLS.KeyPath)
+		} else {
+			err = server.ListenAndServe()
+		}
+
+		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("failed to start server: %s", err)
 		}
 	}()
