@@ -23,7 +23,7 @@ VALUES
     ('HXVRMXN', 'Pavel Viktorovich Vankovich, better known by his stage name as HXVRMXN, is a Belarusian phonk music producer.', 'Belarus', 'hxvrmxn.jpeg'),
     ('YONAKA', 'Yonaka (stylised as YONAKA) are an English rock band based in Brighton.', 'England', 'yonaka.jpg'),
     ('Yung Lean', 'Yung Lean, is a Swedish rapper. Widely cited as one of the most influential figures in the early cloud rap era, Yung Lean rose to prominence in 2013 with his song "Ginseng Strip 2002", which went viral on YouTube.', 'Sweden', 'yung_lean.jpeg'),
-    ('Thom Yorke', 'Thomas Edward Yorke is an English musician who is the main vocalist and songwriter of the rock band Radiohead. Rolling Stone described Yorke as one of the greatest and most influential singers of his generation. Also known as solo electronics and IDM artist', 'England', 'thom_yorke.jpeg');
+    ('Thom Yorke', 'Thomas Edward Yorke is an English musician who is the main vocalist and songwriter of the rock band Radiohead. Rolling Stone described Yorke as one of the greatest and most influential singers of his generation.', 'England', 'thom_yorke.jpeg');
 
 INSERT INTO album
     (name, image, artist_id)
@@ -90,13 +90,6 @@ INSERT INTO genre_artist (genre_id, artist_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM artist WHERE name = 'Thom Yorke'));
 
 INSERT INTO genre_track (genre_id, track_id) VALUES
-<<<<<<< HEAD
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Luotathan')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'Satama')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Rallikansa')),
-  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM track WHERE name = 'Kolmistaan')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM track WHERE name = 'Houdini'));
-=======
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i just want to hide my face')),
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'im so happy')),
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i wish you were pretty on the inside')),
@@ -135,17 +128,6 @@ INSERT INTO genre_track (genre_id, track_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Atoms For Peace')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Analyze')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'The Eraser'));
-
-INSERT INTO genre_album (genre_id, album_id) VALUES
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'misery')),
-  ((SELECT id FROM genre WHERE name = 'Rock'), (SELECT id FROM album WHERE name = 'Attempted Lover')),
-  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM album WHERE name = 'Перламутр')),
-  ((SELECT id FROM genre WHERE name = 'Indie'), (SELECT id FROM album WHERE name = 'Больше никогда')),
-  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM album WHERE name = 'Eclipse')),
-  ((SELECT id FROM genre WHERE name = 'Alternative'), (SELECT id FROM album WHERE name = 'Don''t Wait ''Til Tomorrow')),
-  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'Stranger')),
-  ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM album WHERE name = 'The Eraser'));
->>>>>>> NM-52
 -- +goose StatementEnd
 
 -- +goose Down

@@ -65,15 +65,6 @@ func (mr *MockRepoMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepo)(nil).GetAll), ctx)
 }
 
-// GetAllByAlbumID mocks base method.
-func (m *MockRepo) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Genre, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByAlbumID", ctx, albumID)
-	ret0, _ := ret[0].([]*models.Genre)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
 // GetAllByArtistID mocks base method.
 func (m *MockRepo) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Genre, error) {
 	m.ctrl.T.Helper()
