@@ -963,9 +963,6 @@ const docTemplate = `{
                 },
                 "release": {
                     "type": "string"
-                },
-                "trackCount": {
-                    "type": "integer"
                 }
             }
         },

@@ -9,8 +9,6 @@ definitions:
         type: string
       release:
         type: string
-      trackCount:
-        type: integer
     type: object
   dto.ArtistDTO:
     properties:

@@ -13,9 +13,9 @@ import (
 
 const (
 	insertUserQuery = `
-		INSERT INTO "user" (username, email, password, role)
+		INSERT INTO "user" (username, email, password_hash, role)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, username, email, password, role, image, created_at, updated_at
+		RETURNING id, username, email, password_hash, role, image, created_at, updated_at
 	`
 	updateUserQuery = `
 		UPDATE "user"
@@ -24,15 +24,15 @@ const (
 		RETURNING id, username, email, image, created_at, updated_at
 	`
 	findByIDQuery = `
-		SELECT id, username, email, role, password, image, created_at, updated_at
+		SELECT id, username, email, role, password_hash, image, created_at, updated_at
 		FROM "user" WHERE id = $1
 	`
 	findByUsernameQuery = `
-		SELECT id, username, email, role, password, image, created_at, updated_at
+		SELECT id, username, email, role, password_hash, image, created_at, updated_at
 		FROM "user" WHERE username = $1
 	`
 	findByEmailQuery = `
-		SELECT id, username, email, role, password, image, created_at, updated_at
+		SELECT id, username, email, role, password_hash, image, created_at, updated_at
 		FROM "user" WHERE email = $1
 	`
 )
