@@ -91,46 +91,6 @@ func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	response.WriteHeader(http.StatusOK)
 }
 
-// GetAllByAlbumID godoc
-// @Summary Get all genres by album ID
-// @Description Retrieves a list of all genres for a given album ID from the database.
-// @Param albumID path int true "Album ID"
-// @Success 200 {array} dto.GenreDTO "List of genres by album"
-// @Failure 404 {object} utils.ErrorResponse "No genres found for the album"
-// @Failure 500 {object} utils.ErrorResponse "Failed to load genres"
-// @Router /api/v1/genres/album/{albumID} [get]
-func (handlers *genreHandlers) GetAllByAlbumID(response http.ResponseWriter, request *http.Request) {
-	requestID := request.Context().Value(utils.RequestIDKey{})
-	vars := mux.Vars(request)
-	albumIDStr := vars["albumId"]
-	albumID, err := strconv.ParseUint(albumIDStr, 10, 64)
-	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err), requestID)
-		utils.JSONError(response, http.StatusBadRequest, "Invalid album ID")
-		return
-	}
-
-	genres, err := handlers.usecase.GetAllByAlbumID(request.Context(), albumID)
-	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to load genres by album ID: %v", err), requestID)
-		utils.JSONError(response, http.StatusInternalServerError, "Genres load fail")
-		return
-	} else if len(genres) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No genres found for album ID: %d", albumID), requestID)
-		utils.JSONError(response, http.StatusNotFound, "No genres found for the album")
-		return
-	}
-
-	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(genres); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
-		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
-		return
-	}
-
-	response.WriteHeader(http.StatusOK)
-}
-
 // GetAllByTrackID godoc
 // @Summary Get all genres by track ID
 // @Description Retrieves a list of all genres for a given track ID from the database.

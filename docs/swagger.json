@@ -952,9 +952,6 @@
                 },
                 "release": {
                     "type": "string"
-                },
-                "trackCount": {
-                    "type": "integer"
                 }
             }
         },

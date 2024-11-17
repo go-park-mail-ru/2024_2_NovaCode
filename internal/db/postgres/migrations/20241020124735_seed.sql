@@ -26,16 +26,16 @@ VALUES
     ('Thom Yorke', 'Thomas Edward Yorke is an English musician who is the main vocalist and songwriter of the rock band Radiohead. Rolling Stone described Yorke as one of the greatest and most influential singers of his generation. Also known as solo electronics and IDM artist', 'England', 'thom_yorke.jpeg');
 
 INSERT INTO album
-    (name, track_count, image, artist_id)
+    (name, image, artist_id)
 VALUES
-    ('misery', 5, 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY')),
-    ('Attempted Lover', 5, 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco')),
-    ('Перламутр', 5, 'prichastie_perlamytr.jpeg', (SELECT id FROM artist WHERE name = 'Причастие')),
-    ('Больше никогда', 5, 'bryuki_bri_bolshe_nikogda.jpeg', (SELECT id FROM artist WHERE name = 'Брюки бри')),
-    ('Eclipse', 3, 'hxvrmxn_eclipse.jpg', (SELECT id FROM artist WHERE name = 'HXVRMXN')),
-    ('Don''t Wait ''Til Tomorrow', 5, 'yonaka_dont_wait_til_tomorrow.jpg', (SELECT id FROM artist WHERE name = 'YONAKA')),
-    ('Stranger', 5, 'yung_lean_stranger.jpeg', (SELECT id FROM artist WHERE name = 'Yung Lean')),
-    ('The Eraser', 5, 'thom_yorke_the_eraser.png', (SELECT id FROM artist WHERE name = 'Thom Yorke'));
+    ('misery', 'ekkstacy_misery.jpeg', (SELECT id FROM artist WHERE name = 'EKKSTACY')),
+    ('Attempted Lover', 'sueco_attempted_lover.jpeg', (SELECT id FROM artist WHERE name = 'Sueco')),
+    ('Перламутр', 'prichastie_perlamytr.jpeg', (SELECT id FROM artist WHERE name = 'Причастие')),
+    ('Больше никогда', 'bryuki_bri_bolshe_nikogda.jpeg', (SELECT id FROM artist WHERE name = 'Брюки бри')),
+    ('Eclipse', 'hxvrmxn_eclipse.jpg', (SELECT id FROM artist WHERE name = 'HXVRMXN')),
+    ('Don''t Wait ''Til Tomorrow', 'yonaka_dont_wait_til_tomorrow.jpg', (SELECT id FROM artist WHERE name = 'YONAKA')),
+    ('Stranger', 'yung_lean_stranger.jpeg', (SELECT id FROM artist WHERE name = 'Yung Lean')),
+    ('The Eraser', 'thom_yorke_the_eraser.png', (SELECT id FROM artist WHERE name = 'Thom Yorke'));
 
 INSERT INTO track
     (name, duration, filepath, image, artist_id, album_id)
@@ -90,6 +90,13 @@ INSERT INTO genre_artist (genre_id, artist_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM artist WHERE name = 'Thom Yorke'));
 
 INSERT INTO genre_track (genre_id, track_id) VALUES
+<<<<<<< HEAD
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Luotathan')),
+  ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'Satama')),
+  ((SELECT id FROM genre WHERE name = 'Pop'), (SELECT id FROM track WHERE name = 'Rallikansa')),
+  ((SELECT id FROM genre WHERE name = 'Country'), (SELECT id FROM track WHERE name = 'Kolmistaan')),
+  ((SELECT id FROM genre WHERE name = 'Hip-Hop'), (SELECT id FROM track WHERE name = 'Houdini'));
+=======
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i just want to hide my face')),
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'im so happy')),
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM track WHERE name = 'i wish you were pretty on the inside')),
@@ -138,6 +145,7 @@ INSERT INTO genre_album (genre_id, album_id) VALUES
   ((SELECT id FROM genre WHERE name = 'Alternative'), (SELECT id FROM album WHERE name = 'Don''t Wait ''Til Tomorrow')),
   ((SELECT id FROM genre WHERE name = 'Rap'), (SELECT id FROM album WHERE name = 'Stranger')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM album WHERE name = 'The Eraser'));
+>>>>>>> NM-52
 -- +goose StatementEnd
 
 -- +goose Down
@@ -148,5 +156,4 @@ TRUNCATE TABLE track CASCADE;
 TRUNCATE TABLE genre CASCADE;
 TRUNCATE TABLE genre_artist CASCADE;
 TRUNCATE TABLE genre_track CASCADE;
-TRUNCATE TABLE genre_album CASCADE;
 -- +goose StatementEnd

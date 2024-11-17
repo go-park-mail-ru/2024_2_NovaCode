@@ -10,6 +10,5 @@ type Repo interface {
 	Create(ctx context.Context, genre *models.Genre) (*models.Genre, error)
 	GetAll(ctx context.Context) ([]*models.Genre, error)
 	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Genre, error)
-	GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Genre, error)
 	GetAllByTrackID(ctx context.Context, trackID uint64) ([]*models.Genre, error)
 }
