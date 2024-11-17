@@ -281,6 +281,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/csrf": {
+            "get": {
+                "description": "Generates a CSRF token for the authenticated user",
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Generate a CSRF token",
+                "responses": {
+                    "200": {
+                        "description": "CSRF token generated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.MessageResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "description": "Authenticate a user using their username and password. On success, returns an authentication token.",

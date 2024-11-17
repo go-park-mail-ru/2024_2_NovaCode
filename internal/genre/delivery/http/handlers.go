@@ -29,20 +29,21 @@ func NewGenreHandlers(usecase genre.Usecase, logger logger.Logger) genre.Handler
 // @Failure 500 {object} utils.ErrorResponse "Failed to load genres"
 // @Router /api/v1/genres/all [get]
 func (handlers *genreHandlers) GetAll(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	genres, err := handlers.usecase.GetAll(request.Context())
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to load genres: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to load genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Genres load fail")
 		return
 	} else if len(genres) == 0 {
-		handlers.logger.Error("No genres were found")
+		handlers.logger.Error("No genres were found", requestID)
 		utils.JSONError(response, http.StatusNotFound, "No genres were found")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(genres); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
@@ -59,29 +60,30 @@ func (handlers *genreHandlers) GetAll(response http.ResponseWriter, request *htt
 // @Failure 500 {object} utils.ErrorResponse "Failed to load genres"
 // @Router /api/v1/genres/artist/{artistID} [get]
 func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
 	artistIDStr := vars["artistId"]
 	artistID, err := strconv.ParseUint(artistIDStr, 10, 64)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err), requestID)
 		utils.JSONError(response, http.StatusBadRequest, "Invalid artist ID")
 		return
 	}
 
 	genres, err := handlers.usecase.GetAllByArtistID(request.Context(), artistID)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to load genres by artist ID: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to load genres by artist ID: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Genres load fail")
 		return
 	} else if len(genres) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No genres found for artist ID: %d", artistID))
+		handlers.logger.Error(fmt.Sprintf("No genres found for artist ID: %d", artistID), requestID)
 		utils.JSONError(response, http.StatusNotFound, "No genres found for the artist")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(genres); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
@@ -98,29 +100,30 @@ func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, re
 // @Failure 500 {object} utils.ErrorResponse "Failed to load genres"
 // @Router /api/v1/genres/track/{trackID} [get]
 func (handlers *genreHandlers) GetAllByTrackID(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
 	trackIDStr := vars["trackId"]
 	trackID, err := strconv.ParseUint(trackIDStr, 10, 64)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err), requestID)
 		utils.JSONError(response, http.StatusBadRequest, "Invalid track ID")
 		return
 	}
 
 	genres, err := handlers.usecase.GetAllByTrackID(request.Context(), trackID)
 	if err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to load genres by track ID: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to load genres by track ID: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Genres load fail")
 		return
 	} else if len(genres) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No genres found for track ID: %d", trackID))
+		handlers.logger.Error(fmt.Sprintf("No genres found for track ID: %d", trackID), requestID)
 		utils.JSONError(response, http.StatusNotFound, "No genres found for the track")
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(response).Encode(genres); err != nil {
-		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err))
+		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}

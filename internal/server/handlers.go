@@ -81,6 +81,11 @@ func (s *Server) BindUser() {
 	s.mux.HandleFunc("/api/v1/auth/register", userHandleres.Register).Methods("POST")
 	s.mux.HandleFunc("/api/v1/auth/login", userHandleres.Login).Methods("POST")
 
+	s.mux.Handle(
+		"/api/v1/auth/csrf",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.GetCSRFToken)),
+	).Methods("GET")
+
 	s.mux.HandleFunc("/api/v1/auth/logout", userHandleres.Logout).Methods("POST")
 
 	s.mux.HandleFunc("/api/v1/users/{username:[a-zA-Z0-9-_]+}", userHandleres.GetUserByUsername).Methods("GET")
@@ -92,12 +97,18 @@ func (s *Server) BindUser() {
 
 	s.mux.Handle(
 		"/api/v1/users/{user_id:[0-9a-fA-F-]+}",
-		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.Update)),
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(userHandleres.Update)),
+		),
 	).Methods("PUT")
 
 	s.mux.Handle(
 		"/api/v1/users/{user_id:[0-9a-fA-F-]+}/image",
-		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(userHandleres.UploadImage)),
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(userHandleres.UploadImage)),
+		),
 	).Methods("POST")
 
 	s.mux.Handle(

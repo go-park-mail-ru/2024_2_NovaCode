@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   email TEXT NOT NULL UNIQUE,
     CONSTRAINT email_length CHECK (char_length(email) <= 255),
   password_hash TEXT NOT NULL,
-  image TEXT DEFAULT '/users/default.jpeg',
+  image TEXT DEFAULT 'default.jpeg',
     CONSTRAINT profile_image_length CHECK (char_length(image) <= 255), 
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

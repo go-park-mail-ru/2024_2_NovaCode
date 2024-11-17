@@ -21,6 +21,14 @@ func NewMessageResponse(message string) *MessageResponse {
 	return &MessageResponse{message}
 }
 
+type CSRFResponse struct {
+	CSRF string `json:"csrf"`
+}
+
+func NewCSRFResponse(csrf string) *CSRFResponse {
+	return &CSRFResponse{csrf}
+}
+
 func JSONError(response http.ResponseWriter, statusCode int, message string) {
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(statusCode)

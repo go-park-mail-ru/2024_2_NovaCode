@@ -1,3 +1,6 @@
 package utils
 
-type UserIDKey struct{}
+type (
+	UserIDKey    struct{}
+	RequestIDKey struct{}
+)

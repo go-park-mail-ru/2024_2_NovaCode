@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 
@@ -20,18 +21,19 @@ func NewGenreUsecase(genreRepo genre.Repo, logger logger.Logger) genre.Usecase {
 }
 
 func (usecase *genreUsecase) GetAll(ctx context.Context) ([]*dto.GenreDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	genres, err := usecase.genreRepo.GetAll(ctx)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Can't load genres: %v", err))
+		usecase.logger.Warn(fmt.Sprintf("Can't load genres: %v", err), requestID)
 		return nil, fmt.Errorf("Can't find genres")
 	}
-	usecase.logger.Info("Genres found")
+	usecase.logger.Info("Genres found", requestID)
 
 	var dtoGenres []*dto.GenreDTO
 	for _, genre := range genres {
 		dtoGenre, err := usecase.convertGenreToDTO(ctx, genre)
 		if err != nil {
-			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err))
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err), requestID)
 			return nil, fmt.Errorf("Can't create DTO")
 		}
 		dtoGenres = append(dtoGenres, dtoGenre)
@@ -41,9 +43,10 @@ func (usecase *genreUsecase) GetAll(ctx context.Context) ([]*dto.GenreDTO, error
 }
 
 func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.GenreDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	genres, err := usecase.genreRepo.GetAllByArtistID(ctx, artistID)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Can't load genres by artist ID %d: %v", artistID, err))
+		usecase.logger.Warn(fmt.Sprintf("Can't load genres by artist ID %d: %v", artistID, err), requestID)
 		return nil, fmt.Errorf("Can't load genres by artist ID %d", artistID)
 	}
 	usecase.logger.Infof("Genres found for artist ID %d", artistID)
@@ -52,7 +55,7 @@ func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 	for _, genre := range genres {
 		dtoGenre, err := usecase.convertGenreToDTO(ctx, genre)
 		if err != nil {
-			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err))
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err), requestID)
 			return nil, fmt.Errorf("Can't create DTO")
 		}
 		dtoGenres = append(dtoGenres, dtoGenre)
@@ -62,9 +65,10 @@ func (usecase *genreUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 }
 
 func (usecase *genreUsecase) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*dto.GenreDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	genres, err := usecase.genreRepo.GetAllByTrackID(ctx, trackID)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Can't load genres by track ID %d: %v", trackID, err))
+		usecase.logger.Warn(fmt.Sprintf("Can't load genres by track ID %d: %v", trackID, err), requestID)
 		return nil, fmt.Errorf("Can't load genres by track ID %d", trackID)
 	}
 	usecase.logger.Infof("Genres found for track ID %d", trackID)
@@ -73,7 +77,7 @@ func (usecase *genreUsecase) GetAllByTrackID(ctx context.Context, trackID uint64
 	for _, genre := range genres {
 		dtoGenre, err := usecase.convertGenreToDTO(ctx, genre)
 		if err != nil {
-			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err))
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for genre: %v", err), requestID)
 			return nil, fmt.Errorf("Can't create DTO")
 		}
 		dtoGenres = append(dtoGenres, dtoGenre)
