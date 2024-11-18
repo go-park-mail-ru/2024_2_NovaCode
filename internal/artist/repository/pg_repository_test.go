@@ -84,7 +84,7 @@ func TestArtistRepositoryFindById(t *testing.T) {
 	require.Equal(t, foundArtist.ID, foundArtist.ID)
 }
 
-func TestArtistRepositoryFindByName(t *testing.T) {
+func TestArtistRepositoryFindByQuery(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	require.NoError(t, err)
@@ -136,10 +136,10 @@ func TestArtistRepositoryFindByName(t *testing.T) {
 	}
 
 	findName := "test"
-	expectedArtists := []*models.Artist{&artists[1], &artists[2]}
+	expectedArtists := []*models.Artist{&artists[0], &artists[1], &artists[2]}
 	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
 
-	foundArtists, err := artistPGRepository.FindByName(context.Background(), findName)
+	foundArtists, err := artistPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
 	require.NotNil(t, foundArtists)
 	require.Equal(t, foundArtists, expectedArtists)

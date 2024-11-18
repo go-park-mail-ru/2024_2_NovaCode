@@ -136,7 +136,7 @@ func TestUsecase_Search_FoundAlbums(t *testing.T) {
 	ctx := context.Background()
 	artistRepoMock.EXPECT().FindById(ctx, artists[0].ID).Return(artists[0], nil)
 	artistRepoMock.EXPECT().FindById(ctx, artists[1].ID).Return(artists[1], nil)
-	albumRepoMock.EXPECT().FindByName(ctx, "test").Return([]*models.Album{albums[0], albums[1]}, nil)
+	albumRepoMock.EXPECT().FindByQuery(ctx, "test").Return([]*models.Album{albums[0], albums[1]}, nil)
 
 	dtoAlbums, err := albumUsecase.Search(ctx, "test")
 
@@ -168,7 +168,7 @@ func TestUsecase_Search_NotFoundAlbums(t *testing.T) {
 	albumUsecase := NewAlbumUsecase(albumRepoMock, artistRepoMock, logger)
 
 	ctx := context.Background()
-	albumRepoMock.EXPECT().FindByName(ctx, "album").Return(nil, errors.New("Can't find albums"))
+	albumRepoMock.EXPECT().FindByQuery(ctx, "album").Return(nil, errors.New("Can't find albums"))
 
 	dtoAlbums, err := albumUsecase.Search(ctx, "album")
 

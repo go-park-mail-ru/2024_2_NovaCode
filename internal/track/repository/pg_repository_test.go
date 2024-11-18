@@ -7,6 +7,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	uuid "github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -100,7 +101,7 @@ func TestTrackRepositoryFindById(t *testing.T) {
 	require.Equal(t, foundTrack.ID, foundTrack.ID)
 }
 
-func TestTrackRepositoryFindByName(t *testing.T) {
+func TestTrackRepositoryFindByQuery(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	require.NoError(t, err)
@@ -164,10 +165,10 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 	}
 
 	findName := "test"
-	expectedTracks := []*models.Track{&tracks[0], &tracks[2]}
-	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
+	expectedTracks := []*models.Track{&tracks[0], &tracks[1], &tracks[2]}
+	mock.ExpectQuery(findByQuery).WithArgs(utils.MakeSearchQuery(findName)).WillReturnRows(rows)
 
-	foundTracks, err := trackPGRepository.FindByName(context.Background(), findName)
+	foundTracks, err := trackPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
 	require.NotNil(t, foundTracks)
 	require.Equal(t, foundTracks, expectedTracks)

@@ -105,7 +105,7 @@ func TestUsecase_Search_FoundArtists(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	artistRepoMock.EXPECT().FindByName(ctx, "artist").Return([]*models.Artist{artists[1], artists[2]}, nil)
+	artistRepoMock.EXPECT().FindByQuery(ctx, "artist").Return([]*models.Artist{artists[1], artists[2]}, nil)
 
 	dtoArtists, err := artistUsecase.Search(ctx, "artist")
 
@@ -134,7 +134,7 @@ func TestUsecase_Search_NotFoundArtists(t *testing.T) {
 	artistUsecase := NewArtistUsecase(artistRepoMock, logger)
 
 	ctx := context.Background()
-	artistRepoMock.EXPECT().FindByName(ctx, "artist").Return(nil, errors.New("Can't find artist"))
+	artistRepoMock.EXPECT().FindByQuery(ctx, "artist").Return(nil, errors.New("Can't find artist"))
 
 	dtoArtists, err := artistUsecase.Search(ctx, "artist")
 
