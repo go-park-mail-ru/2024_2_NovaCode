@@ -5,12 +5,12 @@ on:
     branches:
       - main
       - dev
-      - feature/*
+      - NM-*
   push:
     branches:
       - main
       - dev
-      - feature/*
+      - NM-*
 
 jobs:
   lint:
