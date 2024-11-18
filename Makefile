@@ -6,7 +6,7 @@ POSTGRES_CONNECTION = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRE
 ENTRY_PATH = ./cmd/main.go
 MIGRATIONS_PATH = ./internal/db/$*/migrations
 BINARY_PATH = ./bin/main
-DOCKER_COMPOSE_PATH = ./docker/docker-compose.yaml
+DOCKER_COMPOSE_PATH = ./docker/docker-compose.$(ENV).yaml
 GOLANGCI_LINT_PATH = ./.golangci.yaml
 
 # use `gawk` on mac os
@@ -129,7 +129,7 @@ docker-migrate:
 ## Format: `docker-start [compose=<docker-compose-service>]`.
 ## Example: `docker-start`, `docker-stop compose=postgres`.
 docker-start:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
+	docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
 
 .PHONY: docker-stop
 ## Stop docker compose containers (all by default).

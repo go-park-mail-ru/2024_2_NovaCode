@@ -22,9 +22,15 @@ type ServiceConfig struct {
 	IdleTimeout    time.Duration `yaml:"idleTimeout"`
 	ContextTimeout time.Duration `yaml:"contextTimeout"`
 
+	TLS    TLSConfig    `yaml:"tls"`
 	CORS   CORSConfig   `yaml:"cors"`
 	Logger LoggerConfig `yaml:"logger"`
 	Auth   AuthConfig   `yaml:"auth"`
+}
+
+type TLSConfig struct {
+	CertPath string `yaml:"certPath"`
+	KeyPath  string `yaml:"keyPath"`
 }
 
 type CORSConfig struct {
@@ -78,7 +84,7 @@ type PostgresConfig struct {
 }
 
 type MinioConfig struct {
-	InnerURL string `yaml:"innerURL"`
+	URL      string `yaml:"url"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	SSLMode  bool   `yaml:"sslMode"`

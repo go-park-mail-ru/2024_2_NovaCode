@@ -65,16 +65,25 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		return
 	}
 
-	if regDTO.Username == "" || regDTO.Email == "" || regDTO.Password == "" {
-		utils.JSONError(response, http.StatusBadRequest, "username, email and password are required")
-		return
-	}
-
 	if regDTO.Role == "" {
 		regDTO.Role = "regular"
 	}
 
+	if err := regDTO.Validate(); err != nil {
+		handlers.logger.Warnf(fmt.Sprintf("validation error: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("validation error: %v", err))
+		return
+	}
+
 	user := dto.NewUserFromRegisterDTO(&regDTO)
+
+	err := user.Sanitize()
+	if err != nil {
+		handlers.logger.Warn(fmt.Sprintf("sanitized: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("invalid username or password: %v", err))
+		return
+	}
+
 	userTokenDTO, err := handlers.usecase.Register(request.Context(), user)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("failed to register user: %v", err), requestID)
@@ -123,12 +132,20 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 		return
 	}
 
-	if loginDTO.Username == "" || loginDTO.Password == "" {
-		utils.JSONError(response, http.StatusBadRequest, "username and password are required")
+	if err := loginDTO.Validate(); err != nil {
+		handlers.logger.Warnf(fmt.Sprintf("validation error: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("validation error: %v", err))
 		return
 	}
 
 	user := dto.NewUserFromLoginDTO(&loginDTO)
+
+	err := user.Sanitize()
+	if err != nil {
+		handlers.logger.Warn(fmt.Sprintf("sanitized user: %v", err), requestID)
+		utils.JSONError(response, http.StatusUnauthorized, fmt.Sprintf("invalid username or password: %v", err))
+	}
+
 	userTokenDTO, err := handlers.usecase.Login(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warn(fmt.Sprintf("failed to login user: %v", err), requestID)

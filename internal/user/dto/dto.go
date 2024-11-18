@@ -12,6 +12,22 @@ type RegisterDTO struct {
 	Password string `json:"password,omitempty"`
 }
 
+func (dto *RegisterDTO) Validate() error {
+	if err := models.ValidateUsername(dto.Username); err != nil {
+		return err
+	}
+
+	if err := models.ValidateEmail(dto.Email); err != nil {
+		return err
+	}
+
+	if err := models.ValidatePassword(dto.Password); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewUserFromRegisterDTO(registerDTO *RegisterDTO) *models.User {
 	return &models.User{
 		Role:     registerDTO.Role,
@@ -24,6 +40,18 @@ func NewUserFromRegisterDTO(registerDTO *RegisterDTO) *models.User {
 type LoginDTO struct {
 	Username string `json:"username,omitempty"`
 	Password string `json:"password,omitempty"`
+}
+
+func (dto *LoginDTO) Validate() error {
+	if err := models.ValidateUsername(dto.Username); err != nil {
+		return err
+	}
+
+	if err := models.ValidatePassword(dto.Password); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewUserFromLoginDTO(loginDTO *LoginDTO) *models.User {
