@@ -119,10 +119,23 @@ CREATE TABLE IF NOT EXISTS "artist_score" (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (artist_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS "favorite_track" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX favorite_track_unique ON favorite_track (user_id, track_id);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP INDEX IF EXISTS favorite_track_unique;
+
+DROP TABLE IF EXISTS "favorite_track";
 DROP TABLE IF EXISTS "artist_score";
 DROP TABLE IF EXISTS "playlist_user";
 DROP TABLE IF EXISTS "genre_track";
