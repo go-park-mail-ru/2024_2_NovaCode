@@ -51,6 +51,8 @@ definitions:
         type: integer
       filepath:
         type: string
+      id:
+        type: integer
       image:
         type: string
       name:
@@ -75,25 +77,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/dto.UserDTO'
-    type: object
-  models.User:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      image:
-        type: string
-      password:
-        type: string
-      role:
-        type: string
-      updatedAt:
-        type: string
-      userID:
-        type: string
-      username:
-        type: string
     type: object
   utils.ErrorResponse:
     properties:
@@ -181,11 +164,11 @@ paths:
       summary: Get all albums by artist ID
   /api/v1/albums/search:
     get:
-      description: Searches for albums based on the provided "name" query parameter.
+      description: Searches for albums based on the provided "query" query parameter.
       parameters:
       - description: Name of the album to search for
         in: query
-        name: name
+        name: query
         required: true
         type: string
       responses:
@@ -207,7 +190,7 @@ paths:
           description: Failed to search or encode albums
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Search albums by name
+      summary: Search albums by query
   /api/v1/artists/{id}:
     get:
       description: Retrieves an artist using the provided artist ID in the URL path.
@@ -256,11 +239,11 @@ paths:
       summary: Get all artists
   /api/v1/artists/search:
     get:
-      description: Searches for artists based on the provided "name" query parameter.
+      description: Searches for artists based on the provided "query" parameter.
       parameters:
       - description: Name of the artist to search for
         in: query
-        name: name
+        name: query
         required: true
         type: string
       responses:
@@ -282,7 +265,7 @@ paths:
           description: Failed to search or encode artists
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Search artists by name
+      summary: Search artists by query
   /api/v1/auth/csrf:
     get:
       description: Generates a CSRF token for the authenticated user
@@ -308,13 +291,6 @@ paths:
       - application/json
       description: Authenticate a user using their username and password. On success,
         returns an authentication token.
-      parameters:
-      - description: User login details
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
@@ -358,13 +334,6 @@ paths:
       - application/json
       description: Register a new user with a unique username, email, and password.
         On success, returns a user token.
-      parameters:
-      - description: User registration details
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
@@ -383,31 +352,6 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
-  /api/v1/genres/album/{albumID}:
-    get:
-      description: Retrieves a list of all genres for a given album ID from the database.
-      parameters:
-      - description: Album ID
-        in: path
-        name: albumID
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: List of genres by album
-          schema:
-            items:
-              $ref: '#/definitions/dto.GenreDTO'
-            type: array
-        "404":
-          description: No genres found for the album
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Failed to load genres
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Get all genres by album ID
   /api/v1/genres/all:
     get:
       description: Retrieves a list of all genres from the database.
@@ -534,36 +478,101 @@ paths:
       summary: Get all tracks
   /api/v1/tracks/byArtistId/{artistId}:
     get:
-      description: Retrieves a list of all tracks for a given artist ID.
-      parameters:
-      - description: Artist ID
-        in: path
-        name: artistId
-        required: true
-        type: integer
+      description: Retrieves a list of favorite tracks for the user.
       responses:
         "200":
-          description: List of tracks by artist
+          description: List of favorite tracks
           schema:
             items:
               $ref: '#/definitions/dto.TrackDTO'
             type: array
         "404":
-          description: No tracks found for the given artist ID
+          description: User id not found
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
         "500":
-          description: Failed to load tracks by artist ID
+          description: Failed to get favorite tracks
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Get all tracks by artist ID
+      summary: Get favorite tracks
+  /api/v1/tracks/favorite:
+    delete:
+      description: Add new favorite track for user.
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User id not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Can't delete track from favorite
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Add favorite track for user
+    post:
+      description: Add new favorite track for user.
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User id not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Can't add track to favorite
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Add favorite track for user
+  /api/v1/tracks/favorite/{trackID}:
+    get:
+      description: Checks if a specific track is marked as a favorite for the authenticated
+        user.
+      parameters:
+      - description: Track ID
+        in: path
+        name: trackID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Response indicating whether the track is a favorite
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid track ID or user ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Track ID not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Check if a track is a user's favorite
   /api/v1/tracks/search:
     get:
-      description: Searches for tracks based on the provided "name" query parameter.
+      description: Searches for tracks based on the provided "query" query parameter.
       parameters:
-      - description: Name of the track to search for
+      - description: Query of the track to search for
         in: query
-        name: name
+        name: query
         required: true
         type: string
       responses:
@@ -585,7 +594,7 @@ paths:
           description: Failed to search or encode tracks
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
-      summary: Search tracks by name
+      summary: Search tracks by query
   /api/v1/users/{user_id}:
     put:
       consumes:
@@ -598,12 +607,6 @@ paths:
         name: user_id
         required: true
         type: string
-      - description: Updated user details
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:

@@ -24,7 +24,7 @@ func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Hand
 // SearchArtist godoc
 // @Summary Search artists by query
 // @Description Searches for artists based on the provided "query" parameter.
-// @Param query string true "Name of the artist to search for"
+// @Param query query string true "Name of the artist to search for"
 // @Success 200 {array}  dto.ArtistDTO "List of found artists"
 // @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
 // @Failure 404 {object} utils.ErrorResponse "No artists found with the provided name"

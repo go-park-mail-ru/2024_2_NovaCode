@@ -26,8 +26,8 @@ func NewTrackHandlers(usecase track.Usecase, logger logger.Logger) track.Handler
 // SearchTrack godoc
 // @Summary Search tracks by query
 // @Description Searches for tracks based on the provided "query" query parameter.
-// @Param query string true "query of the track to search for"
-// @Success 200 {array}  dto.TrackDTO "List of found tracks"
+// @Param query query string true "Query of the track to search for"
+// @Success 200 {array} dto.TrackDTO "List of found tracks"
 // @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
 // @Failure 404 {object} utils.ErrorResponse "No tracks found with the provided name"
 // @Failure 500 {object} utils.ErrorResponse "Failed to search or encode tracks"
@@ -237,14 +237,14 @@ func (handlers *trackHandlers) DeleteFavoriteTrack(response http.ResponseWriter,
 }
 
 // IsFavoriteTrack godoc
-// @Summary Add favorite track for user
-// @Description Add new favorite track for user.
+// @Summary Check if a track is a user's favorite
+// @Description Checks if a specific track is marked as a favorite for the authenticated user.
 // @Param trackID path int true "Track ID"
-// @Success 200 {object}
-// @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
-// @Failure 404 {object} utils.ErrorResponse "User id not found"
-// @Failure 500 {object} utils.ErrorResponse "Can't check is track in favorite"
-// @Router /api/v1/tracks/favorite [delete]
+// @Success 200 {object} map[string]bool "Response indicating whether the track is a favorite"
+// @Failure 400 {object} utils.ErrorResponse "Invalid track ID or user ID"
+// @Failure 404 {object} utils.ErrorResponse "Track ID not found"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/v1/tracks/favorite/{trackID} [get]
 func (handlers *trackHandlers) IsFavoriteTrack(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
@@ -279,7 +279,7 @@ func (handlers *trackHandlers) IsFavoriteTrack(response http.ResponseWriter, req
 	response.WriteHeader(http.StatusOK)
 }
 
-// GetAllByArtistID godoc
+// GetFavoriteTracks godoc
 // @Summary Get favorite tracks
 // @Description Retrieves a list of favorite tracks for the user.
 // @Success 200 {array} dto.TrackDTO "List of favorite tracks"
