@@ -28,7 +28,7 @@ const (
     WHERE user_id = $1 AND track_id = $2`
 
 	getFavoriteQuery = `
-    SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at 
+    SELECT t.id AS id, name, duration, filepath, image, artist_id, album_id, release_date, t.created_at AS created_at, t.updated_at AS updated_at 
     FROM track AS t 
       JOIN favorite_track AS ft 
       ON t.id = ft.track_id

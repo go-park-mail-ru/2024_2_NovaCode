@@ -127,10 +127,14 @@ CREATE TABLE IF NOT EXISTS "favorite_track" (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX favorite_track_unique ON favorite_track (user_id, track_id);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP INDEX IF EXISTS favorite_track_unique;
+
 DROP TABLE IF EXISTS "favorite_track";
 DROP TABLE IF EXISTS "artist_score";
 DROP TABLE IF EXISTS "playlist_user";
