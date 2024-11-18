@@ -135,16 +135,16 @@ CREATE UNIQUE INDEX favorite_track_unique ON favorite_track (user_id, track_id);
 -- +goose StatementBegin
 DROP INDEX IF EXISTS favorite_track_unique;
 
-DROP TABLE IF EXISTS "favorite_track";
-DROP TABLE IF EXISTS "artist_score";
-DROP TABLE IF EXISTS "playlist_user";
-DROP TABLE IF EXISTS "genre_track";
-DROP TABLE IF EXISTS "genre_artist";
-DROP TABLE IF EXISTS "playlist_track";
-DROP TABLE IF EXISTS "track";
-DROP TABLE IF EXISTS "playlist";
-DROP TABLE IF EXISTS "album";
-DROP TABLE IF EXISTS "genre";
-DROP TABLE IF EXISTS "artist";
-DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "favorite_track" CASCADE;
+DROP TABLE IF EXISTS "artist_score" CASCADE;
+DROP TABLE IF EXISTS "playlist_user" CASCADE;
+DROP TABLE IF EXISTS "genre_track" CASCADE;
+DROP TABLE IF EXISTS "genre_artist" CASCADE;
+DROP TABLE IF EXISTS "playlist_track" CASCADE;
+DROP TABLE IF EXISTS "track" CASCADE;
+DROP TABLE IF EXISTS "playlist" CASCADE;
+DROP TABLE IF EXISTS "album" CASCADE;
+DROP TABLE IF EXISTS "genre" CASCADE;
+DROP TABLE IF EXISTS "artist" CASCADE;
+DROP TABLE IF EXISTS "user" CASCADE;
 -- +goose StatementEnd
