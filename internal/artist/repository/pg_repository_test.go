@@ -137,7 +137,7 @@ func TestArtistRepositoryFindByName(t *testing.T) {
 
 	findName := "test"
 	expectedArtists := []*models.Artist{&artists[1], &artists[2]}
-	mock.ExpectQuery(findByNameQuery).WithArgs(findName).WillReturnRows(rows)
+	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
 
 	foundArtists, err := artistPGRepository.FindByName(context.Background(), findName)
 	require.NoError(t, err)

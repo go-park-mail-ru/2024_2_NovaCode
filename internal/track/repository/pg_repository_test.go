@@ -165,7 +165,7 @@ func TestTrackRepositoryFindByName(t *testing.T) {
 
 	findName := "test"
 	expectedTracks := []*models.Track{&tracks[0], &tracks[2]}
-	mock.ExpectQuery(findByNameQuery).WithArgs(findName).WillReturnRows(rows)
+	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.FindByName(context.Background(), findName)
 	require.NoError(t, err)

@@ -38,11 +38,11 @@ func (usecase *artistUsecase) View(ctx context.Context, artistID uint64) (*dto.A
 	return dtoArtist, nil
 }
 
-func (usecase *artistUsecase) Search(ctx context.Context, name string) ([]*dto.ArtistDTO, error) {
+func (usecase *artistUsecase) Search(ctx context.Context, query string) ([]*dto.ArtistDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
-	foundArtists, err := usecase.artistRepo.FindByName(ctx, name)
+	foundArtists, err := usecase.artistRepo.FindByQuery(ctx, query)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Artist '%s' wasn't found: %v", name, err), requestID)
+		usecase.logger.Warn(fmt.Sprintf("Artist '%s' wasn't found: %v", query, err), requestID)
 		return nil, fmt.Errorf("Can't find artist")
 	}
 	usecase.logger.Info("Artists found", requestID)

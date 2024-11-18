@@ -9,7 +9,10 @@ const (
 
 	getAllQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track`
 
-	findByNameQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE name = $1`
+	findByQuery = `
+    SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at
+    FROM "track"
+    WHERE fts @@ to_tsquery($1)`
 
 	getByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
 

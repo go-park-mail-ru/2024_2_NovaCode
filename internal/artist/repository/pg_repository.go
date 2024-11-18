@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/pkg/errors"
 )
 
@@ -61,11 +61,13 @@ func (r *ArtistRepository) FindById(ctx context.Context, artistID uint64) (*mode
 	return artist, nil
 }
 
-func (r *ArtistRepository) FindByName(ctx context.Context, name string) ([]*models.Artist, error) {
+func (r *ArtistRepository) FindByQuery(ctx context.Context, query string) ([]*models.Artist, error) {
+	tsQuery := utils.MakeSearchQuery(query)
+
 	var artists []*models.Artist
-	rows, err := r.db.QueryContext(ctx, findByNameQuery, name)
+	rows, err := r.db.QueryContext(ctx, findByQuery, tsQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "FindByName.Query")
+		return nil, errors.Wrap(err, "FindByQuery.Query")
 	}
 	defer rows.Close()
 
@@ -81,11 +83,10 @@ func (r *ArtistRepository) FindByName(ctx context.Context, name string) ([]*mode
 			&artist.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByName.Query")
+			return nil, errors.Wrap(err, "FindByQuery.Query")
 		}
-		if strings.Contains(artist.Name, name) {
-			artists = append(artists, artist)
-		}
+
+		artists = append(artists, artist)
 	}
 
 	return artists, nil

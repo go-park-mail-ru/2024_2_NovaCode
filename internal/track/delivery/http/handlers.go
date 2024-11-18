@@ -24,9 +24,9 @@ func NewTrackHandlers(usecase track.Usecase, logger logger.Logger) track.Handler
 }
 
 // SearchTrack godoc
-// @Summary Search tracks by name
-// @Description Searches for tracks based on the provided "name" query parameter.
-// @Param name query string true "Name of the track to search for"
+// @Summary Search tracks by query
+// @Description Searches for tracks based on the provided "query" query parameter.
+// @Param query string true "query of the track to search for"
 // @Success 200 {array}  dto.TrackDTO "List of found tracks"
 // @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
 // @Failure 404 {object} utils.ErrorResponse "No tracks found with the provided name"
@@ -34,20 +34,20 @@ func NewTrackHandlers(usecase track.Usecase, logger logger.Logger) track.Handler
 // @Router /api/v1/tracks/search [get]
 func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	name := request.URL.Query().Get("name")
-	if name == "" {
-		handlers.logger.Error("Missing query parameter 'name'", requestID)
+	query := request.URL.Query().Get("query")
+	if query == "" {
+		handlers.logger.Error("Missing query parameter 'query'", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
-	foundTracks, err := handlers.usecase.Search(request.Context(), name)
+	foundTracks, err := handlers.usecase.Search(request.Context(), query)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to find tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Can't find tracks")
 		return
 	} else if len(foundTracks) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No tracks with %s were found", name), requestID)
+		handlers.logger.Error(fmt.Sprintf("No tracks with %s were found", query), requestID)
 		utils.JSONError(response, http.StatusNotFound, "No tracks")
 		return
 	}
