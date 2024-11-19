@@ -11,5 +11,6 @@ type Repo interface {
 	FindById(ctx context.Context, trackID uint64) (*models.Track, error)
 	GetAll(ctx context.Context) ([]*models.Track, error)
 	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Track, error)
+	GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Track, error)
 	FindByName(ctx context.Context, name string) ([]*models.Track, error)
 }
