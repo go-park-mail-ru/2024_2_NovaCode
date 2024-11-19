@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	uuid "github.com/google/uuid"
 )
 
 type trackUsecase struct {
@@ -116,6 +117,46 @@ func (usecase *trackUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64
 		return nil, fmt.Errorf("Can't load tracks by album ID %d", albumID)
 	}
 	usecase.logger.Infof("Found %d tracks for album ID %d", len(tracks), albumID)
+
+func (usecase *trackUsecase) AddFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	if err := usecase.trackRepo.AddFavoriteTrack(ctx, userID, trackID); err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't add track %d to favorite for user %v: %v", trackID, userID, err), requestID)
+		return fmt.Errorf("Can't add track %d to favorite for user %v: %v", trackID, userID, err)
+	}
+
+	return nil
+}
+
+func (usecase *trackUsecase) DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	if err := usecase.trackRepo.DeleteFavoriteTrack(ctx, userID, trackID); err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't delete track %d from favorite for user %v: %v", trackID, userID, err), requestID)
+		return fmt.Errorf("Can't delete track %d from favorite for user %v: %v", trackID, userID, err)
+	}
+
+	return nil
+}
+
+func (usecase *trackUsecase) IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	exists, err := usecase.trackRepo.IsFavoriteTrack(ctx, userID, trackID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't find track %d in favorite for user %v: %v", trackID, userID, err), requestID)
+		return false, fmt.Errorf("Can't find track %d in favorite for user %v: %v", trackID, userID, err)
+	}
+
+	return exists, nil
+}
+
+func (usecase *trackUsecase) GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*dto.TrackDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	tracks, err := usecase.trackRepo.GetFavoriteTracks(ctx, userID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load tracks by user ID %v: %v", userID, err), requestID)
+		return nil, fmt.Errorf("Can't load tracks by user ID %v", userID)
+	}
+	usecase.logger.Infof("Found %d tracks for user ID %v", len(tracks), userID)
 
 	var dtoTracks []*dto.TrackDTO
 	for _, track := range tracks {

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	uuid "github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -189,6 +190,65 @@ func (r *TrackRepository) GetAllByAlbumID(ctx context.Context, albumID uint64) (
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetByAlbumID.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}
+
+func (r *TrackRepository) AddFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
+	_, err := r.db.ExecContext(ctx, addFavoriteTrackQuery, userID, trackID)
+	if err != nil {
+		return errors.Wrap(err, "AddFavoriteTrack.Query")
+	}
+
+	return nil
+}
+
+func (r *TrackRepository) DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
+	_, err := r.db.ExecContext(ctx, deleteFavoriteTrackQuery, userID, trackID)
+	if err != nil {
+		return errors.Wrap(err, "DeleteFavoriteTrack.Query")
+	}
+
+	return nil
+}
+
+func (r *TrackRepository) IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error) {
+	var exists bool
+	err := r.db.QueryRowContext(ctx, isFavoriteTrackQuery, userID, trackID).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		return false, errors.Wrap(err, "IsFavoriteTrack.Query")
+	}
+
+	return exists, nil
+}
+
+func (r *TrackRepository) GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getFavoriteQuery, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetFavoriteTracks.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFavoriteTracks.Query")
 		}
 		tracks = append(tracks, track)
 	}

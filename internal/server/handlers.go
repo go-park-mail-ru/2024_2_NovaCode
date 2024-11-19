@@ -46,7 +46,28 @@ func (s *Server) BindTrack() {
 	s.mux.HandleFunc("/api/v1/tracks/{id:[0-9]+}", trackHandleres.ViewTrack).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks", trackHandleres.GetAll).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks/byArtistId/{artistId:[0-9]+}", trackHandleres.GetAllByArtistID).Methods("GET")
+
 	s.mux.HandleFunc("/api/v1/tracks/byAlbumId/{albumId:[0-9]+}", trackHandleres.GetAllByAlbumID).Methods("GET")
+
+	s.mux.Handle(
+		"/api/v1/tracks/favorite",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(trackHandleres.GetFavoriteTracks)),
+	).Methods("GET")
+
+	s.mux.Handle(
+		"/api/v1/tracks/favorite/{trackID:[0-9]+}",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(trackHandleres.IsFavoriteTrack)),
+	).Methods("GET")
+
+	s.mux.Handle(
+		"/api/v1/tracks/favorite/{trackID:[0-9]+}",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(trackHandleres.AddFavoriteTrack)),
+	).Methods("POST")
+
+	s.mux.Handle(
+		"/api/v1/tracks/favorite/{trackID:[0-9]+}",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(trackHandleres.DeleteFavoriteTrack)),
+	).Methods("DELETE")
 }
 
 func (s *Server) BindArtist() {

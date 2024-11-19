@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -190,6 +192,155 @@ func (handlers *trackHandlers) GetAllByAlbumID(response http.ResponseWriter, req
 		return
 	} else if len(tracks) == 0 {
 		utils.JSONError(response, http.StatusNotFound, fmt.Sprintf("No tracks found for album ID %d", albumID))
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+// AddFavoriteTrack godoc
+// @Summary Add favorite track for user
+// @Description Add new favorite track for user.
+// @Param trackID path int true "Track ID"
+// @Success 200
+// @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
+// @Failure 404 {object} utils.ErrorResponse "User id not found"
+// @Failure 500 {object} utils.ErrorResponse "Can't add track to favorite"
+// @Router /api/v1/tracks/favorite [post]
+func (handlers *trackHandlers) AddFavoriteTrack(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	trackID, err := strconv.ParseUint(vars["trackID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid track ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := handlers.usecase.AddFavoriteTrack(request.Context(), userID, trackID); err != nil {
+		handlers.logger.Error("Can't add track to favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't add track to favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+// DeleteFavoriteTrack godoc
+// @Summary Add favorite track for user
+// @Description Add new favorite track for user.
+// @Param trackID path int true "Track ID"
+// @Success 200
+// @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
+// @Failure 404 {object} utils.ErrorResponse "User id not found"
+// @Failure 500 {object} utils.ErrorResponse "Can't delete track from favorite"
+// @Router /api/v1/tracks/favorite [delete]
+func (handlers *trackHandlers) DeleteFavoriteTrack(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	trackID, err := strconv.ParseUint(vars["trackID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid track ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := handlers.usecase.DeleteFavoriteTrack(request.Context(), userID, trackID); err != nil {
+		handlers.logger.Error("Can't delete track from favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't delete track from favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+// IsFavoriteTrack godoc
+// @Summary Add favorite track for user
+// @Description Add new favorite track for user.
+// @Param trackID path int true "Track ID"
+// @Success 200 {object}
+// @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
+// @Failure 404 {object} utils.ErrorResponse "User id not found"
+// @Failure 500 {object} utils.ErrorResponse "Can't check is track in favorite"
+// @Router /api/v1/tracks/favorite [delete]
+func (handlers *trackHandlers) IsFavoriteTrack(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	trackID, err := strconv.ParseUint(vars["trackID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid track ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid track ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	exists, err := handlers.usecase.IsFavoriteTrack(request.Context(), userID, trackID)
+	if err != nil {
+		handlers.logger.Error("Can't check is track in favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't check is track in favorite")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(map[string]bool{"exists": exists}); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+// GetAllByArtistID godoc
+// @Summary Get favorite tracks
+// @Description Retrieves a list of favorite tracks for the user.
+// @Success 200 {array} dto.TrackDTO "List of favorite tracks"
+// @Failure 404 {object} utils.ErrorResponse "User id not found"
+// @Failure 500 {object} utils.ErrorResponse "Failed to get favorite tracks"
+// @Router /api/v1/tracks/byArtistId/{artistId} [get]
+func (handlers *trackHandlers) GetFavoriteTracks(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	tracks, err := handlers.usecase.GetFavoriteTracks(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get favorite tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite tracks: %v", err))
+		return
+	} else if len(tracks) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite tracks were found")
 		return
 	}
 
