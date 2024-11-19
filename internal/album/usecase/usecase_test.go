@@ -59,7 +59,7 @@ func TestUsecase_View_FoundAlbum(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotNil(t, dtoAlbum)
-	require.Equal(t, artist.Name, dtoAlbum.Artist)
+	require.Equal(t, artist.Name, dtoAlbum.ArtistName)
 	require.Equal(t, album.Name, dtoAlbum.Name)
 }
 
@@ -145,8 +145,8 @@ func TestUsecase_Search_FoundAlbums(t *testing.T) {
 	require.Equal(t, 2, len(dtoAlbums))
 	require.Equal(t, albums[0].Name, dtoAlbums[0].Name)
 	require.Equal(t, albums[1].Name, dtoAlbums[1].Name)
-	require.Equal(t, artists[0].Name, dtoAlbums[0].Artist)
-	require.Equal(t, artists[1].Name, dtoAlbums[1].Artist)
+	require.Equal(t, artists[0].Name, dtoAlbums[0].ArtistName)
+	require.Equal(t, artists[1].Name, dtoAlbums[1].ArtistName)
 }
 
 func TestUsecase_Search_NotFoundAlbums(t *testing.T) {
@@ -230,7 +230,7 @@ func TestUsecase_GetAll_FoundAlbums(t *testing.T) {
 	require.Equal(t, len(albums), len(dtoAlbums))
 
 	for i := 0; i < len(albums); i++ {
-		require.Equal(t, artists[i].Name, dtoAlbums[i].Artist)
+		require.Equal(t, artists[i].Name, dtoAlbums[i].ArtistName)
 		require.Equal(t, albums[i].Name, dtoAlbums[i].Name)
 	}
 }
@@ -317,7 +317,7 @@ func TestUsecase_GetAllByArtistID_FoundAlbums(t *testing.T) {
 	require.Equal(t, len(albums), len(dtoAlbums))
 
 	for i := 0; i < len(albums); i++ {
-		require.Equal(t, artist.Name, dtoAlbums[i].Artist)
+		require.Equal(t, artist.Name, dtoAlbums[i].ArtistName)
 		require.Equal(t, albums[i].Name, dtoAlbums[i].Name)
 	}
 }

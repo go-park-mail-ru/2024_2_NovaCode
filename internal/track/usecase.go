@@ -13,6 +13,7 @@ type Usecase interface {
 	Search(ctx context.Context, query string) ([]*dto.TrackDTO, error)
 	GetAll(ctx context.Context) ([]*dto.TrackDTO, error)
 	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.TrackDTO, error)
+	GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.TrackDTO, error)
 	AddFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error
 	DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error
 	IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error)

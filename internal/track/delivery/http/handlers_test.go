@@ -288,6 +288,83 @@ func TestTrackHandlers_GetAllByArtistIDTracks(t *testing.T) {
 	})
 }
 
+func TestTrackHandlers_GetAllByAlbumIDTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	trackHandlers := NewTrackHandlers(usecaseMock, logger)
+
+	t.Run("Successful got all tracks by album ID", func(t *testing.T) {
+		tracks := []*dto.TrackDTO{
+			{
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist1", Album: "album1",
+			},
+			{
+				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist2", Album: "album1",
+			},
+			{
+				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
+				Artist: "artist3", Album: "album1",
+			},
+		}
+		usecaseMock.EXPECT().GetAllByAlbumID(gomock.Any(), uint64(1)).Return(tracks, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byAlbumId/{albumId}", trackHandlers.GetAllByAlbumID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byAlbumId/1", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		defer res.Body.Close()
+		var foundTracks []*dto.TrackDTO
+		err = json.NewDecoder(res.Body).Decode(&foundTracks)
+		assert.NoError(t, err)
+
+		assert.Equal(t, tracks, foundTracks)
+	})
+
+	t.Run("Can't find tracks by album ID", func(t *testing.T) {
+		usecaseMock.EXPECT().GetAllByAlbumID(gomock.Any(), uint64(1)).Return([]*dto.TrackDTO{}, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byAlbumId/{albumId}", trackHandlers.GetAllByAlbumID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byAlbumId/1", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	})
+
+	t.Run("Invalid album ID", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/tracks/byAlbumId/{albumId}", trackHandlers.GetAllByAlbumID).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/tracks/byAlbumId/abc", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+}
+
 func TestTrackHandlers_AddFavoriteTrack(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -630,6 +707,7 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 		router.ServeHTTP(response, request)
 
 		res := response.Result()
+
 		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
 		assert.Contains(t, response.Body.String(), "Failed to get favorite tracks")
 	})

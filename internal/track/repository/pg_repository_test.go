@@ -21,17 +21,18 @@ func TestTrackRepositoryCreate(t *testing.T) {
 
 	trackPGRepository := NewTrackPGRepository(db)
 	mockTrack := &models.Track{
-		ID:          1,
-		Name:        "ok im cool",
-		Duration:    167,
-		FilePath:    "/songs/track_1.mp4",
-		Image:       "/imgs/tracks/track_1.jpg",
-		ArtistID:    1,
-		AlbumID:     1,
-		ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+		ID:           1,
+		Name:         "ok im cool",
+		Duration:     167,
+		FilePath:     "/songs/track_1.mp4",
+		Image:        "/imgs/tracks/track_1.jpg",
+		ArtistID:     1,
+		AlbumID:      1,
+		OrderInAlbum: 1,
+		ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockTrack.ID,
 		mockTrack.Name,
@@ -40,6 +41,7 @@ func TestTrackRepositoryCreate(t *testing.T) {
 		mockTrack.Image,
 		mockTrack.ArtistID,
 		mockTrack.AlbumID,
+		mockTrack.OrderInAlbum,
 		mockTrack.ReleaseDate,
 		time.Now(),
 		time.Now(),
@@ -52,6 +54,7 @@ func TestTrackRepositoryCreate(t *testing.T) {
 		mockTrack.Image,
 		mockTrack.ArtistID,
 		mockTrack.AlbumID,
+		mockTrack.OrderInAlbum,
 		mockTrack.ReleaseDate,
 	).WillReturnRows(rows)
 
@@ -69,17 +72,18 @@ func TestTrackRepositoryFindById(t *testing.T) {
 
 	trackPGRepository := NewTrackPGRepository(db)
 	mockTrack := &models.Track{
-		ID:          1,
-		Name:        "ok im cool",
-		Duration:    167,
-		FilePath:    "/songs/track_1.mp4",
-		Image:       "/imgs/tracks/track_1.jpg",
-		ArtistID:    1,
-		AlbumID:     1,
-		ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+		ID:           1,
+		Name:         "ok im cool",
+		Duration:     167,
+		FilePath:     "/songs/track_1.mp4",
+		Image:        "/imgs/tracks/track_1.jpg",
+		ArtistID:     1,
+		AlbumID:      1,
+		OrderInAlbum: 1,
+		ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockTrack.ID,
 		mockTrack.Name,
@@ -88,6 +92,7 @@ func TestTrackRepositoryFindById(t *testing.T) {
 		mockTrack.Image,
 		mockTrack.ArtistID,
 		mockTrack.AlbumID,
+		mockTrack.OrderInAlbum,
 		mockTrack.ReleaseDate,
 		time.Now(),
 		time.Now(),
@@ -98,7 +103,7 @@ func TestTrackRepositoryFindById(t *testing.T) {
 	foundTrack, err := trackPGRepository.FindById(context.Background(), mockTrack.ID)
 	require.NoError(t, err)
 	require.NotNil(t, foundTrack)
-	require.Equal(t, foundTrack.ID, foundTrack.ID)
+	require.Equal(t, mockTrack.ID, foundTrack.ID)
 }
 
 func TestTrackRepositoryFindByQuery(t *testing.T) {
@@ -110,44 +115,47 @@ func TestTrackRepositoryFindByQuery(t *testing.T) {
 	trackPGRepository := NewTrackPGRepository(db)
 	tracks := []models.Track{
 		{
-			ID:          1,
-			Name:        "test song 1",
-			Duration:    123,
-			FilePath:    "/songs/track_1.mp4",
-			Image:       "/imgs/tracks/track_1.jpg",
-			ArtistID:    1,
-			AlbumID:     1,
-			ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           1,
+			Name:         "test song 1",
+			Duration:     123,
+			FilePath:     "/songs/track_1.mp4",
+			Image:        "/imgs/tracks/track_1.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          2,
-			Name:        "another song",
-			Duration:    93,
-			FilePath:    "/songs/track_2.mp4",
-			Image:       "/imgs/tracks/track_2.jpg",
-			ArtistID:    2,
-			AlbumID:     2,
-			ReleaseDate: time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           2,
+			Name:         "another song",
+			Duration:     93,
+			FilePath:     "/songs/track_2.mp4",
+			Image:        "/imgs/tracks/track_2.jpg",
+			ArtistID:     2,
+			AlbumID:      2,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          3,
-			Name:        "song test",
-			Duration:    99,
-			FilePath:    "/songs/track_3.mp4",
-			Image:       "/imgs/tracks/track_3.jpg",
-			ArtistID:    3,
-			AlbumID:     3,
-			ReleaseDate: time.Date(2021, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           3,
+			Name:         "song test",
+			Duration:     99,
+			FilePath:     "/songs/track_3.mp4",
+			Image:        "/imgs/tracks/track_3.jpg",
+			ArtistID:     3,
+			AlbumID:      3,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2021, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
@@ -158,6 +166,7 @@ func TestTrackRepositoryFindByQuery(t *testing.T) {
 			track.Image,
 			track.ArtistID,
 			track.AlbumID,
+			track.OrderInAlbum,
 			track.ReleaseDate,
 			track.CreatedAt,
 			track.UpdatedAt,
@@ -183,44 +192,47 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 	trackPGRepository := NewTrackPGRepository(db)
 	tracks := []models.Track{
 		{
-			ID:          1,
-			Name:        "test song 1",
-			Duration:    123,
-			FilePath:    "/songs/track_1.mp4",
-			Image:       "/imgs/tracks/track_1.jpg",
-			ArtistID:    1,
-			AlbumID:     1,
-			ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           1,
+			Name:         "test song 1",
+			Duration:     123,
+			FilePath:     "/songs/track_1.mp4",
+			Image:        "/imgs/tracks/track_1.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          2,
-			Name:        "another song",
-			Duration:    93,
-			FilePath:    "/songs/track_2.mp4",
-			Image:       "/imgs/tracks/track_2.jpg",
-			ArtistID:    2,
-			AlbumID:     2,
-			ReleaseDate: time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           2,
+			Name:         "another song",
+			Duration:     93,
+			FilePath:     "/songs/track_2.mp4",
+			Image:        "/imgs/tracks/track_2.jpg",
+			ArtistID:     2,
+			AlbumID:      2,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          3,
-			Name:        "song test",
-			Duration:    99,
-			FilePath:    "/songs/track_3.mp4",
-			Image:       "/imgs/tracks/track_3.jpg",
-			ArtistID:    3,
-			AlbumID:     3,
-			ReleaseDate: time.Date(2021, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           3,
+			Name:         "song test",
+			Duration:     99,
+			FilePath:     "/songs/track_3.mp4",
+			Image:        "/imgs/tracks/track_3.jpg",
+			ArtistID:     3,
+			AlbumID:      3,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2021, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
@@ -231,6 +243,7 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 			track.Image,
 			track.ArtistID,
 			track.AlbumID,
+			track.OrderInAlbum,
 			track.ReleaseDate,
 			track.CreatedAt,
 			track.UpdatedAt,
@@ -257,32 +270,34 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 
 	tracks := []models.Track{
 		{
-			ID:          1,
-			Name:        "test song 1",
-			Duration:    123,
-			FilePath:    "/songs/track_1.mp4",
-			Image:       "/imgs/tracks/track_1.jpg",
-			ArtistID:    1,
-			AlbumID:     1,
-			ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           1,
+			Name:         "test song 1",
+			Duration:     123,
+			FilePath:     "/songs/track_1.mp4",
+			Image:        "/imgs/tracks/track_1.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          2,
-			Name:        "another song",
-			Duration:    93,
-			FilePath:    "/songs/track_2.mp4",
-			Image:       "/imgs/tracks/track_2.jpg",
-			ArtistID:    1,
-			AlbumID:     2,
-			ReleaseDate: time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           2,
+			Name:         "another song",
+			Duration:     93,
+			FilePath:     "/songs/track_2.mp4",
+			Image:        "/imgs/tracks/track_2.jpg",
+			ArtistID:     1,
+			AlbumID:      2,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
@@ -293,6 +308,7 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 			track.Image,
 			track.ArtistID,
 			track.AlbumID,
+			track.OrderInAlbum,
 			track.ReleaseDate,
 			track.CreatedAt,
 			track.UpdatedAt,
@@ -303,6 +319,71 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 	mock.ExpectQuery(getByArtistIDQuery).WithArgs(1).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.GetAllByArtistID(context.Background(), uint64(1))
+	require.NoError(t, err)
+	require.NotNil(t, foundTracks)
+	require.Equal(t, foundTracks, expectedTracks)
+}
+
+func TestTrackRepositoryGetAllByAlbumID(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	trackPGRepository := NewTrackPGRepository(db)
+
+	tracks := []models.Track{
+		{
+			ID:           1,
+			Name:         "test song 1",
+			Duration:     123,
+			FilePath:     "/songs/track_1.mp4",
+			Image:        "/imgs/tracks/track_1.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+		},
+		{
+			ID:           2,
+			Name:         "another song",
+			Duration:     93,
+			FilePath:     "/songs/track_2.mp4",
+			Image:        "/imgs/tracks/track_2.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 2,
+			ReleaseDate:  time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, track := range tracks {
+		rows.AddRow(
+			track.ID,
+			track.Name,
+			track.Duration,
+			track.FilePath,
+			track.Image,
+			track.ArtistID,
+			track.AlbumID,
+			track.OrderInAlbum,
+			track.ReleaseDate,
+			track.CreatedAt,
+			track.UpdatedAt,
+		)
+	}
+
+	expectedTracks := []*models.Track{&tracks[0], &tracks[1]}
+	mock.ExpectQuery(getByAlbumIDQuery).WithArgs(1).WillReturnRows(rows)
+
+	foundTracks, err := trackPGRepository.GetAllByAlbumID(context.Background(), uint64(1))
 	require.NoError(t, err)
 	require.NotNil(t, foundTracks)
 	require.Equal(t, foundTracks, expectedTracks)
@@ -375,32 +456,34 @@ func TestTrackRepositoryGetFavoriteTracks(t *testing.T) {
 
 	tracks := []models.Track{
 		{
-			ID:          1,
-			Name:        "test song 1",
-			Duration:    123,
-			FilePath:    "/songs/track_1.mp4",
-			Image:       "/imgs/tracks/track_1.jpg",
-			ArtistID:    1,
-			AlbumID:     1,
-			ReleaseDate: time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           1,
+			Name:         "test song 1",
+			Duration:     123,
+			FilePath:     "/songs/track_1.mp4",
+			Image:        "/imgs/tracks/track_1.jpg",
+			ArtistID:     1,
+			AlbumID:      1,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 6, 10, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 		{
-			ID:          2,
-			Name:        "another song",
-			Duration:    93,
-			FilePath:    "/songs/track_2.mp4",
-			Image:       "/imgs/tracks/track_2.jpg",
-			ArtistID:    1,
-			AlbumID:     2,
-			ReleaseDate: time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:           2,
+			Name:         "another song",
+			Duration:     93,
+			FilePath:     "/songs/track_2.mp4",
+			Image:        "/imgs/tracks/track_2.jpg",
+			ArtistID:     1,
+			AlbumID:      2,
+			OrderInAlbum: 1,
+			ReleaseDate:  time.Date(2020, 7, 5, 0, 0, 0, 0, time.UTC),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 	}
 
-	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "release", "created_at", "updated_at"}
+	columns := []string{"id", "name", "duration", "filepath", "image", "artist_id", "album_id", "track_order_in_album", "release", "created_at", "updated_at"}
 	rows := sqlmock.NewRows(columns)
 	for _, track := range tracks {
 		rows.AddRow(
@@ -411,6 +494,7 @@ func TestTrackRepositoryGetFavoriteTracks(t *testing.T) {
 			track.Image,
 			track.ArtistID,
 			track.AlbumID,
+			track.OrderInAlbum,
 			track.ReleaseDate,
 			track.CreatedAt,
 			track.UpdatedAt,

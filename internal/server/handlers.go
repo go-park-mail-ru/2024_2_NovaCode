@@ -46,6 +46,7 @@ func (s *Server) BindTrack() {
 	s.mux.HandleFunc("/api/v1/tracks/{id:[0-9]+}", trackHandleres.ViewTrack).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks", trackHandleres.GetAll).Methods("GET")
 	s.mux.HandleFunc("/api/v1/tracks/byArtistId/{artistId:[0-9]+}", trackHandleres.GetAllByArtistID).Methods("GET")
+	s.mux.HandleFunc("/api/v1/tracks/byAlbumId/{albumId:[0-9]+}", trackHandleres.GetAllByAlbumID).Methods("GET")
 
 	s.mux.Handle(
 		"/api/v1/tracks/favorite",

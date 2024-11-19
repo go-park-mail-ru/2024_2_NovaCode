@@ -428,6 +428,105 @@ func TestUsecase_GetAllByArtistID_NotFoundTracks(t *testing.T) {
 	require.EqualError(t, err, "Can't load tracks by artist ID 1")
 }
 
+func TestUsecase_GetAllByAlbumID_FoundTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	trackRepoMock := mockTrack.NewMockRepo(ctrl)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	trackUsecase := NewTrackUsecase(trackRepoMock, albumRepoMock, artistRepoMock, logger)
+
+	now := time.Now()
+	tracks := []*models.Track{
+		{
+			ID: uint64(1), Name: "test1", Duration: uint64(1), FilePath: "1", Image: "1",
+			ArtistID: uint64(1), AlbumID: uint64(1), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
+		},
+		{
+			ID: uint64(1), Name: "test2", Duration: uint64(2), FilePath: "2", Image: "2",
+			ArtistID: uint64(1), AlbumID: uint64(1), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
+		},
+		{
+			ID: uint64(1), Name: "test3", Duration: uint64(3), FilePath: "3", Image: "3",
+			ArtistID: uint64(1), AlbumID: uint64(1), ReleaseDate: now, CreatedAt: now, UpdatedAt: now,
+		},
+	}
+
+	artist := &models.Artist{
+		ID:        uint64(1),
+		Name:      "artist1",
+		Bio:       "1",
+		Country:   "1",
+		Image:     "1",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	album := &models.Album{
+		ID: uint64(1), Name: "album1", ReleaseDate: now, Image: "1",
+		ArtistID: uint64(1), CreatedAt: now, UpdatedAt: now,
+	}
+
+	ctx := context.Background()
+	for i := 0; i < len(tracks); i++ {
+		albumRepoMock.EXPECT().FindById(ctx, album.ID).Return(album, nil)
+		artistRepoMock.EXPECT().FindById(ctx, artist.ID).Return(artist, nil)
+	}
+	trackRepoMock.EXPECT().GetAllByAlbumID(ctx, album.ID).Return(tracks, nil)
+
+	dtoTracks, err := trackUsecase.GetAllByAlbumID(ctx, album.ID)
+
+	require.NoError(t, err)
+	require.NotNil(t, dtoTracks)
+	require.Equal(t, len(tracks), len(dtoTracks))
+
+	for i := 0; i < len(tracks); i++ {
+		require.Equal(t, tracks[i].Name, dtoTracks[i].Name)
+		require.Equal(t, artist.Name, dtoTracks[i].Artist)
+		require.Equal(t, album.Name, dtoTracks[i].Album)
+	}
+}
+
+func TestUsecase_GetAllByAlbumID_NotFoundTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	trackRepoMock := mockTrack.NewMockRepo(ctrl)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	trackUsecase := NewTrackUsecase(trackRepoMock, albumRepoMock, artistRepoMock, logger)
+
+	ctx := context.Background()
+	trackRepoMock.EXPECT().GetAllByAlbumID(ctx, uint64(1)).Return(nil, errors.New("Can't load tracks by album ID 1"))
+
+	dtoTracks, err := trackUsecase.GetAllByAlbumID(ctx, uint64(1))
+
+	require.Error(t, err)
+	require.Nil(t, dtoTracks)
+	require.EqualError(t, err, "Can't load tracks by album ID 1")
+}
+
 func TestUsecase_AddFavoriteTrack(t *testing.T) {
 	t.Parallel()
 
