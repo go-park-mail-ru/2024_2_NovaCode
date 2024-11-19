@@ -109,6 +109,15 @@ func (usecase *trackUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 	return dtoTracks, nil
 }
 
+func (usecase *trackUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.TrackDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	tracks, err := usecase.trackRepo.GetAllByAlbumID(ctx, albumID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load tracks by album ID %d: %v", albumID, err), requestID)
+		return nil, fmt.Errorf("Can't load tracks by album ID %d", albumID)
+	}
+	usecase.logger.Infof("Found %d tracks for album ID %d", len(tracks), albumID)
+
 func (usecase *trackUsecase) AddFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
 	requestID := ctx.Value(utils.RequestIDKey{})
 	if err := usecase.trackRepo.AddFavoriteTrack(ctx, userID, trackID); err != nil {

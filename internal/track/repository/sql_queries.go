@@ -13,7 +13,9 @@ const (
 
 	getByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
 
-	addFavoriteTrackQuery = `
+	getByAlbumIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at FROM track WHERE artist_id = $1 ORDER BY track_order_in_album ASC`
+	
+  addFavoriteTrackQuery = `
     INSERT INTO favorite_track (user_id, track_id) 
     VALUES ($1, $2)
     ON CONFLICT (user_id, track_id) DO NOTHING`

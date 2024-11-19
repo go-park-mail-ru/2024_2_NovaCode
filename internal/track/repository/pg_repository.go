@@ -139,7 +139,7 @@ func (r *TrackRepository) GetAllByArtistID(ctx context.Context, artistID uint64)
 	var tracks []*models.Track
 	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+		return nil, errors.Wrap(err, "GetByArtistID.Query")
 	}
 	defer rows.Close()
 
@@ -158,7 +158,38 @@ func (r *TrackRepository) GetAllByArtistID(ctx context.Context, artistID uint64)
 			&track.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+			return nil, errors.Wrap(err, "GetByArtistID.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}
+
+func (r *TrackRepository) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getByAlbumIDQuery, albumID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetByAlbumID.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetByAlbumID.Query")
 		}
 		tracks = append(tracks, track)
 	}

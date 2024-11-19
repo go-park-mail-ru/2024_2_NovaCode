@@ -7,6 +7,7 @@ type Handlers interface {
 	ViewTrack(response http.ResponseWriter, request *http.Request)
 	GetAll(response http.ResponseWriter, request *http.Request)
 	GetAllByArtistID(response http.ResponseWriter, request *http.Request)
+	GetAllByAlbumID(response http.ResponseWriter, request *http.Request)
 	AddFavoriteTrack(response http.ResponseWriter, request *http.Request)
 	DeleteFavoriteTrack(response http.ResponseWriter, request *http.Request)
 	IsFavoriteTrack(response http.ResponseWriter, request *http.Request)
