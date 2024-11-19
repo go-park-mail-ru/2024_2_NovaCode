@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -105,11 +104,14 @@ func newViper() (*viper.Viper, error) {
 	v.SetConfigName(os.Getenv("ENV"))
 	v.SetConfigType("yaml")
 
-	bindEnv(v)
+	err := bindEnv(v)
+	if err != nil {
+		return nil, fmt.Errorf("cannot bind env variables: %v", err)
+	}
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return nil, errors.New("config file not found")
+			return nil, fmt.Errorf("config file not found")
 		}
 
 		return nil, err
@@ -129,15 +131,23 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 	return &cfg, nil
 }
 
-func bindEnv(v *viper.Viper) {
-	v.BindEnv("postgres.port", "POSTGRES_PORT")
-	v.BindEnv("postgres.dbname", "POSTGRES_DB")
-	v.BindEnv("postgres.user", "POSTGRES_USER")
-	v.BindEnv("postgres.password", "POSTGRES_PASSWORD")
+func bindEnv(v *viper.Viper) error {
+	envBindings := map[string]string{
+		"postgres.port":           "POSTGRES_PORT",
+		"postgres.dbname":         "POSTGRES_DB",
+		"postgres.user":           "POSTGRES_USER",
+		"postgres.password":       "POSTGRES_PASSWORD",
+		"minio.user":              "MINIO_USER",
+		"minio.password":          "MINIO_PASSWORD",
+		"service.auth.csrf.salt":  "CSRF_SALT",
+		"service.auth.jwt.secret": "JWT_SECRET",
+	}
 
-	v.BindEnv("minio.user", "MINIO_USER")
-	v.BindEnv("minio.password", "MINIO_PASSWORD")
+	for key, env := range envBindings {
+		if err := v.BindEnv(key, env); err != nil {
+			return err
+		}
+	}
 
-	v.BindEnv("service.auth.csrf.salt", "CSRF_SALT")
-	v.BindEnv("service.auth.jwt.secret", "JWT_SECRET")
+	return nil
 }
