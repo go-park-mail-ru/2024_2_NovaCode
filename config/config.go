@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -105,9 +104,14 @@ func newViper() (*viper.Viper, error) {
 	v.SetConfigName(os.Getenv("ENV"))
 	v.SetConfigType("yaml")
 
+	err := bindEnv(v)
+	if err != nil {
+		return nil, fmt.Errorf("cannot bind env variables: %v", err)
+	}
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return nil, errors.New("config file not found")
+			return nil, fmt.Errorf("config file not found")
 		}
 
 		return nil, err
@@ -125,4 +129,25 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func bindEnv(v *viper.Viper) error {
+	envBindings := map[string]string{
+		"postgres.port":           "POSTGRES_PORT",
+		"postgres.dbname":         "POSTGRES_DB",
+		"postgres.user":           "POSTGRES_USER",
+		"postgres.password":       "POSTGRES_PASSWORD",
+		"minio.user":              "MINIO_USER",
+		"minio.password":          "MINIO_PASSWORD",
+		"service.auth.csrf.salt":  "CSRF_SALT",
+		"service.auth.jwt.secret": "JWT_SECRET",
+	}
+
+	for key, env := range envBindings {
+		if err := v.BindEnv(key, env); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -1,4 +1,4 @@
-ENV_FILE = ./docker/.env
+ENV_FILE = ./docker/.dev.env
 include $(ENV_FILE)
 
 POSTGRES_CONNECTION = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
@@ -6,7 +6,7 @@ POSTGRES_CONNECTION = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRE
 ENTRY_PATH = ./cmd/main.go
 MIGRATIONS_PATH = ./internal/db/$*/migrations
 BINARY_PATH = ./bin/main
-DOCKER_COMPOSE_PATH = ./docker/docker-compose.yaml
+DOCKER_COMPOSE_PATH = ./docker/docker-compose.$(ENV).yaml
 GOLANGCI_LINT_PATH = ./.golangci.yaml
 
 # use `gawk` on mac os
