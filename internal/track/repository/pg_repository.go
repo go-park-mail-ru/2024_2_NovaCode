@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	uuid "github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -74,11 +74,13 @@ func (r *TrackRepository) FindById(ctx context.Context, trackID uint64) (*models
 	return track, nil
 }
 
-func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*models.Track, error) {
+func (r *TrackRepository) FindByQuery(ctx context.Context, query string) ([]*models.Track, error) {
+	tsQuery := utils.MakeSearchQuery(query)
+
 	var tracks []*models.Track
-	rows, err := r.db.QueryContext(ctx, findByNameQuery, name)
+	rows, err := r.db.QueryContext(ctx, findByQuery, tsQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "FindByName.Query")
+		return nil, errors.Wrap(err, "FindByQuery.Query")
 	}
 	defer rows.Close()
 
@@ -98,11 +100,10 @@ func (r *TrackRepository) FindByName(ctx context.Context, name string) ([]*model
 			&track.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByName.Query")
+			return nil, errors.Wrap(err, "FindByQuery.Query")
 		}
-		if strings.Contains(track.Name, name) {
-			tracks = append(tracks, track)
-		}
+
+		tracks = append(tracks, track)
 	}
 
 	return tracks, nil

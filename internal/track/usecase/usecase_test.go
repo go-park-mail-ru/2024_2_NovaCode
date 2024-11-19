@@ -173,7 +173,7 @@ func TestUsecase_Search_FoundTracks(t *testing.T) {
 	artistRepoMock.EXPECT().FindById(ctx, artists[2].ID).Return(artists[2], nil)
 	albumRepoMock.EXPECT().FindById(ctx, albums[0].ID).Return(albums[0], nil)
 	albumRepoMock.EXPECT().FindById(ctx, albums[2].ID).Return(albums[2], nil)
-	trackRepoMock.EXPECT().FindByName(ctx, "test").Return([]*models.Track{tracks[0], tracks[2]}, nil)
+	trackRepoMock.EXPECT().FindByQuery(ctx, "test").Return([]*models.Track{tracks[0], tracks[2]}, nil)
 
 	dtoTracks, err := trackUsecase.Search(ctx, "test")
 
@@ -206,7 +206,7 @@ func TestUsecase_Search_NotFoundTracks(t *testing.T) {
 	trackUsecase := NewTrackUsecase(trackRepoMock, albumRepoMock, artistRepoMock, logger)
 
 	ctx := context.Background()
-	trackRepoMock.EXPECT().FindByName(ctx, "song").Return(nil, errors.New("Can't find tracks"))
+	trackRepoMock.EXPECT().FindByQuery(ctx, "song").Return(nil, errors.New("Can't find tracks"))
 
 	dtoTracks, err := trackUsecase.Search(ctx, "song")
 

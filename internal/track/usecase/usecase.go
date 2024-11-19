@@ -43,11 +43,11 @@ func (usecase *trackUsecase) View(ctx context.Context, trackID uint64) (*dto.Tra
 	return dtoTrack, nil
 }
 
-func (usecase *trackUsecase) Search(ctx context.Context, name string) ([]*dto.TrackDTO, error) {
+func (usecase *trackUsecase) Search(ctx context.Context, query string) ([]*dto.TrackDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
-	foundTracks, err := usecase.trackRepo.FindByName(ctx, name)
+	foundTracks, err := usecase.trackRepo.FindByQuery(ctx, query)
 	if err != nil {
-		usecase.logger.Warn(fmt.Sprintf("Tracks with name '%s' were not found: %v", name, err), requestID)
+		usecase.logger.Warn(fmt.Sprintf("Tracks with name '%s' were not found: %v", query, err), requestID)
 		return nil, fmt.Errorf("Can't find tracks")
 	}
 	usecase.logger.Info("Tracks found", requestID)

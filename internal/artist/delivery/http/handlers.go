@@ -22,9 +22,9 @@ func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Hand
 }
 
 // SearchArtist godoc
-// @Summary Search artists by name
-// @Description Searches for artists based on the provided "name" query parameter.
-// @Param name query string true "Name of the artist to search for"
+// @Summary Search artists by query
+// @Description Searches for artists based on the provided "query" parameter.
+// @Param query query string true "Name of the artist to search for"
 // @Success 200 {array}  dto.ArtistDTO "List of found artists"
 // @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
 // @Failure 404 {object} utils.ErrorResponse "No artists found with the provided name"
@@ -32,20 +32,20 @@ func NewArtistHandlers(usecase artist.Usecase, logger logger.Logger) artist.Hand
 // @Router /api/v1/artists/search [get]
 func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	name := request.URL.Query().Get("name")
-	if name == "" {
-		handlers.logger.Error("Missing query parameter 'name'", requestID)
+	query := request.URL.Query().Get("query")
+	if query == "" {
+		handlers.logger.Error("Missing query parameter 'query'", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
-	foundArtists, err := handlers.usecase.Search(request.Context(), name)
+	foundArtists, err := handlers.usecase.Search(request.Context(), query)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to find artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Can't find artists")
 		return
 	} else if len(foundArtists) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No artists with %s were found", name), requestID)
+		handlers.logger.Error(fmt.Sprintf("No artists with %s were found", query), requestID)
 		utils.JSONError(response, http.StatusNotFound, "No artists")
 		return
 	}

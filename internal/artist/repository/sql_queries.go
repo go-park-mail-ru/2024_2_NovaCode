@@ -9,5 +9,8 @@ const (
 
 	getAllQuery = `SELECT id, name, bio, country, image, created_at, updated_at FROM artist`
 
-	findByNameQuery = `SELECT id, name, bio, country, image, created_at, updated_at FROM artist WHERE name = $1`
+	findByQuery = `
+	SELECT id, name, bio, country, image, created_at, updated_at
+	FROM artist
+    WHERE fts @@ to_tsquery($1)`
 )

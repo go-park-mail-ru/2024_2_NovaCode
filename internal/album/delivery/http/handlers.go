@@ -22,9 +22,9 @@ func NewAlbumHandlers(usecase album.Usecase, logger logger.Logger) album.Handler
 }
 
 // SearchAlbum godoc
-// @Summary Search albums by name
-// @Description Searches for albums based on the provided "name" query parameter.
-// @Param name query string true "Name of the album to search for"
+// @Summary Search albums by query
+// @Description Searches for albums based on the provided "query" query parameter.
+// @Param query query string true "Name of the album to search for"
 // @Success 200 {array}  dto.AlbumDTO "List of found albums"
 // @Failure 400 {object} utils.ErrorResponse "Missing or invalid query parameter"
 // @Failure 404 {object} utils.ErrorResponse "No albums found with the provided name"
@@ -32,20 +32,20 @@ func NewAlbumHandlers(usecase album.Usecase, logger logger.Logger) album.Handler
 // @Router /api/v1/albums/search [get]
 func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	name := request.URL.Query().Get("name")
-	if name == "" {
-		handlers.logger.Error("Missing query parameter 'name'", requestID)
+	query := request.URL.Query().Get("query")
+	if query == "" {
+		handlers.logger.Error("Missing query parameter 'query'", requestID)
 		utils.JSONError(response, http.StatusBadRequest, "Wrong query")
 		return
 	}
 
-	foundAlbums, err := handlers.usecase.Search(request.Context(), name)
+	foundAlbums, err := handlers.usecase.Search(request.Context(), query)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to find albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Can't find albums")
 		return
 	} else if len(foundAlbums) == 0 {
-		handlers.logger.Error(fmt.Sprintf("No albums with %s were found", name), requestID)
+		handlers.logger.Error(fmt.Sprintf("No albums with %s were found", query), requestID)
 		utils.JSONError(response, http.StatusNotFound, "No albums")
 		return
 	}

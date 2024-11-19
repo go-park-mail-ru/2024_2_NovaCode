@@ -36,7 +36,7 @@ func TestArtistHandlers_SearchArtist(t *testing.T) {
 		ctx := context.Background()
 		usecaseMock.EXPECT().Search(ctx, "artist").Return([]*dto.ArtistDTO{artists[1], artists[2]}, nil)
 
-		request, err := http.NewRequest(http.MethodGet, "/artists/search/?name=artist", nil)
+		request, err := http.NewRequest(http.MethodGet, "/artists/search/?query=artist", nil)
 		assert.NoError(t, err)
 
 		response := httptest.NewRecorder()
@@ -64,7 +64,7 @@ func TestArtistHandlers_SearchArtist(t *testing.T) {
 	})
 
 	t.Run("Can't find artists", func(t *testing.T) {
-		request, err := http.NewRequest(http.MethodGet, "/artists/search/?name=artist", nil)
+		request, err := http.NewRequest(http.MethodGet, "/artists/search/?query=artist", nil)
 		assert.NoError(t, err)
 		response := httptest.NewRecorder()
 

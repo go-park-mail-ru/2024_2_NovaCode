@@ -85,7 +85,7 @@ func TestAlbumRepositoryFindById(t *testing.T) {
 	require.Equal(t, foundAlbum.ID, foundAlbum.ID)
 }
 
-func TestAlbumRepositoryFindByName(t *testing.T) {
+func TestAlbumRepositoryFindByQuery(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	require.NoError(t, err)
@@ -137,10 +137,10 @@ func TestAlbumRepositoryFindByName(t *testing.T) {
 	}
 
 	findName := "test"
-	expectedAlbums := []*models.Album{&albums[0], &albums[1]}
-	mock.ExpectQuery(findByNameQuery).WithArgs(findName).WillReturnRows(rows)
+	expectedAlbums := []*models.Album{&albums[0], &albums[1], &albums[2]}
+	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
 
-	foundAlbums, err := albumPGRepository.FindByName(context.Background(), findName)
+	foundAlbums, err := albumPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
 	require.NotNil(t, foundAlbums)
 	require.Equal(t, foundAlbums, expectedAlbums)

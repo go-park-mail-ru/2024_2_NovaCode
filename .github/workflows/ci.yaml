@@ -4,7 +4,13 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+      - dev
+      - NM-*
+  push:
+    branches:
+      - main
+      - dev
+      - NM-*
 
 jobs:
   lint:

@@ -44,7 +44,7 @@ func TestAlbumHandlers_SearchAlbums(t *testing.T) {
 		ctx := context.Background()
 		usecaseMock.EXPECT().Search(ctx, "test").Return([]*dto.AlbumDTO{albums[0], albums[1]}, nil)
 
-		request, err := http.NewRequest(http.MethodGet, "/albums/search/?name=test", nil)
+		request, err := http.NewRequest(http.MethodGet, "/albums/search/?query=test", nil)
 		assert.NoError(t, err)
 
 		response := httptest.NewRecorder()
@@ -72,7 +72,7 @@ func TestAlbumHandlers_SearchAlbums(t *testing.T) {
 	})
 
 	t.Run("Can't find albums", func(t *testing.T) {
-		request, err := http.NewRequest(http.MethodGet, "/albums/search/?name=album", nil)
+		request, err := http.NewRequest(http.MethodGet, "/albums/search/?query=album", nil)
 		assert.NoError(t, err)
 		response := httptest.NewRecorder()
 

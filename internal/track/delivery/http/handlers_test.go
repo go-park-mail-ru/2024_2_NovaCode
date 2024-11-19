@@ -48,7 +48,7 @@ func TestTrackHandlers_SearchTrack(t *testing.T) {
 		ctx := context.Background()
 		usecaseMock.EXPECT().Search(ctx, "test").Return([]*dto.TrackDTO{tracks[0], tracks[2]}, nil)
 
-		request, err := http.NewRequest(http.MethodGet, "/tracks/search/?name=test", nil)
+		request, err := http.NewRequest(http.MethodGet, "/tracks/search/?query=test", nil)
 		assert.NoError(t, err)
 
 		response := httptest.NewRecorder()
@@ -76,7 +76,7 @@ func TestTrackHandlers_SearchTrack(t *testing.T) {
 	})
 
 	t.Run("Can't find tracks", func(t *testing.T) {
-		request, err := http.NewRequest(http.MethodGet, "/tracks/search/?name=song", nil)
+		request, err := http.NewRequest(http.MethodGet, "/tracks/search/?query=song", nil)
 		assert.NoError(t, err)
 		response := httptest.NewRecorder()
 

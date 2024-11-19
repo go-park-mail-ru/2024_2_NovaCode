@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/pkg/errors"
 )
 
@@ -62,11 +62,13 @@ func (r *AlbumRepository) FindById(ctx context.Context, albumID uint64) (*models
 	return albums, nil
 }
 
-func (r *AlbumRepository) FindByName(ctx context.Context, name string) ([]*models.Album, error) {
+func (r *AlbumRepository) FindByQuery(ctx context.Context, query string) ([]*models.Album, error) {
+	tsQuery := utils.MakeSearchQuery(query)
+
 	var albums []*models.Album
-	rows, err := r.db.QueryContext(ctx, findByNameQuery, name)
+	rows, err := r.db.QueryContext(ctx, findByQuery, tsQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "FindByName.Query")
+		return nil, errors.Wrap(err, "FindByQuery.Query")
 	}
 	defer rows.Close()
 
@@ -82,11 +84,10 @@ func (r *AlbumRepository) FindByName(ctx context.Context, name string) ([]*model
 			&album.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByName.Query")
+			return nil, errors.Wrap(err, "FindByQuery.Query")
 		}
-		if strings.Contains(album.Name, name) {
-			albums = append(albums, album)
-		}
+
+		albums = append(albums, album)
 	}
 
 	return albums, nil

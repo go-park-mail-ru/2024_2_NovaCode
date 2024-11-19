@@ -42,7 +42,7 @@ func (usecase *albumUsecase) View(ctx context.Context, albumID uint64) (*dto.Alb
 
 func (usecase *albumUsecase) Search(ctx context.Context, name string) ([]*dto.AlbumDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
-	foundAlbums, err := usecase.albumRepo.FindByName(ctx, name)
+	foundAlbums, err := usecase.albumRepo.FindByQuery(ctx, name)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Albums with name '%s' were not found: %v", name, err), requestID)
 		return nil, fmt.Errorf("Can't find albums")
