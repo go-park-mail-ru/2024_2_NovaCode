@@ -184,6 +184,7 @@ func (r *TrackRepository) GetAllByAlbumID(ctx context.Context, albumID uint64) (
 			&track.Image,
 			&track.ArtistID,
 			&track.AlbumID,
+			&track.OrderInAlbum,
 			&track.ReleaseDate,
 			&track.CreatedAt,
 			&track.UpdatedAt,

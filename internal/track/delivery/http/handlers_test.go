@@ -667,7 +667,7 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 
 		res := response.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
-    
+
 		var result []*dto.TrackDTO
 		err = json.NewDecoder(res.Body).Decode(&result)
 		assert.NoError(t, err)
@@ -707,7 +707,7 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 		router.ServeHTTP(response, request)
 
 		res := response.Result()
-    
+
 		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
 		assert.Contains(t, response.Body.String(), "Failed to get favorite tracks")
 	})
