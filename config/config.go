@@ -105,6 +105,8 @@ func newViper() (*viper.Viper, error) {
 	v.SetConfigName(os.Getenv("ENV"))
 	v.SetConfigType("yaml")
 
+	bindEnv(v)
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return nil, errors.New("config file not found")
@@ -125,4 +127,17 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func bindEnv(v *viper.Viper) {
+	v.BindEnv("postgres.port", "POSTGRES_PORT")
+	v.BindEnv("postgres.dbname", "POSTGRES_DB")
+	v.BindEnv("postgres.user", "POSTGRES_USER")
+	v.BindEnv("postgres.password", "POSTGRES_PASSWORD")
+
+	v.BindEnv("minio.user", "MINIO_USER")
+	v.BindEnv("minio.password", "MINIO_PASSWORD")
+
+	v.BindEnv("service.auth.csrf.salt", "CSRF_SALT")
+	v.BindEnv("service.auth.jwt.secret", "JWT_SECRET")
 }
