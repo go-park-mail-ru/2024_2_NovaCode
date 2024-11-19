@@ -1,7 +1,7 @@
 package repository
 
 const (
-	createTrackQuery = `INSERT INTO track (name, duration, filepath, image, artist_id, album_id, release_date) 
+	createTrackQuery = `INSERT INTO track (name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at`
 
