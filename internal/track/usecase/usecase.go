@@ -118,6 +118,19 @@ func (usecase *trackUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64
 	}
 	usecase.logger.Infof("Found %d tracks for album ID %d", len(tracks), albumID)
 
+	var dtoTracks []*dto.TrackDTO
+	for _, track := range tracks {
+		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
+			return nil, fmt.Errorf("Can't create DTO for track")
+		}
+		dtoTracks = append(dtoTracks, dtoTrack)
+	}
+
+	return dtoTracks, nil
+}
+
 func (usecase *trackUsecase) AddFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
 	requestID := ctx.Value(utils.RequestIDKey{})
 	if err := usecase.trackRepo.AddFavoriteTrack(ctx, userID, trackID); err != nil {
