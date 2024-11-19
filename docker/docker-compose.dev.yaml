@@ -3,7 +3,7 @@ services:
     image: daronenko/novamusic-backend:${VERSION}
     container_name: novamusic-backend
     platform: linux/amd64
-    env_file: .env
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -20,7 +20,7 @@ services:
     container_name: novamusic-postgres
     image: postgres:16
     platform: linux/amd64
-    env_file: .env
+    env_file: .dev.env
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -46,7 +46,7 @@ services:
     image: ghcr.io/kukymbr/goose-docker:3.22.1
     platform: linux/amd64
     restart: no
-    env_file: .env
+    env_file: .dev.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
     image: minio/minio:latest
     platform: linux/amd64
     restart: always
-    env_file: .env
+    env_file: .dev.env
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
@@ -83,7 +83,7 @@ services:
   minio-client:
     container_name: minio-client
     image: minio/mc:latest
-    env_file: .env
+    env_file: .dev.env
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host rm local;
