@@ -39,7 +39,7 @@ services:
       timeout: 3s
       retries: 3
     volumes:
-      - postgres-volume:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
   migrations:
     container_name: novamusic-postgres-migrations
@@ -78,7 +78,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - minio-volume:/data
+      - minio-data:/data
 
   minio-client:
     container_name: minio-client
@@ -103,5 +103,5 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres-volume:
-  minio-volume:
+  postgres-data:
+  minio-data:
