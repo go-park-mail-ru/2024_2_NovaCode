@@ -39,6 +39,5 @@ postgres:
   connMaxIdleTime: 20
 
 minio:
-  externalURL: localhost:8010
-  innerURL: minio:9000
+  url: minio:9000
   sslMode: false

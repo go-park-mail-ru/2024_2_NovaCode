@@ -10,7 +10,7 @@ import (
 )
 
 func New(cfg *config.MinioConfig) (*minio.Client, error) {
-	minioClient, err := minio.New(cfg.InnerURL, &minio.Options{
+	minioClient, err := minio.New(cfg.URL, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.User, cfg.Password, ""),
 		Secure: cfg.SSLMode,
 	})
