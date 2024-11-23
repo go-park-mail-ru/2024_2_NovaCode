@@ -138,9 +138,16 @@ INSERT INTO csat_question (title, csat_id) VALUES
   ('Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?', (SELECT id FROM csat WHERE topic = 'Общие')),
   ('Насколько вам удобно было использовать плейер?', (SELECT id FROM csat WHERE topic = 'Общие')),
   ('Порекомендуете ли вы NovaMusic друзьям?', (SELECT id FROM csat WHERE topic = 'Общие'));
-    
 
-  
+INSERT INTO "user" (username, email, password_hash) VALUES
+    ('test', 'mail@mail.ru', 1234);
+
+INSERT INTO csat_answer (score, user_id, csat_question_id, csat_id) VALUES
+    (7, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы убовлетворены удобством NovaCode?'), (SELECT id FROM csat WHERE topic = 'Общие')),
+    (4, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам лего было найти желаемую музыку?'), (SELECT id FROM csat WHERE topic = 'Общие')),
+    (3, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?'), (SELECT id FROM csat WHERE topic = 'Общие')),
+    (1, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам удобно было использовать плейер?'), (SELECT id FROM csat WHERE topic = 'Общие')),
+    (2, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Порекомендуете ли вы NovaMusic друзьям?'), (SELECT id FROM csat WHERE topic = 'Общие'));
 -- +goose StatementEnd
 
 -- +goose Down
@@ -153,4 +160,5 @@ TRUNCATE TABLE genre_artist CASCADE;
 TRUNCATE TABLE genre_track CASCADE;
 TRUNCATE TABLE csat CASCADE;
 TRUNCATE TABLE csat_question CASCADE;
+TRUNCATE TABLE csat_answer CASCADE;
 -- +goose StatementEnd
