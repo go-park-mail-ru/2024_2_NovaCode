@@ -42,9 +42,9 @@ func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
 }
 
 type CSATStatisticsDTO struct {
-	Topic        string
-	Question     string
-	AverageScore float64
+	Topic        string  `json:"topic"`
+	Question     string  `json:"question"`
+	AverageScore float64 `json:"average_score"`
 }
 
 func NewCSATStatisticsDTO(csatStat *models.CSATStat) *CSATStatisticsDTO {
