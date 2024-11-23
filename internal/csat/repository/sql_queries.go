@@ -17,7 +17,7 @@ const (
   GROUP BY 
     csat.id, csat.topic, csat_question.id, csat_question.title
   `
-  
+
 	getQuestionsByTopic = `
 	SELECT q.id, q.title
 	FROM csat_question q
