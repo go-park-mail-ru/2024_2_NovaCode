@@ -162,7 +162,10 @@ func (s *Server) BindCSAT() {
 		"/api/v1/csat/stat",
 		middleware.AuthMiddleware(
 			&s.cfg.Service.Auth, s.logger,
-			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(csatHandlers.GetStatistics)),
+			middleware.AdminMiddleware(
+				&s.cfg.Service.Auth, s.logger,
+				http.HandlerFunc(csatHandlers.GetStatistics),
+			),
 		),
 	).Methods("GET")
 
