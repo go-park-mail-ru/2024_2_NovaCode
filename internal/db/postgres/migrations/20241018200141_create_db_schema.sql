@@ -130,8 +130,8 @@ CREATE TABLE IF NOT EXISTS "favorite_track" (
 
 CREATE TABLE IF NOT EXISTS "csat" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  title TEXT NOT NULL
-    CONSTRAINT csat_title_length CHECK (char_length(title) <= 31)
+  topic TEXT NOT NULL
+    CONSTRAINT csat_title_length CHECK (char_length(topic) <= 31)
 );
 
 CREATE TABLE IF NOT EXISTS "csat_question" (
