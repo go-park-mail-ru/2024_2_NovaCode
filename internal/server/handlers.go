@@ -159,4 +159,20 @@ func (s *Server) BindCSAT() {
 	csatHandlers := csatHandlers.NewCSATHandlers(csatUsecase, s.logger)
 
 	s.mux.HandleFunc("/api/v1/csat/stat", csatHandlers.GetStatistics).Methods("GET")
+
+	s.mux.Handle(
+		"/api/v1/csat/questions",
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(csatHandlers.GetQuestionsByTopic)),
+		),
+	).Methods("GET")
+
+	s.mux.Handle(
+		"/api/v1/csat/questions/{questionID:[0-9]+}/submit",
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(csatHandlers.SubmitAnswer)),
+		),
+	).Methods("POST")
 }

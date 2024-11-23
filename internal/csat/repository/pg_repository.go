@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/pkg/errors"
@@ -40,4 +41,47 @@ func (r *CSATRepository) GetStatistics(ctx context.Context) ([]*models.CSATStat,
 	}
 
 	return stats, nil
+}
+
+func (r *CSATRepository) GetQuestionsByTopic(ctx context.Context, topic string) ([]*models.CSATQuestion, error) {
+	var questions []*models.CSATQuestion
+	rows, err := r.db.QueryContext(ctx, getQuestionsByTopic, topic)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetQuestionsByTopic.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		question := &models.CSATQuestion{}
+		err := rows.Scan(
+			&question.ID,
+			&question.Question,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetByArtistID.Query")
+		}
+		questions = append(questions, question)
+	}
+
+	return questions, nil
+}
+
+func (r *CSATRepository) InsertAnswer(ctx context.Context, answer *models.CSATAnswer) (*models.CSATAnswer, error) {
+	var insertedAnswer models.CSATAnswer
+
+	if err := r.db.QueryRowContext(
+		ctx,
+		insertAnswer,
+		answer.Score,
+		answer.UserID,
+		answer.CSATQuestionID,
+	).Scan(
+		&insertedAnswer.Score,
+		&insertedAnswer.UserID,
+		&insertedAnswer.CSATQuestionID,
+	); err != nil {
+		return nil, fmt.Errorf("failed to insert csat answer: %w", err)
+	}
+
+	return &insertedAnswer, nil
 }

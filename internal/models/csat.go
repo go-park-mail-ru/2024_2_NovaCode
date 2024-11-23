@@ -13,7 +13,6 @@ type CSATAnswer struct {
 	Score          uint8
 	UserID         uuid.UUID
 	CSATQuestionID uint64
-	CSATID         uint64
 }
 
 type CSATStat struct {

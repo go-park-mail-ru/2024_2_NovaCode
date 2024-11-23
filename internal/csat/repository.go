@@ -8,4 +8,6 @@ import (
 
 type Repo interface {
 	GetStatistics(ctx context.Context) ([]*models.CSATStat, error)
+	GetQuestionsByTopic(ctx context.Context, topic string) ([]*models.CSATQuestion, error)
+	InsertAnswer(ctx context.Context, answer *models.CSATAnswer) (*models.CSATAnswer, error)
 }

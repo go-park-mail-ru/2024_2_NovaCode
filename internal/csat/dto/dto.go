@@ -18,11 +18,10 @@ func NewCSATQuestionDTO(csatQuestion *models.CSATQuestion) *CSATQuestionDTO {
 }
 
 type CSATAnswerDTO struct {
-	ID             uint64    `json:"id"`
+	ID             uint64    `json:"id,omitempty"`
 	Score          uint8     `json:"score"`
-	UserID         uuid.UUID `json:"user_id"`
-	CSATQuestionID uint64    `json:"question_id"`
-	CSATID         uint64    `json:"csat_id"`
+	UserID         uuid.UUID `json:"user_id,omitempty"`
+	CSATQuestionID uint64    `json:"question_id,omitempty"`
 }
 
 func NewCSATAnswerDTO(csatAnswer *models.CSATAnswer) *CSATAnswerDTO {
@@ -31,7 +30,6 @@ func NewCSATAnswerDTO(csatAnswer *models.CSATAnswer) *CSATAnswerDTO {
 		csatAnswer.Score,
 		csatAnswer.UserID,
 		csatAnswer.CSATQuestionID,
-		csatAnswer.CSATID,
 	}
 }
 
@@ -40,7 +38,6 @@ func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
 		Score:          answerDTO.Score,
 		UserID:         answerDTO.UserID,
 		CSATQuestionID: answerDTO.CSATQuestionID,
-		CSATID:         answerDTO.CSATID,
 	}
 }
 
