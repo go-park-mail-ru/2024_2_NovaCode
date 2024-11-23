@@ -129,6 +129,17 @@ INSERT INTO genre_track (genre_id, track_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Analyze')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'The Eraser'));
 
+INSERT INTO csat (topic) VALUES
+    ('Общие');
+
+INSERT INTO csat_question (title, csat_id) VALUES
+  ('Насколько вы убовлетворены удобством NovaCode?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вам лего было найти желаемую музыку?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вам удобно было использовать плейер?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Порекомендуете ли вы NovaMusic друзьям?', (SELECT id FROM csat WHERE topic = 'Общие'));
+    
+
   
 -- +goose StatementEnd
 
@@ -140,4 +151,6 @@ TRUNCATE TABLE track CASCADE;
 TRUNCATE TABLE genre CASCADE;
 TRUNCATE TABLE genre_artist CASCADE;
 TRUNCATE TABLE genre_track CASCADE;
+TRUNCATE TABLE csat CASCADE;
+TRUNCATE TABLE csat_question CASCADE;
 -- +goose StatementEnd
