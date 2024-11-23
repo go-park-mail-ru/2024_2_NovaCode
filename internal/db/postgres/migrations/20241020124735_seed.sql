@@ -128,6 +128,8 @@ INSERT INTO genre_track (genre_id, track_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Atoms For Peace')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Analyze')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'The Eraser'));
+
+  
 -- +goose StatementEnd
 
 -- +goose Down

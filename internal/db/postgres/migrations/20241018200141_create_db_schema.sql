@@ -122,11 +122,33 @@ CREATE TABLE IF NOT EXISTS "artist_score" (
 
 CREATE TABLE IF NOT EXISTS "favorite_track" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  user_id UUID REFERENCES "user" (id) ON DELETE CASCADE,
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS "csat" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  title TEXT NOT NULL
+    CONSTRAINT csat_title_length CHECK (char_length(title) <= 31)
+);
+
+CREATE TABLE IF NOT EXISTS "csat_question" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  title TEXT NOT NULL
+    CONSTRAINT csat_question_title_length CHECK (char_length(title) <= 255),
+  csat_id INT NOT NULL REFERENCES csat (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "csat_answer" (
+  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  score INT NOT NULL,
+  user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  csat_question_id INT NOT NULL REFERENCES csat_question (id) ON DELETE CASCADE,
+  csat_id INT NOT NULL REFERENCES csat (id) ON DELETE CASCADE
+);
+
 
 CREATE UNIQUE INDEX favorite_track_unique ON favorite_track (user_id, track_id);
 -- +goose StatementEnd
@@ -135,6 +157,9 @@ CREATE UNIQUE INDEX favorite_track_unique ON favorite_track (user_id, track_id);
 -- +goose StatementBegin
 DROP INDEX IF EXISTS favorite_track_unique;
 
+DROP TABLE IF EXISTS "csat_answer" CASCADE;
+DROP TABLE IF EXISTS "csat_question" CASCADE;
+DROP TABLE IF EXISTS "csat" CASCADE;
 DROP TABLE IF EXISTS "favorite_track" CASCADE;
 DROP TABLE IF EXISTS "artist_score" CASCADE;
 DROP TABLE IF EXISTS "playlist_user" CASCADE;
