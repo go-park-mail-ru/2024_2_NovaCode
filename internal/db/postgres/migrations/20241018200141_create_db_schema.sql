@@ -145,8 +145,8 @@ CREATE TABLE IF NOT EXISTS "csat_answer" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   score INT NOT NULL,
   user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-  csat_question_id INT NOT NULL REFERENCES csat_question (id) ON DELETE CASCADE,
-  UNIQUE (user_id, csat_question_id)
+  csat_question_id INT NOT NULL REFERENCES csat_question (id) ON DELETE CASCADE
+  -- UNIQUE (user_id, csat_question_id)
 );
 
 
