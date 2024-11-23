@@ -33,15 +33,15 @@ func TestTrackHandlers_SearchTrack(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album1",
+				ArtistName: "artist1", AlbumName: "album1",
 			},
 			{
 				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist2", Album: "album2",
+				ArtistName: "artist2", AlbumName: "album2",
 			},
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist3", Album: "album3",
+				ArtistName: "artist3", AlbumName: "album3",
 			},
 		}
 
@@ -100,7 +100,7 @@ func TestTrackHandlers_ViewTrack(t *testing.T) {
 	t.Run("Successful view", func(t *testing.T) {
 		track := dto.TrackDTO{
 			Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-			Artist: "artist1", Album: "album1",
+			ArtistName: "artist1", AlbumName: "album1",
 		}
 
 		usecaseMock.EXPECT().View(gomock.Any(), uint64(1)).Return(&track, nil)
@@ -166,15 +166,15 @@ func TestTrackHandlers_GetAllTracks(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album1",
+				ArtistName: "artist1", AlbumName: "album1",
 			},
 			{
 				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist2", Album: "album2",
+				ArtistName: "artist2", AlbumName: "album2",
 			},
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist3", Album: "album3",
+				ArtistName: "artist3", AlbumName: "album3",
 			},
 		}
 
@@ -224,15 +224,15 @@ func TestTrackHandlers_GetAllByArtistIDTracks(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album1",
+				ArtistName: "artist1", AlbumName: "album1",
 			},
 			{
 				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album2",
+				ArtistName: "artist1", AlbumName: "album2",
 			},
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album3",
+				ArtistName: "artist1", AlbumName: "album3",
 			},
 		}
 		usecaseMock.EXPECT().GetAllByArtistID(gomock.Any(), uint64(1)).Return(tracks, nil)
@@ -301,15 +301,15 @@ func TestTrackHandlers_GetAllByAlbumIDTracks(t *testing.T) {
 		tracks := []*dto.TrackDTO{
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist1", Album: "album1",
+				ArtistName: "artist1", AlbumName: "album1",
 			},
 			{
 				Name: "track", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist2", Album: "album1",
+				ArtistName: "artist2", AlbumName: "album1",
 			},
 			{
 				Name: "test", Duration: uint64(1), FilePath: "1", Image: "1",
-				Artist: "artist3", Album: "album1",
+				ArtistName: "artist3", AlbumName: "album1",
 			},
 		}
 		usecaseMock.EXPECT().GetAllByAlbumID(gomock.Any(), uint64(1)).Return(tracks, nil)
@@ -649,8 +649,8 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userID := uuid.New()
 		tracks := []*dto.TrackDTO{
-			{ID: 1, Name: "Track 1", Artist: "Artist 1"},
-			{ID: 2, Name: "Track 2", Artist: "Artist 2"},
+			{ID: 1, Name: "Track 1", ArtistName: "Artist 1"},
+			{ID: 2, Name: "Track 2", ArtistName: "Artist 2"},
 		}
 
 		usecaseMock.EXPECT().GetFavoriteTracks(gomock.Any(), userID).Return(tracks, nil)

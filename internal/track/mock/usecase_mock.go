@@ -14,8 +14,8 @@ import (
 	reflect "reflect"
 
 	dto "github.com/go-park-mail-ru/2024_2_NovaCode/internal/track/dto"
-	uuid "github.com/google/uuid"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockUsecase is a mock of Usecase interface.
