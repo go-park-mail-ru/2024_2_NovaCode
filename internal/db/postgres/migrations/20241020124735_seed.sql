@@ -140,14 +140,19 @@ INSERT INTO csat_question (title, csat_id) VALUES
   ('Порекомендуете ли вы NovaMusic друзьям?', (SELECT id FROM csat WHERE topic = 'Общие'));
 
 INSERT INTO "user" (username, email, password_hash) VALUES
-    ('test', 'mail@mail.ru', 1234);
+    ('test', 'mail@mail.ru', 1234),
+    ('test2', 'mail2@mail.ru', 1234);
 
 INSERT INTO csat_answer (score, user_id, csat_question_id) VALUES
     (7, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы убовлетворены удобством NovaCode?')),
     (4, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам лего было найти желаемую музыку?')),
     (3, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?')),
     (1, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам удобно было использовать плейер?')),
-    (2, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Порекомендуете ли вы NovaMusic друзьям?'));
+    (2, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Порекомендуете ли вы NovaMusic друзьям?')),
+    (3, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вы убовлетворены удобством NovaCode?')),
+    (5, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вам лего было найти желаемую музыку?')),
+    (2, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?')),
+    (8, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вам удобно было использовать плейер?'));
 -- +goose StatementEnd
 
 -- +goose Down
