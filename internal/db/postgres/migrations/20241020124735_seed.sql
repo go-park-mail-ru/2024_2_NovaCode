@@ -128,6 +128,31 @@ INSERT INTO genre_track (genre_id, track_id) VALUES
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Atoms For Peace')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'Analyze')),
   ((SELECT id FROM genre WHERE name = 'IDM'), (SELECT id FROM track WHERE name = 'The Eraser'));
+
+INSERT INTO csat (topic) VALUES
+    ('Общие');
+
+INSERT INTO csat_question (title, csat_id) VALUES
+  ('Насколько вы убовлетворены удобством NovaCode?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вам лего было найти желаемую музыку?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вам удобно было использовать плейер?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Порекомендуете ли вы NovaMusic друзьям?', (SELECT id FROM csat WHERE topic = 'Общие'));
+
+INSERT INTO "user" (username, email, password_hash) VALUES
+    ('test', 'mail@mail.ru', 1234),
+    ('test2', 'mail2@mail.ru', 1234);
+
+INSERT INTO csat_answer (score, user_id, csat_question_id) VALUES
+    (7, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы убовлетворены удобством NovaCode?')),
+    (4, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам лего было найти желаемую музыку?')),
+    (3, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?')),
+    (1, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Насколько вам удобно было использовать плейер?')),
+    (2, (SELECT id FROM "user" WHERE username = 'test'), (SELECT id FROM csat_question WHERE title = 'Порекомендуете ли вы NovaMusic друзьям?')),
+    (3, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вы убовлетворены удобством NovaCode?')),
+    (5, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вам лего было найти желаемую музыку?')),
+    (2, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?')),
+    (8, (SELECT id FROM "user" WHERE username = 'test2'), (SELECT id FROM csat_question WHERE title = 'Насколько вам удобно было использовать плейер?'));
 -- +goose StatementEnd
 
 -- +goose Down
@@ -138,4 +163,7 @@ TRUNCATE TABLE track CASCADE;
 TRUNCATE TABLE genre CASCADE;
 TRUNCATE TABLE genre_artist CASCADE;
 TRUNCATE TABLE genre_track CASCADE;
+TRUNCATE TABLE csat CASCADE;
+TRUNCATE TABLE csat_question CASCADE;
+TRUNCATE TABLE csat_answer CASCADE;
 -- +goose StatementEnd
