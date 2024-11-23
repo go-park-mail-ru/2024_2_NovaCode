@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
@@ -36,4 +37,17 @@ func (usecase *csatUsecase) GetQuestionsByTopic(ctx context.Context, topic strin
 	}
 
 	return questionsDTO, nil
+}
+
+func (usecase *csatUsecase) SubmitAnswer(ctx context.Context, csatAnswer *models.CSATAnswer) (*dto.CSATAnswerDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+
+	answer, err := usecase.csatRepo.InsertAnswer(ctx, csatAnswer)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("user have already answered on this question: %v", err), requestID)
+		return nil, fmt.Errorf("user have already answered on this question")
+	}
+
+	answerDTO := dto.NewCSATAnswerDTO(answer)
+	return answerDTO, nil
 }

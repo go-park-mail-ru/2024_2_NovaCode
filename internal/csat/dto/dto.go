@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/google/uuid"
 )
 
 type CSATQuestionDTO struct {
@@ -17,11 +18,25 @@ func NewCSATQuestionDTO(csatQuestion *models.CSATQuestion) *CSATQuestionDTO {
 }
 
 type CSATAnswerDTO struct {
-	ID uint64 `json:"id"`
+	ID             uint64    `json:"id,omitempty"`
+	Score          uint8     `json:"score"`
+	UserID         uuid.UUID `json:"user_id,omitempty"`
+	CSATQuestionID uint64    `json:"question_id,omitempty"`
 }
 
-func NewCSATAnswerDTO(csatAnswer *models.CSATQuestion) *CSATAnswerDTO {
+func NewCSATAnswerDTO(csatAnswer *models.CSATAnswer) *CSATAnswerDTO {
 	return &CSATAnswerDTO{
 		csatAnswer.ID,
+		csatAnswer.Score,
+		csatAnswer.UserID,
+		csatAnswer.CSATQuestionID,
+	}
+}
+
+func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
+	return &models.CSATAnswer{
+		Score:          answerDTO.Score,
+		UserID:         answerDTO.UserID,
+		CSATQuestionID: answerDTO.CSATQuestionID,
 	}
 }

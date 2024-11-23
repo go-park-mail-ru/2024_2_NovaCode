@@ -166,5 +166,11 @@ func (s *Server) BindCSAT() {
 		),
 	).Methods("GET")
 
-	// s.mux.HandleFunc("/api/v1/csat/questions", csatHandlers.GetQuestionsByTopic).Methods("GET")
+	s.mux.Handle(
+		"/api/v1/csat/questions/{questionID:[0-9]+}/submit",
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(csatHandlers.SubmitAnswer)),
+		),
+	).Methods("POST")
 }
