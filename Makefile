@@ -136,7 +136,7 @@ docker-start:
 ## Format: `docker-stop [compose=<docker-compose-service>]`.
 ## Example: `docker-stop`, `docker-stop compose=postgres`.
 docker-stop:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) stop $(compose)
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) stop $(compose)
 
 .PHONY: docker-ash
 ## Run `ash` in docker container of microservice.
@@ -151,7 +151,7 @@ docker-psql:
 .PHONY: docker-clean
 ## Remove containers, networks, volumes, and images created by `make docker-start`.
 docker-clean:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) down
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) down
 
 .PHONY: build-image
 ## Build docker image of microservice with name.
