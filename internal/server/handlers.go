@@ -25,6 +25,10 @@ import (
 	genreHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/delivery/http"
 	genreRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/repository"
 	genreUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/usecase"
+
+	csatHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/delivery/http"
+	csatRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/repository"
+	csatUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/usecase"
 )
 
 func (s *Server) BindRoutes() {
@@ -33,6 +37,7 @@ func (s *Server) BindRoutes() {
 	s.BindArtist()
 	s.BindAlbum()
 	s.BindGenre()
+	s.BindCSAT()
 }
 
 func (s *Server) BindTrack() {
@@ -146,4 +151,20 @@ func (s *Server) BindGenre() {
 	s.mux.HandleFunc("/api/v1/genres", genreHandleres.GetAll).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byArtistId/{artistId:[0-9]+}", genreHandleres.GetAllByArtistID).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byTrackId/{trackId:[0-9]+}", genreHandleres.GetAllByTrackID).Methods("GET")
+}
+
+func (s *Server) BindCSAT() {
+	csatRepo := csatRepo.NewCSATPGRepository(s.pg)
+	csatUsecase := csatUsecase.NewCSATUsecase(csatRepo, s.logger)
+	csatHandlers := csatHandlers.NewCSATHandlers(csatUsecase, s.logger)
+
+	s.mux.Handle(
+		"/api/v1/csat/questions",
+		middleware.AuthMiddleware(
+			&s.cfg.Service.Auth, s.logger,
+			middleware.CSRFMiddleware(&s.cfg.Service.Auth.CSRF, s.logger, http.HandlerFunc(csatHandlers.GetQuestionsByTopic)),
+		),
+	).Methods("GET")
+
+	// s.mux.HandleFunc("/api/v1/csat/questions", csatHandlers.GetQuestionsByTopic).Methods("GET")
 }
