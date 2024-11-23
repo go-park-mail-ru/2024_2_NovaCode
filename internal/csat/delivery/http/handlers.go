@@ -102,3 +102,22 @@ func (handlers *csatHandlers) GetQuestionsByTopic(response http.ResponseWriter, 
 
 	response.WriteHeader(http.StatusOK)
 }
+
+func (handlers *csatHandlers) GetStatistics(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	stat, err := handlers.usecase.GetStatistics(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed get statistics: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't get statistics")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(stat); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode statistics: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}

@@ -40,3 +40,17 @@ func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
 		CSATQuestionID: answerDTO.CSATQuestionID,
 	}
 }
+
+type CSATStatisticsDTO struct {
+	Topic        string
+	Question     string
+	AverageScore float64
+}
+
+func NewCSATStatisticsDTO(csatStat *models.CSATStat) *CSATStatisticsDTO {
+	return &CSATStatisticsDTO{
+		Topic:        csatStat.Topic,
+		Question:     csatStat.Question,
+		AverageScore: csatStat.AverageScore,
+	}
+}

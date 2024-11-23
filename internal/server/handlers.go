@@ -158,6 +158,8 @@ func (s *Server) BindCSAT() {
 	csatUsecase := csatUsecase.NewCSATUsecase(csatRepo, s.logger)
 	csatHandlers := csatHandlers.NewCSATHandlers(csatUsecase, s.logger)
 
+	s.mux.HandleFunc("/api/v1/csat/stat", csatHandlers.GetStatistics).Methods("GET")
+
 	s.mux.Handle(
 		"/api/v1/csat/questions",
 		middleware.AuthMiddleware(
