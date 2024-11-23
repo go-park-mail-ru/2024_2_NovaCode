@@ -1,39 +1,59 @@
 package dto
 
-import "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
-
-type CSATStatisticsDTO struct {
-	Topic    string                 `json:"topic"`
-	Question []*CSATQuestionStatDTO `json:"questions"`
-}
-
-func NewCSATStatisticsDTO(stat *models.CSAT, questions []*CSATQuestionStatDTO) *CSATStatisticsDTO {
-	return &CSATStatisticsDTO{
-		stat.Topic,
-		questions,
-	}
-}
+import (
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/google/uuid"
+)
 
 type CSATQuestionDTO struct {
 	ID       uint64 `json:"id"`
 	Question string `json:"question"`
 }
 
-func NewCSATQuestionDTO(question *models.CSATQuestion) *CSATQuestionDTO {
+func NewCSATQuestionDTO(csatQuestion *models.CSATQuestion) *CSATQuestionDTO {
 	return &CSATQuestionDTO{
-		question.ID,
-		question.Question,
+		csatQuestion.ID,
+		csatQuestion.Question,
 	}
 }
 
-type CSATQuestionStatDTO struct {
-	*CSATQuestionDTO
-	AverageScore float64 `json:"score"`
+type CSATAnswerDTO struct {
+	ID             uint64    `json:"id"`
+	Score          uint8     `json:"score"`
+	UserID         uuid.UUID `json:"user_id"`
+	CSATQuestionID uint64    `json:"question_id"`
+	CSATID         uint64    `json:"csat_id"`
 }
 
-func NewCSATQuestionStatDTO(question *CSATQuestionDTO, avgScore float64) *CSATQuestionStatDTO {
-	return &CSATQuestionStatDTO{
-		question,
-		avgScore,
+func NewCSATAnswerDTO(csatAnswer *models.CSATAnswer) *CSATAnswerDTO {
+	return &CSATAnswerDTO{
+		csatAnswer.ID,
+		csatAnswer.Score,
+		csatAnswer.UserID,
+		csatAnswer.CSATQuestionID,
+		csatAnswer.CSATID,
+	}
+}
+
+func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
+	return &models.CSATAnswer{
+		Score:          answerDTO.Score,
+		UserID:         answerDTO.UserID,
+		CSATQuestionID: answerDTO.CSATQuestionID,
+		CSATID:         answerDTO.CSATID,
+	}
+}
+
+type CSATStatisticsDTO struct {
+	Topic        string
+	Question     string
+	AverageScore float64
+}
+
+func NewCSATStatisticsDTO(csatStat *models.CSATStat) *CSATStatisticsDTO {
+	return &CSATStatisticsDTO{
+		Topic:        csatStat.Topic,
+		Question:     csatStat.Question,
+		AverageScore: csatStat.AverageScore,
 	}
 }
