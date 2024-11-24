@@ -112,6 +112,9 @@ services:
 
       /usr/bin/mc mb --quiet local/tracks;
       /usr/bin/mc policy set public local/tracks;
+
+      /usr/bin/mc mb --quiet local/playlists;
+      /usr/bin/mc policy set public local/playlists;
       "
     depends_on:
       minio:
