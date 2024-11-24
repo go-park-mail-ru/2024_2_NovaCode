@@ -27,9 +27,6 @@ func MetricsMiddleware(metrics *metrics.Metrics, next http.Handler) http.Handler
 		metrics.RequestCounter.WithLabelValues(method, url, status).Inc()
 		metrics.RequestDuration.WithLabelValues(method, url).Observe(duration)
 
-		responseSize := float64(rec.size)
-		metrics.ResponseSizeHistogram.WithLabelValues(method, url).Observe(responseSize)
-
 		if rec.statusCode >= 400 {
 			metrics.ErrorCounter.WithLabelValues(method, url, status).Inc()
 		}
@@ -39,7 +36,6 @@ func MetricsMiddleware(metrics *metrics.Metrics, next http.Handler) http.Handler
 type statusRecorder struct {
 	http.ResponseWriter
 	statusCode int
-	size       int
 }
 
 func (rec *statusRecorder) WriteHeader(code int) {

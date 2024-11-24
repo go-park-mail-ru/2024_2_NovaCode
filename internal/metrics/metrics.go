@@ -5,11 +5,10 @@ import (
 )
 
 type Metrics struct {
-	RequestCounter        *prometheus.CounterVec
-	RequestDuration       *prometheus.HistogramVec
-	ErrorCounter          *prometheus.CounterVec
-	ResponseSizeHistogram *prometheus.HistogramVec
-	ActiveConnections     prometheus.Gauge
+	RequestCounter    *prometheus.CounterVec
+	RequestDuration   *prometheus.HistogramVec
+	ErrorCounter      *prometheus.CounterVec
+	ActiveConnections prometheus.Gauge
 }
 
 func New(namespace string) *Metrics {
