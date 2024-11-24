@@ -18,8 +18,9 @@ scrape_configs:
     
   - job_name: 'novamusic-backend'
     scrape_interval: 1m
+    scheme: https
     static_configs:
-      - targets: ['novamusic-backend:8080']
+      - targets: ['nova-music.ru:8080']
 
 alerting:
   alertmanagers:

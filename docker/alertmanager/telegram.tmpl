@@ -10,7 +10,8 @@
 {{- end }}
 
 🏷 <b>Labels:</b>
-{{ range .Labels.SortedPairs }}  - <i>{{ .Name }}</i>: <code>{{ .Value }}</code>{{ end }}
+{{ range .Labels.SortedPairs }}
+  - <i>{{ .Name }}</i>: <code>{{ .Value }}</code>{{ end }}
 
 ⏰ <b>Starts At:</b> {{ .StartsAt }}
 {{- if .EndsAt }}
