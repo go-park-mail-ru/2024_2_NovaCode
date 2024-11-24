@@ -12,8 +12,10 @@ type TrackDTO struct {
 	Duration    uint64    `json:"duration"`
 	FilePath    string    `json:"filepath"`
 	Image       string    `json:"image"`
-	Artist      string    `json:"artist"`
-	Album       string    `json:"album"`
+	ArtistName  string    `json:"artistName"`
+	ArtistID    uint64    `json:"artistID"`
+	AlbumName   string    `json:"albumName"`
+	AlbumID     uint64    `json:"albumID"`
 	ReleaseDate time.Time `json:"release"`
 }
 
@@ -25,7 +27,9 @@ func NewTrackDTO(track *models.Track, artist *models.Artist, album *models.Album
 		track.FilePath,
 		track.Image,
 		artist.Name,
+		artist.ID,
 		album.Name,
+		album.ID,
 		track.ReleaseDate,
 	}
 }

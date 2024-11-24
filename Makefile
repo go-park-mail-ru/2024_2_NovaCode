@@ -160,7 +160,7 @@ docker-clean:
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.$(ENV) --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(VERSION) .
+	@docker build -f docker/Dockerfile.prod --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(VERSION) .
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.

@@ -77,8 +77,8 @@ func TestUsecase_View_FoundTrack(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, dtoTrack)
 	require.Equal(t, track.Name, dtoTrack.Name)
-	require.Equal(t, artist.Name, dtoTrack.Artist)
-	require.Equal(t, album.Name, dtoTrack.Album)
+	require.Equal(t, artist.Name, dtoTrack.ArtistName)
+	require.Equal(t, album.Name, dtoTrack.AlbumName)
 }
 
 func TestUsecase_View_NotFoundTrack(t *testing.T) {
@@ -180,10 +180,10 @@ func TestUsecase_Search_FoundTracks(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, dtoTracks)
 	require.Equal(t, 2, len(dtoTracks))
-	require.Equal(t, artists[0].Name, dtoTracks[0].Artist)
-	require.Equal(t, albums[0].Name, dtoTracks[0].Album)
-	require.Equal(t, artists[2].Name, dtoTracks[1].Artist)
-	require.Equal(t, albums[2].Name, dtoTracks[1].Album)
+	require.Equal(t, artists[0].Name, dtoTracks[0].ArtistName)
+	require.Equal(t, albums[0].Name, dtoTracks[0].AlbumName)
+	require.Equal(t, artists[2].Name, dtoTracks[1].ArtistName)
+	require.Equal(t, albums[2].Name, dtoTracks[1].AlbumName)
 }
 
 func TestUsecase_Search_NotFoundTracks(t *testing.T) {
@@ -286,8 +286,8 @@ func TestUsecase_GetAll_FoundTracks(t *testing.T) {
 
 	for i := 0; i < len(tracks); i++ {
 		require.Equal(t, tracks[i].Name, dtoTracks[i].Name)
-		require.Equal(t, artists[i].Name, dtoTracks[i].Artist)
-		require.Equal(t, albums[i].Name, dtoTracks[i].Album)
+		require.Equal(t, artists[i].Name, dtoTracks[i].ArtistName)
+		require.Equal(t, albums[i].Name, dtoTracks[i].AlbumName)
 	}
 }
 
@@ -394,8 +394,8 @@ func TestUsecase_GetAllByArtistID_FoundTracks(t *testing.T) {
 
 	for i := 0; i < len(tracks); i++ {
 		require.Equal(t, tracks[i].Name, dtoTracks[i].Name)
-		require.Equal(t, artist.Name, dtoTracks[i].Artist)
-		require.Equal(t, albums[i].Name, dtoTracks[i].Album)
+		require.Equal(t, artist.Name, dtoTracks[i].ArtistName)
+		require.Equal(t, albums[i].Name, dtoTracks[i].AlbumName)
 	}
 }
 
@@ -493,8 +493,8 @@ func TestUsecase_GetAllByAlbumID_FoundTracks(t *testing.T) {
 
 	for i := 0; i < len(tracks); i++ {
 		require.Equal(t, tracks[i].Name, dtoTracks[i].Name)
-		require.Equal(t, artist.Name, dtoTracks[i].Artist)
-		require.Equal(t, album.Name, dtoTracks[i].Album)
+		require.Equal(t, artist.Name, dtoTracks[i].ArtistName)
+		require.Equal(t, album.Name, dtoTracks[i].AlbumName)
 	}
 }
 
@@ -743,8 +743,8 @@ func TestUsecase_GetFavoriteTracks_FoundTracks(t *testing.T) {
 
 	for i := 0; i < len(tracks); i++ {
 		require.Equal(t, tracks[i].Name, dtoTracks[i].Name)
-		require.Equal(t, artist.Name, dtoTracks[i].Artist)
-		require.Equal(t, albums[i].Name, dtoTracks[i].Album)
+		require.Equal(t, artist.Name, dtoTracks[i].ArtistName)
+		require.Equal(t, albums[i].Name, dtoTracks[i].AlbumName)
 	}
 }
 

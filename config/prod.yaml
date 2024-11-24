@@ -5,8 +5,12 @@ service:
   idleTimeout: 120
   contextTimeout: 5
 
+  tls:
+    certPath: "/etc/ssl/nova-music.ru/fullchain.pem"
+    keyPath: "/etc/ssl/nova-music.ru/privkey.pem"
+
   cors:
-    allowOrigin: "http://185.241.194.24"
+    allowOrigin: "https://nova-music.ru"
     allowMethods: "POST,GET,OPTIONS,PUT,DELETE"
     allowHeaders: "Content-Type,X-Csrf-Token"
     allowCredentials: true
@@ -25,7 +29,7 @@ service:
       cookie:
         name: jwt-token
         maxAge: 86400
-        secure: false
+        secure: true
         httpOnly: true
 
 postgres:
@@ -39,6 +43,5 @@ postgres:
   connMaxIdleTime: 20
 
 minio:
-  externalURL: http://185.241.194.24:8010
-  innerURL: minio:9000
-  sslMode: false
+  url: nova-music.ru:8010
+  sslMode: true
