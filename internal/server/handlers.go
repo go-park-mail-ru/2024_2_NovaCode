@@ -25,6 +25,10 @@ import (
 	genreHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/delivery/http"
 	genreRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/repository"
 	genreUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/genre/usecase"
+
+	playlistHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/playlist/delivery/http"
+	playlistRepo "github.com/go-park-mail-ru/2024_2_NovaCode/internal/playlist/repository"
+	playlistUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/internal/playlist/usecase"
 )
 
 func (s *Server) BindRoutes() {
@@ -33,6 +37,7 @@ func (s *Server) BindRoutes() {
 	s.BindArtist()
 	s.BindAlbum()
 	s.BindGenre()
+	s.BindPlaylist()
 }
 
 func (s *Server) BindTrack() {
@@ -125,4 +130,36 @@ func (s *Server) BindGenre() {
 	s.mux.HandleFunc("/api/v1/genres", genreHandleres.GetAll).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byArtistId/{artistId:[0-9]+}", genreHandleres.GetAllByArtistID).Methods("GET")
 	s.mux.HandleFunc("/api/v1/genres/byTrackId/{trackId:[0-9]+}", genreHandleres.GetAllByTrackID).Methods("GET")
+}
+
+func (s *Server) BindPlaylist() {
+	playlistRepo := playlistRepo.NewPlaylistRepository(s.pg)
+	trackRepo := trackRepo.NewTrackPGRepository(s.pg)
+	albumRepo := albumRepo.NewAlbumPGRepository(s.pg)
+	artistRepo := artistRepo.NewArtistPGRepository(s.pg)
+	userRepo := userRepo.NewUserPostgresRepository(s.pg, s.logger)
+	trackUsecase := trackUsecase.NewTrackUsecase(trackRepo, albumRepo, artistRepo, s.logger)
+	playlistUsecase := playlistUsecase.NewPlaylistUsecase(trackUsecase, playlistRepo, trackRepo, userRepo, s.logger)
+	playlistHandleres := playlistHandlers.NewPlaylistHandlers(playlistUsecase, s.logger)
+
+	s.mux.HandleFunc("/api/v1/playlists", playlistHandleres.GetAllPlaylists).Methods("GET")
+	s.mux.Handle(
+		"/api/v1/playlists",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(playlistHandleres.CreatePlaylist)),
+	).Methods("POST")
+	s.mux.HandleFunc("/api/v1/playlists/{playlistId:[0-9]+}", playlistHandleres.GetPlaylist).Methods("GET")
+	s.mux.HandleFunc("/api/v1/playlists/{playlistId:[0-9]+}/tracks", playlistHandleres.GetTracksFromPlaylist).Methods("GET")
+	s.mux.HandleFunc("/api/v1/users/{userId:[0-9a-fA-F-]+}/playlists", playlistHandleres.GetUserPlaylists).Methods("GET")
+	s.mux.Handle(
+		"/api/v1/playlists/{playlistId:[0-9]+}/tracks",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(playlistHandleres.AddToPlaylist)),
+	).Methods("POST")
+	s.mux.Handle(
+		"/api/v1/playlists/{playlistId:[0-9]+}/tracks",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(playlistHandleres.RemoveFromPlaylist)),
+	).Methods("DELETE")
+	s.mux.Handle(
+		"/api/v1/playlists/{playlistId:[0-9]+}",
+		middleware.AuthMiddleware(&s.cfg.Service.Auth, s.logger, http.HandlerFunc(playlistHandleres.DeletePlaylist)),
+	).Methods("DELETE")
 }

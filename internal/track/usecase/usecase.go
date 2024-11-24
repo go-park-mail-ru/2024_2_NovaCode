@@ -33,7 +33,7 @@ func (usecase *trackUsecase) View(ctx context.Context, trackID uint64) (*dto.Tra
 	}
 	usecase.logger.Info("Track found", requestID)
 
-	dtoTrack, err := usecase.convertTrackToDTO(ctx, foundTrack)
+	dtoTrack, err := usecase.ConvertTrackToDTO(ctx, foundTrack)
 	if err != nil {
 		usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", foundTrack.Name, err), requestID)
 		return nil, fmt.Errorf("Can't create DTO")
@@ -53,7 +53,7 @@ func (usecase *trackUsecase) Search(ctx context.Context, name string) ([]*dto.Tr
 
 	var dtoTracks []*dto.TrackDTO
 	for _, track := range foundTracks {
-		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
+		dtoTrack, err := usecase.ConvertTrackToDTO(ctx, track)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
 			return nil, fmt.Errorf("Can't create DTO")
@@ -75,7 +75,7 @@ func (usecase *trackUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error
 
 	var dtoTracks []*dto.TrackDTO
 	for _, track := range tracks {
-		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
+		dtoTrack, err := usecase.ConvertTrackToDTO(ctx, track)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
 			return nil, fmt.Errorf("Can't create DTO")
@@ -97,7 +97,7 @@ func (usecase *trackUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 
 	var dtoTracks []*dto.TrackDTO
 	for _, track := range tracks {
-		dtoTrack, err := usecase.convertTrackToDTO(ctx, track)
+		dtoTrack, err := usecase.ConvertTrackToDTO(ctx, track)
 		if err != nil {
 			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
 			return nil, fmt.Errorf("Can't create DTO for track")
@@ -108,7 +108,7 @@ func (usecase *trackUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 	return dtoTracks, nil
 }
 
-func (usecase *trackUsecase) convertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
+func (usecase *trackUsecase) ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
 	artist, err := usecase.artistRepo.FindById(ctx, track.ArtistID)
 	if err != nil {

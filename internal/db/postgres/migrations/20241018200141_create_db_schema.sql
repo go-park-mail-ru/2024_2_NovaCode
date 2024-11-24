@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS "playlist" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE
     CONSTRAINT playlist_name_length CHECK (char_length(name) <= 31),
-  image TEXT
+  image TEXT DEFAULT 'default.jpeg'
     CONSTRAINT playlist_image_length CHECK (char_length(image) <= 255),
   owner_id UUID REFERENCES "user" (id) ON DELETE CASCADE,
   is_private BOOL NOT NULL DEFAULT false,
@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS "playlist_track" (
   playlist_id INT NOT NULL REFERENCES playlist (id) ON DELETE CASCADE,
   track_order_in_playlist INT,
   track_id INT NOT NULL REFERENCES track (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (playlist_id, track_id)
 );
 
@@ -130,8 +131,8 @@ DROP TABLE IF EXISTS "genre_artist";
 DROP TABLE IF EXISTS "playlist_track";
 DROP TABLE IF EXISTS "track";
 DROP TABLE IF EXISTS "playlist";
-DROP TABLE IF EXISTS "album";
-DROP TABLE IF EXISTS "genre";
-DROP TABLE IF EXISTS "artist";
-DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "album" CASCADE;
+DROP TABLE IF EXISTS "genre" CASCADE;
+DROP TABLE IF EXISTS "artist" CASCADE;
+DROP TABLE IF EXISTS "user" CASCADE;
 -- +goose StatementEnd

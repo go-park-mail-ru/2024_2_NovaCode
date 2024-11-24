@@ -3,6 +3,7 @@ package track
 import (
 	"context"
 
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track/dto"
 )
 
@@ -11,4 +12,5 @@ type Usecase interface {
 	Search(ctx context.Context, name string) ([]*dto.TrackDTO, error)
 	GetAll(ctx context.Context) ([]*dto.TrackDTO, error)
 	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.TrackDTO, error)
+	ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error)
 }
