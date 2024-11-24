@@ -5,6 +5,7 @@ import (
 
 	uuid "github.com/google/uuid"
 
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/track/dto"
 )
 
@@ -18,4 +19,5 @@ type Usecase interface {
 	DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error
 	IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error)
 	GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*dto.TrackDTO, error)
+	ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error)
 }
