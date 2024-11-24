@@ -131,6 +131,10 @@ docker-migrate:
 docker-start:
 	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
 
+.PHONY: docker-build-start
+## Build docker container and start containers within one command.
+docker-build-start: docker-build docker-start
+
 .PHONY: docker-stop
 ## Stop docker compose containers (all by default).
 ## Format: `docker-stop [compose=<docker-compose-service>]`.
