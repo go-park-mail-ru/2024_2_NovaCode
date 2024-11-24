@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -18,21 +19,23 @@ import (
 )
 
 type Server struct {
-	mux    *mux.Router
-	cfg    *config.Config
-	pg     postgres.Client
-	s3     *minio.Client
-	logger logger.Logger
+	mux     *mux.Router
+	cfg     *config.Config
+	pg      postgres.Client
+	s3      *minio.Client
+	logger  logger.Logger
+	metrics *metrics.Metrics
 }
 
-func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger) *Server {
-	return &Server{mux.NewRouter(), cfg, pg, s3, logger}
+func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger, metrics *metrics.Metrics) *Server {
+	return &Server{mux.NewRouter(), cfg, pg, s3, logger, metrics}
 }
 
 func (s *Server) Run() error {
 	s.BindRoutes()
 
-	corsedMux := middleware.CORSMiddleware(&s.cfg.Service.CORS, s.mux)
+	metricsMux := middleware.MetricsMiddleware(s.metrics, s.mux)
+	corsedMux := middleware.CORSMiddleware(&s.cfg.Service.CORS, metricsMux)
 	loggedCorsedMux := middleware.LoggingMiddleware(&s.cfg.Service, s.logger, corsedMux)
 
 	server := &http.Server{

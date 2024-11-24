@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	s3Repo "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3/repository/s3"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	userHandlers "github.com/go-park-mail-ru/2024_2_NovaCode/internal/user/delivery/http"
@@ -32,12 +33,17 @@ import (
 )
 
 func (s *Server) BindRoutes() {
+	s.BindMetrics()
 	s.BindUser()
 	s.BindTrack()
 	s.BindArtist()
 	s.BindAlbum()
 	s.BindGenre()
 	s.BindCSAT()
+}
+
+func (s *Server) BindMetrics() {
+	s.mux.Handle("/metrics", promhttp.Handler())
 }
 
 func (s *Server) BindTrack() {

@@ -1,0 +1,12 @@
+groups:
+  - name: Prometheus
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          title: "Instance {{ $labels.instance }} down"
+          summary: "Monitor service targets non-operational"
+          description: "{{ $labels.instance }} has been down for more than 30 seconds."
