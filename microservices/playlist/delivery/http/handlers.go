@@ -22,78 +22,78 @@ func NewPlaylistHandlers(usecase playlist.Usecase, logger logger.Logger) playlis
 	return &playlistHandlers{usecase: usecase, logger: logger}
 }
 
-// func (h *playlistHandlers) CreatePlaylist(response http.ResponseWriter, request *http.Request) {
-// 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
-// 	if !ok {
-// 		h.logger.Errorf("no user, userID: %v", userID)
-// 		utils.JSONError(response, http.StatusUnauthorized, "unauthorized")
-// 		return
-// 	}
+func (h *playlistHandlers) CreatePlaylist(response http.ResponseWriter, request *http.Request) {
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		h.logger.Errorf("no user, userID: %v", userID)
+		utils.JSONError(response, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-// 	playlistDTO := &dto.PlaylistDTO{}
+	playlistDTO := &dto.PlaylistDTO{}
 
-// 	if err := json.NewDecoder(request.Body).Decode(playlistDTO); err != nil {
-// 		h.logger.Errorf("can't decode")
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	if err := json.NewDecoder(request.Body).Decode(playlistDTO); err != nil {
+		h.logger.Errorf("can't decode")
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	playlistDTO.OwnerID = userID
-// 	newPlaylist, err := h.usecase.CreatePlaylist(request.Context(), playlistDTO)
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	playlistDTO.OwnerID = userID
+	newPlaylist, err := h.usecase.CreatePlaylist(request.Context(), playlistDTO)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.Header().Set("Content-Type", "application/json")
-// 	if err = json.NewEncoder(response).Encode(newPlaylist); err != nil {
-// 		h.logger.Errorf("can't encode")
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	response.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(response).Encode(newPlaylist); err != nil {
+		h.logger.Errorf("can't encode")
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.WriteHeader(http.StatusOK)
-// }
+	response.WriteHeader(http.StatusOK)
+}
 
-// func (h *playlistHandlers) GetAllPlaylists(response http.ResponseWriter, request *http.Request) {
-// 	playlists, err := h.usecase.GetAllPlaylists(request.Context())
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+func (h *playlistHandlers) GetAllPlaylists(response http.ResponseWriter, request *http.Request) {
+	playlists, err := h.usecase.GetAllPlaylists(request.Context())
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.Header().Set("Content-Type", "application/json")
-// 	if err = json.NewEncoder(response).Encode(playlists); err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	response.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(response).Encode(playlists); err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.WriteHeader(http.StatusOK)
-// }
+	response.WriteHeader(http.StatusOK)
+}
 
-// func (h *playlistHandlers) GetPlaylist(response http.ResponseWriter, request *http.Request) {
-// 	vars := mux.Vars(request)
-// 	playlistIDStr := vars["playlistId"]
-// 	playlistID, err := strconv.ParseUint(playlistIDStr, 10, 64)
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, "Invalid playlist ID")
-// 		return
-// 	}
+func (h *playlistHandlers) GetPlaylist(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	playlistIDStr := vars["playlistId"]
+	playlistID, err := strconv.ParseUint(playlistIDStr, 10, 64)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "Invalid playlist ID")
+		return
+	}
 
-// 	playlist, err := h.usecase.GetPlaylist(request.Context(), playlistID)
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	playlist, err := h.usecase.GetPlaylist(request.Context(), playlistID)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.Header().Set("Content-Type", "application/json")
-// 	if err = json.NewEncoder(response).Encode(playlist); err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	response.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(response).Encode(playlist); err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.WriteHeader(http.StatusOK)
-// }
+	response.WriteHeader(http.StatusOK)
+}
 
 // func (h *playlistHandlers) GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request) {
 // 	vars := mux.Vars(request)
@@ -119,29 +119,29 @@ func NewPlaylistHandlers(usecase playlist.Usecase, logger logger.Logger) playlis
 // 	response.WriteHeader(http.StatusOK)
 // }
 
-// func (h *playlistHandlers) GetUserPlaylists(response http.ResponseWriter, request *http.Request) {
-// 	vars := mux.Vars(request)
-// 	userIDStr := vars["userId"]
-// 	userID, err := uuid.Parse(userIDStr)
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, "Invalid playlist ID")
-// 		return
-// 	}
+func (h *playlistHandlers) GetUserPlaylists(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	userIDStr := vars["userId"]
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "Invalid playlist ID")
+		return
+	}
 
-// 	playlists, err := h.usecase.GetUserPlaylists(request.Context(), userID)
-// 	if err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	playlists, err := h.usecase.GetUserPlaylists(request.Context(), userID)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.Header().Set("Content-Type", "application/json")
-// 	if err = json.NewEncoder(response).Encode(playlists); err != nil {
-// 		utils.JSONError(response, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	response.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(response).Encode(playlists); err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	response.WriteHeader(http.StatusOK)
-// }
+	response.WriteHeader(http.StatusOK)
+}
 
 func (h *playlistHandlers) AddToPlaylist(response http.ResponseWriter, request *http.Request) {
 	_, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)

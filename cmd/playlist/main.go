@@ -5,11 +5,14 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/server"
+	httpServer "github.com/go-park-mail-ru/2024_2_NovaCode/internal/server/http"
 	playlistHttp "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/delivery/http"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	userService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/user"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -32,8 +35,15 @@ func main() {
 
 	metrics := metrics.New("backend", "playlist")
 
-	s := server.NewServer(cfg, pg, s3, logger, metrics)
-	playlistHttp.BindRoutes(s)
+	conn, err := grpc.NewClient("novamusic-user:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to user service: %v", err)
+	}
+	defer conn.Close()
+	userClient := userService.NewUserServiceClient(conn)
+
+	s := httpServer.New(cfg, pg, s3, logger, metrics)
+	playlistHttp.BindRoutes(s, userClient)
 
 	if err = s.Run(); err != nil {
 		log.Fatalf("failed to run server: %v", err)
