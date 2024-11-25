@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"context"
@@ -27,7 +27,7 @@ type Server struct {
 	Metrics *metrics.Metrics
 }
 
-func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger, metrics *metrics.Metrics) *Server {
+func New(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger, metrics *metrics.Metrics) *Server {
 	return &Server{mux.NewRouter(), cfg, pg, s3, logger, metrics}
 }
 
@@ -37,11 +37,11 @@ func (s *Server) Run() error {
 	loggedCorsedMux := middleware.LoggingMiddleware(&s.CFG.Service, s.Logger, corsedMux)
 
 	server := &http.Server{
-		Addr:         s.CFG.Service.Port,
+		Addr:         s.CFG.Service.HTTP.Port,
 		Handler:      loggedCorsedMux,
-		ReadTimeout:  s.CFG.Service.ReadTimeout * time.Second,
-		WriteTimeout: s.CFG.Service.WriteTimeout * time.Second,
-		IdleTimeout:  s.CFG.Service.IdleTimeout * time.Second,
+		ReadTimeout:  s.CFG.Service.HTTP.ReadTimeout * time.Second,
+		WriteTimeout: s.CFG.Service.HTTP.WriteTimeout * time.Second,
+		IdleTimeout:  s.CFG.Service.HTTP.IdleTimeout * time.Second,
 	}
 
 	go func() {
@@ -55,7 +55,7 @@ func (s *Server) Run() error {
 		}
 
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("failed to start server: %s", err)
+			log.Fatalf("failed to start http server: %s", err)
 		}
 	}()
 
@@ -64,7 +64,7 @@ func (s *Server) Run() error {
 
 	<-quit
 
-	ctx, shutdown := context.WithTimeout(context.Background(), s.CFG.Service.ContextTimeout*time.Second)
+	ctx, shutdown := context.WithTimeout(context.Background(), s.CFG.Service.HTTP.ContextTimeout*time.Second)
 	defer shutdown()
 
 	return server.Shutdown(ctx)
