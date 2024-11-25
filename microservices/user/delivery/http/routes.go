@@ -8,12 +8,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/server"
+	httpServer "github.com/go-park-mail-ru/2024_2_NovaCode/internal/server/http"
 	userRepo "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/user/repository/postgres"
 	userUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/user/usecase"
 )
 
-func BindRoutes(s *server.Server) {
+func BindRoutes(s *httpServer.Server) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
 	userPGRepo := userRepo.NewUserPostgresRepository(s.PG, s.Logger)

@@ -1,0 +1,31 @@
+// protoc --go_out=proto/user/. --go-grpc_out=proto/user/. proto/user/user.proto
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package userService;
+option go_package = ".;userService";
+
+message User {
+  string uuid = 1;
+  string role = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  string image = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message FindByIDRequest {
+    string uuid = 1;
+}
+
+message FindByIDResponse {
+    User user = 1;
+}
+
+service UserService {
+    rpc FindByID (FindByIDRequest) returns (FindByIDResponse);
+}
