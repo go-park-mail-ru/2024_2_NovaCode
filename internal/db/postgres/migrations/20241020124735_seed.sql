@@ -133,8 +133,8 @@ INSERT INTO csat (topic) VALUES
     ('Общие');
 
 INSERT INTO csat_question (title, csat_id) VALUES
-  ('Насколько вы убовлетворены удобством NovaCode?', (SELECT id FROM csat WHERE topic = 'Общие')),
-  ('Насколько вам лего было найти желаемую музыку?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вы удовлетворены удобством NovaCode?', (SELECT id FROM csat WHERE topic = 'Общие')),
+  ('Насколько вам легко было найти желаемую музыку?', (SELECT id FROM csat WHERE topic = 'Общие')),
   ('Насколько вы удовлетворены разнообразием музыкальных жанров и артистов?', (SELECT id FROM csat WHERE topic = 'Общие')),
   ('Насколько вам удобно было использовать плейер?', (SELECT id FROM csat WHERE topic = 'Общие')),
   ('Порекомендуете ли вы NovaMusic друзьям?', (SELECT id FROM csat WHERE topic = 'Общие'));
