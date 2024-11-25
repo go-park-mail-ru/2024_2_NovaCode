@@ -24,6 +24,26 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+  
+  novamusic-playlist:
+    image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
+    container_name: novamusic-playlist
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: playlist
+    ports:
+      - 8084:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
 
   postgres:
     container_name: novamusic-postgres
