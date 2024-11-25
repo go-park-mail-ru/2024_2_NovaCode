@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("failed to create s3 client: %v", err)
 	}
 
-	metrics := metrics.New("user")
+	metrics := metrics.New("backend", "user")
 
 	s := server.NewServer(cfg, pg, s3, logger, metrics)
 	userHttp.BindRoutes(s)

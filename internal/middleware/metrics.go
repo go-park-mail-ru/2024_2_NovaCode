@@ -14,9 +14,6 @@ func MetricsMiddleware(metrics *metrics.Metrics, next http.Handler) http.Handler
 
 		rec := &statusRecorder{ResponseWriter: response, statusCode: http.StatusOK}
 
-		metrics.ActiveConnections.Inc()
-		defer metrics.ActiveConnections.Dec()
-
 		next.ServeHTTP(rec, request)
 
 		duration := time.Since(start).Seconds()
@@ -24,11 +21,11 @@ func MetricsMiddleware(metrics *metrics.Metrics, next http.Handler) http.Handler
 		url := request.URL.Path
 		status := strconv.Itoa(rec.statusCode)
 
-		metrics.RequestCounter.WithLabelValues(method, url, status).Inc()
-		metrics.RequestDuration.WithLabelValues(method, url).Observe(duration)
+		metrics.RequestCounter.WithLabelValues(method, url, status, metrics.Microservice).Inc()
+		metrics.RequestDuration.WithLabelValues(method, url, metrics.Microservice).Observe(duration)
 
 		if rec.statusCode >= 400 {
-			metrics.ErrorCounter.WithLabelValues(method, url, status).Inc()
+			metrics.ErrorCounter.WithLabelValues(method, url, status, metrics.Microservice).Inc()
 		}
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	s3Repo "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3/repository/s3"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/server"
@@ -13,6 +14,8 @@ import (
 )
 
 func BindRoutes(s *server.Server) {
+	s.MUX.Handle("/metrics", promhttp.Handler())
+
 	userPGRepo := userRepo.NewUserPostgresRepository(s.PG, s.Logger)
 	userS3Repo := s3Repo.NewS3Repository(s.S3, s.Logger)
 	userUsecase := userUsecase.NewUserUsecase(&s.CFG.Service.Auth, &s.CFG.Minio, userPGRepo, userS3Repo, s.Logger)
