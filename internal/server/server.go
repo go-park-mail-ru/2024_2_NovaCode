@@ -19,12 +19,12 @@ import (
 )
 
 type Server struct {
-	mux     *mux.Router
-	cfg     *config.Config
-	pg      postgres.Client
-	s3      *minio.Client
-	logger  logger.Logger
-	metrics *metrics.Metrics
+	MUX     *mux.Router
+	CFG     *config.Config
+	PG      postgres.Client
+	S3      *minio.Client
+	Logger  logger.Logger
+	Metrics *metrics.Metrics
 }
 
 func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger logger.Logger, metrics *metrics.Metrics) *Server {
@@ -32,18 +32,16 @@ func NewServer(cfg *config.Config, pg postgres.Client, s3 *minio.Client, logger 
 }
 
 func (s *Server) Run() error {
-	s.BindRoutes()
-
-	metricsMux := middleware.MetricsMiddleware(s.metrics, s.mux)
-	corsedMux := middleware.CORSMiddleware(&s.cfg.Service.CORS, metricsMux)
-	loggedCorsedMux := middleware.LoggingMiddleware(&s.cfg.Service, s.logger, corsedMux)
+	metricsMux := middleware.MetricsMiddleware(s.Metrics, s.MUX)
+	corsedMux := middleware.CORSMiddleware(&s.CFG.Service.CORS, metricsMux)
+	loggedCorsedMux := middleware.LoggingMiddleware(&s.CFG.Service, s.Logger, corsedMux)
 
 	server := &http.Server{
-		Addr:         s.cfg.Service.Port,
+		Addr:         s.CFG.Service.Port,
 		Handler:      loggedCorsedMux,
-		ReadTimeout:  s.cfg.Service.ReadTimeout * time.Second,
-		WriteTimeout: s.cfg.Service.WriteTimeout * time.Second,
-		IdleTimeout:  s.cfg.Service.IdleTimeout * time.Second,
+		ReadTimeout:  s.CFG.Service.ReadTimeout * time.Second,
+		WriteTimeout: s.CFG.Service.WriteTimeout * time.Second,
+		IdleTimeout:  s.CFG.Service.IdleTimeout * time.Second,
 	}
 
 	go func() {
@@ -51,7 +49,7 @@ func (s *Server) Run() error {
 		var err error
 
 		if env == "prod" {
-			err = server.ListenAndServeTLS(s.cfg.Service.TLS.CertPath, s.cfg.Service.TLS.KeyPath)
+			err = server.ListenAndServeTLS(s.CFG.Service.TLS.CertPath, s.CFG.Service.TLS.KeyPath)
 		} else {
 			err = server.ListenAndServe()
 		}
@@ -66,7 +64,7 @@ func (s *Server) Run() error {
 
 	<-quit
 
-	ctx, shutdown := context.WithTimeout(context.Background(), s.cfg.Service.ContextTimeout*time.Second)
+	ctx, shutdown := context.WithTimeout(context.Background(), s.CFG.Service.ContextTimeout*time.Second)
 	defer shutdown()
 
 	return server.Shutdown(ctx)
