@@ -1,9 +1,17 @@
 service:
-  port: :8080
-  readTimeout: 10
-  writeTimeout: 10
-  idleTimeout: 120
-  contextTimeout: 5
+  http:
+    port: :8080
+    readTimeout: 10
+    writeTimeout: 10
+    idleTimeout: 120
+    contextTimeout: 5
+  
+  grpc:
+    port: :9000
+    maxConnectionIdle: 5
+    timeout: 15
+    maxConnectionAge: 5
+    time: 120
 
   cors:
     allowOrigin: "http://localhost:3000"
