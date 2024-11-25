@@ -8,4 +8,5 @@ type PlaylistTrack struct {
 	TrackOrderInPlaylist uint64
 	TrackID              uint64
 	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
