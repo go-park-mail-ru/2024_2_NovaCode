@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	albumService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/album"
 	"google.golang.org/grpc/codes"
@@ -17,14 +19,14 @@ func (service *albumsService) FindByID(ctx context.Context, request *albumServic
 		return nil, status.Errorf(codes.NotFound, "cannot find album by id: %v", err)
 	}
 
-	return &albumService.FindByIDResponse{User: service.albumDTOToProto(album)}, nil
+	return &albumService.FindByIDResponse{Album: service.albumDTOToProto(album)}, nil
 }
 
 func (service *albumsService) albumDTOToProto(album *dto.AlbumDTO) *albumService.Album {
 	return &albumService.Album{
 		Id:          album.ID,
 		Name:        album.Name,
-		ReleaseDate: album.ReleaseDate,
+		ReleaseDate: timestamppb.New(album.ReleaseDate),
 		Image:       album.Image,
 		ArtistId:    album.ArtistID,
 	}

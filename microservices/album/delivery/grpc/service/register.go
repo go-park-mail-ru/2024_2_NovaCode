@@ -8,9 +8,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func RegisterUserService(cfg *config.AuthConfig, usecase album.Usecase, logger logger.Logger) func(server *grpc.Server) {
+func RegisterAlbumService(cfg *config.AuthConfig, usecase album.Usecase, logger logger.Logger) func(server *grpc.Server) {
 	return func(server *grpc.Server) {
-		albumsServer := NewUsersService(cfg, usecase, logger)
-		albumService.RegisterUserServiceServer(server, albumsServer)
+		albumsServer := NewAlbumsService(cfg, usecase, logger)
+		albumService.RegisterAlbumServiceServer(server, albumsServer)
 	}
 }

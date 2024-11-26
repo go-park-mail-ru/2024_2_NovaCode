@@ -8,9 +8,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func RegisterUserService(cfg *config.AuthConfig, usecase track.Usecase, logger logger.Logger) func(server *grpc.Server) {
+func RegisterTrackService(cfg *config.AuthConfig, usecase track.Usecase, logger logger.Logger) func(server *grpc.Server) {
 	return func(server *grpc.Server) {
-		tracksServer := NewUsersService(cfg, usecase, logger)
-		trackService.RegisterUserServiceServer(server, tracksServer)
+		tracksServer := NewTracksService(cfg, usecase, logger)
+		trackService.RegisterTrackServiceServer(server, tracksServer)
 	}
 }

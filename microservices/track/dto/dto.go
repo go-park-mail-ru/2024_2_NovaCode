@@ -21,11 +21,11 @@ type TrackDTO struct {
 
 func NewTrackDTO(track *models.Track) *TrackDTO {
 	return &TrackDTO{
-		track.ID,
-		track.Name,
-		track.Duration,
-		track.FilePath,
-		track.Image,
-		track.ReleaseDate,
+		ID:          track.ID,
+		Name:        track.Name,
+		Duration:    track.Duration,
+		FilePath:    track.FilePath,
+		Image:       track.Image,
+		ReleaseDate: track.ReleaseDate,
 	}
 }

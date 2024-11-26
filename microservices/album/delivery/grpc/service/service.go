@@ -15,6 +15,6 @@ type albumsService struct {
 	albumService.UnimplementedAlbumServiceServer
 }
 
-func NewUsersService(cfg *config.AuthConfig, usecase album.Usecase, logger logger.Logger) *albumsService {
+func NewAlbumsService(cfg *config.AuthConfig, usecase album.Usecase, logger logger.Logger) *albumsService {
 	return &albumsService{cfg, usecase, logger, albumService.UnimplementedAlbumServiceServer{}}
 }

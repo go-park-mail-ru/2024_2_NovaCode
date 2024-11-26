@@ -13,7 +13,6 @@ import (
 	albumUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/usecase"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
-	s3Repo "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3/repository/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	artistService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/artist"
 	"google.golang.org/grpc"
@@ -61,8 +60,7 @@ func main() {
 	}()
 
 	albumPGRepo := albumRepo.NewAlbumPostgresRepository(pg, logger)
-	albumS3Repo := s3Repo.NewS3Repository(s3, logger)
-	albumUsecase := albumUsecase.NewAlbumUsecase(&cfg.Service.Auth, &cfg.Minio, albumPGRepo, albumS3Repo, logger)
+	albumUsecase := albumUsecase.NewAlbumUsecase(albumPGRepo, artistClient, logger)
 	registerAlbumService := albumService.RegisterAlbumService(&cfg.Service.Auth, albumUsecase, logger)
 
 	grpcServer := grpcServer.New(cfg, pg, s3, logger, metrics, registerAlbumService)
