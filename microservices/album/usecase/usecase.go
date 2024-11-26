@@ -2,16 +2,14 @@ package usecase
 
 import (
 	"context"
-	
 	"fmt"
-
-	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
-	artistService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/artist"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
+	artistService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/artist"
 )
 
 type albumUsecase struct {
