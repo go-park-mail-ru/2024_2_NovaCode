@@ -3,8 +3,8 @@ package csat
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/csat/dto"
 )
 
 type Usecase interface {

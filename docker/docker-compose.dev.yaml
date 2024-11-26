@@ -45,6 +45,28 @@ services:
       - prometheus
       - prometheus-exporters
 
+  novamusic-csat:
+    image: daronenko/novamusic-csat:${CSAT_VERSION}
+    container_name: novamusic-csat
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: csat
+    ports:
+      - 8087:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
   postgres:
     container_name: novamusic-postgres
     image: postgres:16
