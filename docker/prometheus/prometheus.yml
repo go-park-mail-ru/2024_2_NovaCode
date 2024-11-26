@@ -32,6 +32,10 @@ scrape_configs:
     static_configs:
       - targets: ['novamusic-playlist:8080']
 
+  - job_name: 'novamusic-csat'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-csat:8080']
   - job_name: 'novamusic-artist'
     scrape_interval: 1m
     static_configs:
