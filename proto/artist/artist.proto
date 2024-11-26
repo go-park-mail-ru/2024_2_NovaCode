@@ -1,0 +1,27 @@
+// protoc --go_out=proto/artist/. --go-grpc_out=proto/artist/.
+// proto/artist/artist.proto
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package artistService;
+option go_package = ".;artistService";
+
+message Artist {
+  uint64 id = 1;
+  string name = 2;
+  string bio = 3;
+  string country = 4;
+  string image = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message FindByIDRequest { uint64 id = 1; }
+
+message FindByIDResponse { Artist artist = 1; }
+
+service ArtistService {
+  rpc FindByID(FindByIDRequest) returns (FindByIDResponse);
+}

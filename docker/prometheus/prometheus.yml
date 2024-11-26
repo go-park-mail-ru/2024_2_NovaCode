@@ -1,5 +1,5 @@
 global:
-  scrape_interval:     20s
+  scrape_interval: 20s
   evaluation_interval: 20s
 
 rule_files:
@@ -15,15 +15,49 @@ scrape_configs:
     scrape_interval: 1m
     static_configs:
       - targets: ['prometheus:9090']
-    
-  - job_name: 'novamusic-backend'
+
+  # - job_name: 'novamusic-backend'
+  #   scrape_interval: 1m
+  #   scheme: https
+  #   static_configs:
+  #     - targets: ['nova-music.ru:8081']
+
+  - job_name: 'novamusic-user'
     scrape_interval: 1m
-    scheme: https
     static_configs:
-      - targets: ['nova-music.ru:8080']
+      - targets: ['novamusic-user:8080']
+
+  - job_name: 'novamusic-playlist'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-playlist:8080']
+
+  - job_name: 'novamusic-csat'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-csat:8080']
+  - job_name: 'novamusic-artist'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-artist:8080']
+
+  - job_name: 'novamusic-album'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-album:8080']
+
+  - job_name: 'novamusic-genre'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-genre:8080']
+
+  - job_name: 'novamusic-track'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-track:8080']
 
 alerting:
   alertmanagers:
-  - scheme: http
-    static_configs:
-    - targets:  ['alertmanager:9093']
+    - scheme: http
+      static_configs:
+        - targets: ['alertmanager:9093']

@@ -5,21 +5,23 @@ import (
 )
 
 type Metrics struct {
-	RequestCounter    *prometheus.CounterVec
-	RequestDuration   *prometheus.HistogramVec
-	ErrorCounter      *prometheus.CounterVec
-	ActiveConnections prometheus.Gauge
+	Microservice string
+
+	RequestCounter  *prometheus.CounterVec
+	RequestDuration *prometheus.HistogramVec
+	ErrorCounter    *prometheus.CounterVec
 }
 
-func New(namespace string) *Metrics {
+func New(namespace, microservce string) *Metrics {
 	m := &Metrics{
+		Microservice: microservce,
 		RequestCounter: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: namespace,
 				Name:      "http_requests_total",
 				Help:      "total number of http requests",
 			},
-			[]string{"method", "url", "status"},
+			[]string{"method", "url", "status", "microservice"},
 		),
 		RequestDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
@@ -28,7 +30,7 @@ func New(namespace string) *Metrics {
 				Help:      "histogram of response time for handler in seconds",
 				Buckets:   prometheus.DefBuckets,
 			},
-			[]string{"method", "url"},
+			[]string{"method", "url", "microservice"},
 		),
 		ErrorCounter: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -36,14 +38,7 @@ func New(namespace string) *Metrics {
 				Name:      "http_errors_total",
 				Help:      "total number of http errors",
 			},
-			[]string{"method", "url", "status"},
-		),
-		ActiveConnections: prometheus.NewGauge(
-			prometheus.GaugeOpts{
-				Namespace: namespace,
-				Name:      "active_connections",
-				Help:      "current number of active connections",
-			},
+			[]string{"method", "url", "status", "microservice"},
 		),
 	}
 
@@ -56,5 +51,4 @@ func (m *Metrics) register() {
 	prometheus.MustRegister(m.RequestCounter)
 	prometheus.MustRegister(m.RequestDuration)
 	prometheus.MustRegister(m.ErrorCounter)
-	prometheus.MustRegister(m.ActiveConnections)
 }

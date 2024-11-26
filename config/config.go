@@ -15,16 +15,28 @@ type Config struct {
 }
 
 type ServiceConfig struct {
+	HTTP   HTTPConfig   `yaml:"http"`
+	GRPC   GRPCConfig   `yaml:"grpc"`
+	TLS    TLSConfig    `yaml:"tls"`
+	CORS   CORSConfig   `yaml:"cors"`
+	Logger LoggerConfig `yaml:"logger"`
+	Auth   AuthConfig   `yaml:"auth"`
+}
+
+type HTTPConfig struct {
 	Port           string        `yaml:"port"`
 	ReadTimeout    time.Duration `yaml:"readTimeout"`
 	WriteTimeout   time.Duration `yaml:"writeTimeout"`
 	IdleTimeout    time.Duration `yaml:"idleTimeout"`
 	ContextTimeout time.Duration `yaml:"contextTimeout"`
+}
 
-	TLS    TLSConfig    `yaml:"tls"`
-	CORS   CORSConfig   `yaml:"cors"`
-	Logger LoggerConfig `yaml:"logger"`
-	Auth   AuthConfig   `yaml:"auth"`
+type GRPCConfig struct {
+	Port              string        `yaml:"port"`
+	MaxConnectionIdle time.Duration `yaml:"maxConnectionIdle"`
+	Timeout           time.Duration `yaml:"timeout"`
+	MaxConnectionAge  time.Duration `yaml:"maxConnectionAge"`
+	Time              time.Duration `yaml:"time"`
 }
 
 type CORSConfig struct {
