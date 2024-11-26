@@ -169,6 +169,21 @@ func (mr *MockRepoMockRecorder) GetFavoriteTracks(ctx, userID interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockRepo)(nil).GetFavoriteTracks), ctx, userID)
 }
 
+// GetTracksFromPlaylist mocks base method.
+func (m *MockRepo) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksFromPlaylist", ctx, playlistID)
+	ret0, _ := ret[0].([]*models.PlaylistTrack)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksFromPlaylist indicates an expected call of GetTracksFromPlaylist.
+func (mr *MockRepoMockRecorder) GetTracksFromPlaylist(ctx, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksFromPlaylist", reflect.TypeOf((*MockRepo)(nil).GetTracksFromPlaylist), ctx, playlistID)
+}
+
 // IsFavoriteTrack mocks base method.
 func (m *MockRepo) IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error) {
 	m.ctrl.T.Helper()

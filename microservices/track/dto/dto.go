@@ -19,17 +19,13 @@ type TrackDTO struct {
 	ReleaseDate time.Time `json:"release"`
 }
 
-func NewTrackDTO(track *models.Track, artist *models.Artist, album *models.Album) *TrackDTO {
+func NewTrackDTO(track *models.Track) *TrackDTO {
 	return &TrackDTO{
-		track.ID,
-		track.Name,
-		track.Duration,
-		track.FilePath,
-		track.Image,
-		artist.Name,
-		artist.ID,
-		album.Name,
-		album.ID,
-		track.ReleaseDate,
+		ID:          track.ID,
+		Name:        track.Name,
+		Duration:    track.Duration,
+		FilePath:    track.FilePath,
+		Image:       track.Image,
+		ReleaseDate: track.ReleaseDate,
 	}
 }

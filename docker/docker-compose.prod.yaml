@@ -47,6 +47,96 @@ services:
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
+  novamusic-artist:
+    image: daronenko/novamusic-artist:${ARTIST_VERSION}
+    container_name: novamusic-artist
+    platform: linux/amd64
+    env_file: .prod.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: artist
+    ports:
+      - 8083:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
+  novamusic-album:
+    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    container_name: novamusic-album
+    platform: linux/amd64
+    env_file: .prod.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: album
+    ports:
+      - 8082:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
+  novamusic-track:
+    image: daronenko/novamusic-track:${TRACK_VERSION}
+    container_name: novamusic-track
+    platform: linux/amd64
+    env_file: .prod.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: track
+    ports:
+      - 8085:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
+  novamusic-csat:
+    image: daronenko/novamusic-csat:${CSAT_VERSION}
+    container_name: novamusic-csat
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: csat
+    ports:
+      - 8087:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
   novamusic-genre:
     image: daronenko/novamusic-genre:${GENRE_VERSION}
     container_name: novamusic-genre
@@ -58,7 +148,7 @@ services:
       args:
         MICROSERVICE: genre
     ports:
-      - 8084:8080
+      - 8086:8080
     restart: on-failure
     depends_on:
       postgres:
@@ -85,7 +175,7 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
+          'CMD-SHELL',
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
         ]
       interval: 2s
@@ -163,11 +253,11 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.rootfs=/rootfs"
-      - "--path.sysfs=/host/sys"
-      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
-      - "--no-collector.rapl"
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.rapl'
     restart: unless-stopped
     expose:
       - 9100
@@ -183,13 +273,13 @@ services:
     container_name: prometheus
     env_file: .prod.env
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus/"
-      - "--web.console.libraries=/etc/prometheus/console_libraries"
-      - "--web.console.templates=/etc/prometheus/consoles"
-      - "--storage.tsdb.retention.time=365d"
-      - "--web.external-url=${PROMETHEUS_URL}"
-      - "--web.enable-admin-api"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus/'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=365d'
+      - '--web.external-url=${PROMETHEUS_URL}'
+      - '--web.enable-admin-api'
     restart: unless-stopped
     expose:
       - 8002
@@ -239,9 +329,9 @@ services:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - ./alertmanager/telegram.tmpl:/etc/alertmanager/telegram.tmpl
     command:
-      - "--config.file=/etc/alertmanager/alertmanager.yml"
-      - "--storage.path=/alertmanager"
-      - "--web.external-url=${ALERTMANAGER_EXTERNAL_URL}"
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL}'
     restart: unless-stopped
     expose:
       - 8004

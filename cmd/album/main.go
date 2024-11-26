@@ -5,8 +5,12 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
+	grpcServer "github.com/go-park-mail-ru/2024_2_NovaCode/internal/server/grpc"
 	httpServer "github.com/go-park-mail-ru/2024_2_NovaCode/internal/server/http"
+	albumService "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/delivery/grpc/service"
 	albumHttp "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/delivery/http"
+	albumRepo "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/repository"
+	albumUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/usecase"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -35,17 +39,28 @@ func main() {
 
 	metrics := metrics.New("backend", "album")
 
-	conn, err := grpc.NewClient("novamusic-album:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("novamusic-artist:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to user service: %v", err)
 	}
 	defer conn.Close()
 	artistClient := artistService.NewArtistServiceClient(conn)
 
-	s := httpServer.New(cfg, pg, s3, logger, metrics)
-	albumHttp.BindRoutes(s, artistClient)
+	httpServer := httpServer.New(cfg, pg, s3, logger, metrics)
+	albumHttp.BindRoutes(httpServer, artistClient)
 
-	if err = s.Run(); err != nil {
-		log.Fatalf("failed to run server: %v", err)
+	go func() {
+		if err := httpServer.Run(); err != nil {
+			log.Fatalf("failed to run http server: %v", err)
+		}
+	}()
+
+	albumPGRepo := albumRepo.NewAlbumPGRepository(pg)
+	albumUsecase := albumUsecase.NewAlbumUsecase(albumPGRepo, artistClient, logger)
+	registerAlbumService := albumService.RegisterAlbumService(albumUsecase, logger)
+
+	grpcServer := grpcServer.New(cfg, pg, s3, logger, metrics, registerAlbumService)
+	if err = grpcServer.Run(); err != nil {
+		log.Fatalf("failed to run grpc server: %v", err)
 	}
 }

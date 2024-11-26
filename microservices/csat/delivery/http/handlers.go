@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat"
-	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/csat/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/csat"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/csat/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 )
 

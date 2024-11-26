@@ -8,6 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
+	models "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	dto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/track/dto"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 )
@@ -49,6 +51,21 @@ func (mr *MockUsecaseMockRecorder) AddFavoriteTrack(ctx, userID, trackID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavoriteTrack", reflect.TypeOf((*MockUsecase)(nil).AddFavoriteTrack), ctx, userID, trackID)
 }
 
+// ConvertTrackToDTO mocks base method.
+func (m *MockUsecase) ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConvertTrackToDTO", ctx, track)
+	ret0, _ := ret[0].(*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConvertTrackToDTO indicates an expected call of ConvertTrackToDTO.
+func (mr *MockUsecaseMockRecorder) ConvertTrackToDTO(ctx, track interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertTrackToDTO", reflect.TypeOf((*MockUsecase)(nil).ConvertTrackToDTO), ctx, track)
+}
+
 // DeleteFavoriteTrack mocks base method.
 func (m *MockUsecase) DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error {
 	m.ctrl.T.Helper()
@@ -61,6 +78,81 @@ func (m *MockUsecase) DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID,
 func (mr *MockUsecaseMockRecorder) DeleteFavoriteTrack(ctx, userID, trackID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFavoriteTrack", reflect.TypeOf((*MockUsecase)(nil).DeleteFavoriteTrack), ctx, userID, trackID)
+}
+
+// GetAll mocks base method.
+func (m *MockUsecase) GetAll(ctx context.Context) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockUsecaseMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockUsecase)(nil).GetAll), ctx)
+}
+
+// GetAllByAlbumID mocks base method.
+func (m *MockUsecase) GetAllByAlbumID(ctx context.Context, albumID uint64) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllByAlbumID", ctx, albumID)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllByAlbumID indicates an expected call of GetAllByAlbumID.
+func (mr *MockUsecaseMockRecorder) GetAllByAlbumID(ctx, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByAlbumID", reflect.TypeOf((*MockUsecase)(nil).GetAllByAlbumID), ctx, albumID)
+}
+
+// GetAllByArtistID mocks base method.
+func (m *MockUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllByArtistID", ctx, artistID)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllByArtistID indicates an expected call of GetAllByArtistID.
+func (mr *MockUsecaseMockRecorder) GetAllByArtistID(ctx, artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByArtistID", reflect.TypeOf((*MockUsecase)(nil).GetAllByArtistID), ctx, artistID)
+}
+
+// GetFavoriteTracks mocks base method.
+func (m *MockUsecase) GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteTracks", ctx, userID)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteTracks indicates an expected call of GetFavoriteTracks.
+func (mr *MockUsecaseMockRecorder) GetFavoriteTracks(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteTracks), ctx, userID)
+}
+
+// GetTracksFromPlaylist mocks base method.
+func (m *MockUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksFromPlaylist", ctx, playlistID)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksFromPlaylist indicates an expected call of GetTracksFromPlaylist.
+func (mr *MockUsecaseMockRecorder) GetTracksFromPlaylist(ctx, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksFromPlaylist", reflect.TypeOf((*MockUsecase)(nil).GetTracksFromPlaylist), ctx, playlistID)
 }
 
 // IsFavoriteTrack mocks base method.
@@ -76,4 +168,34 @@ func (m *MockUsecase) IsFavoriteTrack(ctx context.Context, userID uuid.UUID, tra
 func (mr *MockUsecaseMockRecorder) IsFavoriteTrack(ctx, userID, trackID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFavoriteTrack", reflect.TypeOf((*MockUsecase)(nil).IsFavoriteTrack), ctx, userID, trackID)
+}
+
+// Search mocks base method.
+func (m *MockUsecase) Search(ctx context.Context, query string) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Search", ctx, query)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Search indicates an expected call of Search.
+func (mr *MockUsecaseMockRecorder) Search(ctx, query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockUsecase)(nil).Search), ctx, query)
+}
+
+// View mocks base method.
+func (m *MockUsecase) View(ctx context.Context, trackID uint64) (*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "View", ctx, trackID)
+	ret0, _ := ret[0].(*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// View indicates an expected call of View.
+func (mr *MockUsecaseMockRecorder) View(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "View", reflect.TypeOf((*MockUsecase)(nil).View), ctx, trackID)
 }
