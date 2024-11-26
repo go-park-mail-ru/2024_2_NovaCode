@@ -18,14 +18,10 @@ message User {
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message FindByIDRequest {
-    string uuid = 1;
-}
+message FindByIDRequest { string uuid = 1; }
 
-message FindByIDResponse {
-    User user = 1;
-}
+message FindByIDResponse { User user = 1; }
 
 service UserService {
-    rpc FindByID (FindByIDRequest) returns (FindByIDResponse);
+  rpc FindByID(FindByIDRequest) returns (FindByIDResponse);
 }

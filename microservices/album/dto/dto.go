@@ -15,13 +15,11 @@ type AlbumDTO struct {
 	ArtistID    uint64    `json:"artistID"`
 }
 
-func NewAlbumDTO(album *models.Album, artist *models.Artist) *AlbumDTO {
+func NewAlbumDTO(album *models.Album) *AlbumDTO {
 	return &AlbumDTO{
-		album.ID,
-		album.Name,
-		album.ReleaseDate,
-		album.Image,
-		artist.Name,
-		artist.ID,
+		ID:          album.ID,
+		Name:        album.Name,
+		ReleaseDate: album.ReleaseDate,
+		Image:       album.Image,
 	}
 }
