@@ -24,7 +24,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
-  
+
   novamusic-playlist:
     image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
     container_name: novamusic-playlist
@@ -37,6 +37,66 @@ services:
         MICROSERVICE: playlist
     ports:
       - 8084:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-artist:
+    image: daronenko/novamusic-artist:${ARTIST_VERSION}
+    container_name: novamusic-artist
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: artist
+    ports:
+      - 8083:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-album:
+    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    container_name: novamusic-album
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: album
+    ports:
+      - 8082:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-track:
+    image: daronenko/novamusic-track:${TRACK_VERSION}
+    container_name: novamusic-track
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: track
+    ports:
+      - 8085:8080
     restart: on-failure
     depends_on:
       postgres:
@@ -83,7 +143,7 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
+          'CMD-SHELL',
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
         ]
       interval: 2s
@@ -128,7 +188,7 @@ services:
       - 8011:9001
     command: server --console-address :9001 /data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -163,7 +223,7 @@ services:
         condition: service_healthy
     networks:
       - prometheus
-    
+
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
@@ -182,7 +242,7 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-  
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

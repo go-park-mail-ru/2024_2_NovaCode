@@ -13,7 +13,6 @@ type Repository interface {
 	GetAllPlaylists(ctx context.Context) ([]*models.Playlist, error)
 	GetPlaylist(ctx context.Context, playlistID uint64) (*models.Playlist, error)
 	GetLengthPlaylist(ctx context.Context, playlistID uint64) (uint64, error)
-	GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error)
 	GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error)
 	AddToPlaylist(ctx context.Context, playlistID uint64, trackOrder uint64, trackID uint64) (*models.PlaylistTrack, error)
 	RemoveFromPlaylist(ctx context.Context, playlistID uint64, trackID uint64) (sql.Result, error)

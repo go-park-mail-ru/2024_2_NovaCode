@@ -105,33 +105,6 @@ func (r *PlaylistRepository) GetLengthPlaylist(ctx context.Context, playlistID u
 	return length, nil
 }
 
-func (r *PlaylistRepository) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error) {
-	playlist := []*models.PlaylistTrack{}
-	rows, err := r.db.QueryContext(ctx,
-		GetTracksFromPlaylistQuery,
-		playlistID,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		track := &models.PlaylistTrack{}
-		if err := rows.Scan(
-			&track.ID,
-			&track.PlaylistID,
-			&track.TrackOrderInPlaylist,
-			&track.TrackID,
-			&track.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		playlist = append(playlist, track)
-	}
-
-	return playlist, nil
-}
-
 func (r *PlaylistRepository) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
 	playlists := []*models.Playlist{}
 	rows, err := r.db.QueryContext(ctx,
