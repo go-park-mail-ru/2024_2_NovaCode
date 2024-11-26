@@ -117,7 +117,7 @@ services:
     image: daronenko/novamusic-csat:${CSAT_VERSION}
     container_name: novamusic-csat
     platform: linux/amd64
-    env_file: .dev.env
+    env_file: .prod.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -128,8 +128,6 @@ services:
     restart: on-failure
     depends_on:
       postgres:
-        condition: service_healthy
-      minio:
         condition: service_healthy
     networks:
       - prometheus

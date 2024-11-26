@@ -160,12 +160,24 @@ docker-clean:
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.prod --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(VERSION) .
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-user
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-playlist
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-artist
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-album
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-track
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-csat
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-genre
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.
 push-image:
-	@docker push daronenko/$(SERVICE_NAME)-backend:$(VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-user:$(USER_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-playlist:$(PLAYLIST_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-artist:$(CSAT_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-album:$(ARTIST_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-track:$(ALBUM_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-csat:$(GENRE_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-genre:$(TRACK_VERSION)
 
 ################################################################################
 # Cleaning
