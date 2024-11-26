@@ -190,6 +190,36 @@ func (usecase *trackUsecase) GetFavoriteTracks(ctx context.Context, userID uuid.
 	return dtoTracks, nil
 }
 
+func (u *trackUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error) {
+	tracks := []*models.Track{}
+	playlistTracks, err := u.trackRepo.GetTracksFromPlaylist(ctx, playlistID)
+	if err != nil {
+		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
+		return nil, err
+	}
+
+	for _, playlistTrack := range playlistTracks {
+		track, err := u.trackRepo.FindById(ctx, playlistTrack.TrackID)
+		if err != nil {
+			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+
+	tracksDTO := []*dto.TrackDTO{}
+	for _, track := range tracks {
+		trackDTO, err := u.ConvertTrackToDTO(ctx, track)
+		if err != nil {
+			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
+			return nil, err
+		}
+		tracksDTO = append(tracksDTO, trackDTO)
+	}
+
+	return tracksDTO, nil
+}
+
 func (usecase *trackUsecase) ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
 	artist, err := usecase.artistClient.FindByID(ctx, &artistService.FindByIDRequest{Id: track.ArtistID})

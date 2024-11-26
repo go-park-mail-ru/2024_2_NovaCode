@@ -140,6 +140,21 @@ func (mr *MockUsecaseMockRecorder) GetFavoriteTracks(ctx, userID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteTracks), ctx, userID)
 }
 
+// GetTracksFromPlaylist mocks base method.
+func (m *MockUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksFromPlaylist", ctx, playlistID)
+	ret0, _ := ret[0].([]*dto.TrackDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksFromPlaylist indicates an expected call of GetTracksFromPlaylist.
+func (mr *MockUsecaseMockRecorder) GetTracksFromPlaylist(ctx, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksFromPlaylist", reflect.TypeOf((*MockUsecase)(nil).GetTracksFromPlaylist), ctx, playlistID)
+}
+
 // IsFavoriteTrack mocks base method.
 func (m *MockUsecase) IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error) {
 	m.ctrl.T.Helper()

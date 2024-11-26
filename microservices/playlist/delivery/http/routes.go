@@ -27,8 +27,6 @@ func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) 
 
 	s.MUX.HandleFunc("/api/v1/playlists/{playlistId:[0-9]+}", playlistHandleres.GetPlaylist).Methods("GET")
 
-	// s.MUX.HandleFunc("/api/v1/playlists/{playlistId:[0-9]+}/tracks", playlistHandleres.GetTracksFromPlaylist).Methods("GET")
-
 	s.MUX.HandleFunc("/api/v1/users/{userId:[0-9a-fA-F-]+}/playlists", playlistHandleres.GetUserPlaylists).Methods("GET")
 
 	s.MUX.Handle(

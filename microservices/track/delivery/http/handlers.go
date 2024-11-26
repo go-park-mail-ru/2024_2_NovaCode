@@ -353,3 +353,27 @@ func (handlers *trackHandlers) GetFavoriteTracks(response http.ResponseWriter, r
 
 	response.WriteHeader(http.StatusOK)
 }
+
+func (h *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	playlistIDStr := vars["playlistId"]
+	playlistID, err := strconv.ParseUint(playlistIDStr, 10, 64)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "Invalid playlist ID")
+		return
+	}
+
+	playlist, err := h.usecase.GetTracksFromPlaylist(request.Context(), playlistID)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(response).Encode(playlist); err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}

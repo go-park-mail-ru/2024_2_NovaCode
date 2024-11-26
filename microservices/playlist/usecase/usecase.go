@@ -8,7 +8,6 @@ import (
 	pldto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/dto"
 	userService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/user"
 
-	// tdto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/track/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
@@ -86,36 +85,6 @@ func (u *PlaylistUsecase) GetAllPlaylists(ctx context.Context) ([]*pldto.Playlis
 
 	return playlistsDTO, nil
 }
-
-// func (u *PlaylistUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*tdto.TrackDTO, error) {
-// 	tracks := []*models.Track{}
-// 	playlistTracks, err := u.playlistRepo.GetTracksFromPlaylist(ctx, playlistID)
-// 	if err != nil {
-// 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
-// 		return nil, err
-// 	}
-
-// 	for _, playlistTrack := range playlistTracks {
-// 		track, err := u.trackRepo.FindById(ctx, playlistTrack.TrackID)
-// 		if err != nil {
-// 			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
-// 			return nil, err
-// 		}
-// 		tracks = append(tracks, track)
-// 	}
-
-// 	tracksDTO := []*tdto.TrackDTO{}
-// 	for _, track := range tracks {
-// 		trackDTO, err := u.trackUsecase.ConvertTrackToDTO(ctx, track)
-// 		if err != nil {
-// 			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
-// 			return nil, err
-// 		}
-// 		tracksDTO = append(tracksDTO, trackDTO)
-// 	}
-
-// 	return tracksDTO, nil
-// }
 
 func (u *PlaylistUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*pldto.PlaylistDTO, error) {
 	playlists, err := u.playlistRepo.GetUserPlaylists(ctx, userID)

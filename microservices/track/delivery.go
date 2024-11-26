@@ -12,4 +12,5 @@ type Handlers interface {
 	DeleteFavoriteTrack(response http.ResponseWriter, request *http.Request)
 	IsFavoriteTrack(response http.ResponseWriter, request *http.Request)
 	GetFavoriteTracks(response http.ResponseWriter, request *http.Request)
+	GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request)
 }
