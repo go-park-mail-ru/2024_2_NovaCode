@@ -1,0 +1,27 @@
+// protoc --go_out=proto/album/. --go-grpc_out=proto/album/.
+// proto/album/album.proto
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package albumService;
+option go_package = ".;albumService";
+
+message Album {
+  uint64 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp release_date = 3;
+  string image = 4;
+  uint64 artistID = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message FindByIDRequest { uint64 id = 1; }
+
+message FindByIDResponse { Album album = 1; }
+
+service AlbumService {
+  rpc FindByID(FindByIDRequest) returns (FindByIDResponse);
+}
