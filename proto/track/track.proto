@@ -1,0 +1,31 @@
+// protoc --go_out=proto/track/. --go-grpc_out=proto/track/.
+// proto/track/track.proto
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package trackService;
+option go_package = ".;trackService";
+
+message Track {
+  uint64 id = 1;
+  string name = 2;
+  uint64 duration = 3;
+  string file_path = 4;
+  string image = 5;
+  uint64 artist_id = 6;
+  uint64 album_id = 7;
+  uint64 order_in_album = 8;
+  google.protobuf.Timestamp release_date = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message FindByIDRequest { uint64 id = 1; }
+
+message FindByIDResponse { Track track = 1; }
+
+service TrackService {
+  rpc FindByID(FindByIDRequest) returns (FindByIDResponse);
+}

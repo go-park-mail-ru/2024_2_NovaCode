@@ -47,6 +47,28 @@ services:
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
+  novamusic-track:
+    image: daronenko/novamusic-track:${TRACK_VERSION}
+    container_name: novamusic-track
+    platform: linux/amd64
+    env_file: .prod.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: track
+    ports:
+      - 8085:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
   novamusic-genre:
     image: daronenko/novamusic-genre:${GENRE_VERSION}
     container_name: novamusic-genre
@@ -58,7 +80,7 @@ services:
       args:
         MICROSERVICE: genre
     ports:
-      - 8084:8080
+      - 8086:8080
     restart: on-failure
     depends_on:
       postgres:
