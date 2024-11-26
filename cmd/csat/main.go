@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
@@ -37,7 +38,13 @@ func main() {
 	csatHttp.BindRoutes(s)
 	fmt.Println("csat http binded")
 
-	if err = s.Run(); err != nil {
-		log.Fatalf("failed to run server: %v", err)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err = s.Run(); err != nil {
+			log.Fatalf("failed to run server: %v", err)
+		}
+	}()
+	wg.Wait()
 }

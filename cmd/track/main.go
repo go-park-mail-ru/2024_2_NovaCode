@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sync"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
@@ -52,7 +53,13 @@ func main() {
 
 	httpServer := httpServer.New(cfg, pg, s3, logger, metrics)
 	trackHttp.BindRoutes(httpServer, artistClient, albumClient)
-	if err := httpServer.Run(); err != nil {
-		log.Fatalf("failed to run http server: %v", err)
-	}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		if err := httpServer.Run(); err != nil {
+			log.Fatalf("failed to run http server: %v", err)
+		}
+	}()
+	wg.Wait()
 }
