@@ -46,6 +46,11 @@ scrape_configs:
     static_configs:
       - targets: ['novamusic-album:8080']
 
+  - job_name: 'novamusic-genre'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-genre:8080']
+
   - job_name: 'novamusic-track'
     scrape_interval: 1m
     static_configs:
