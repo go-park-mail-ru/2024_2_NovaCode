@@ -35,7 +35,7 @@ func main() {
 
 	metrics := metrics.New("backend", "album")
 
-	conn, err := grpc.NewClient("novamusic-album:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("novamusic-artist:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to user service: %v", err)
 	}
