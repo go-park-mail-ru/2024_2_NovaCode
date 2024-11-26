@@ -26,6 +26,11 @@ scrape_configs:
     scrape_interval: 1m
     static_configs:
       - targets: ['novamusic-user:8080']
+
+  - job_name: 'novamusic-album'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['novamusic-album:8080']
   
   - job_name: 'novamusic-playlist'
     scrape_interval: 1m

@@ -25,6 +25,28 @@ services:
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
+  novamusic-album:
+    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    container_name: novamusic-album
+    platform: linux/amd64
+    env_file: .prod.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: album
+    ports:
+      - 8082:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+    volumes:
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+
   novamusic-playlist:
     image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
     container_name: novamusic-playlist
