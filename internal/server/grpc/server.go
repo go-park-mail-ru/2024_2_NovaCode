@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/interceptors"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/metrics"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/postgres"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -53,12 +54,18 @@ func (s *Server) Run() error {
 	}
 	defer l.Close()
 
+	im := interceptors.NewInterceptorManager(s.Logger, s.CFG)
 	server := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
 		MaxConnectionIdle: s.CFG.Service.GRPC.MaxConnectionIdle * time.Minute,
 		Timeout:           s.CFG.Service.GRPC.Timeout * time.Second,
 		MaxConnectionAge:  s.CFG.Service.GRPC.MaxConnectionAge * time.Minute,
 		Time:              s.CFG.Service.GRPC.Timeout * time.Minute,
-	}))
+	}),
+		grpc.ChainUnaryInterceptor(
+			im.Logger,
+			im.PanicRecover,
+		),
+	)
 
 	if os.Getenv("ENV") != "prod" {
 		reflection.Register(server)
