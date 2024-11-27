@@ -1,4 +1,4 @@
-ENV_FILE = ./docker/.env
+ENV_FILE = ./docker/.dev.env
 include $(ENV_FILE)
 
 POSTGRES_CONNECTION = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
@@ -88,6 +88,8 @@ test:
 .PHONY: view-coverage
 ## View code coverage report if it exists otherwise generate.
 view-coverage: --check-coverage
+	@go test -coverpkg=./... -coverprofile=coverage.out.tmp ./...
+	@cat coverage.out.tmp | grep -v "mock\|cmd\|config\|internal\|docs\|metrics\|pkg\|routes\|proto" > coverage.out
 	@go tool cover -func=coverage.out
 
 .PHONY: view-coverage-html
@@ -129,14 +131,18 @@ docker-migrate:
 ## Format: `docker-start [compose=<docker-compose-service>]`.
 ## Example: `docker-start`, `docker-stop compose=postgres`.
 docker-start:
-	docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) up -d $(compose)
+
+.PHONY: docker-build-start
+## Build docker container and start containers within one command.
+docker-build-start: docker-build docker-start
 
 .PHONY: docker-stop
 ## Stop docker compose containers (all by default).
 ## Format: `docker-stop [compose=<docker-compose-service>]`.
 ## Example: `docker-stop`, `docker-stop compose=postgres`.
 docker-stop:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) stop $(compose)
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) stop $(compose)
 
 .PHONY: docker-ash
 ## Run `ash` in docker container of microservice.
@@ -151,17 +157,29 @@ docker-psql:
 .PHONY: docker-clean
 ## Remove containers, networks, volumes, and images created by `make docker-start`.
 docker-clean:
-	@docker compose -f $(DOCKER_COMPOSE_PATH) down
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) down
 
 .PHONY: build-image
 ## Build docker image of microservice with name.
 build-image:
-	@docker build -f docker/Dockerfile.$(ENV) --platform linux/amd64 -t daronenko/$(SERVICE_NAME)-backend:$(VERSION) .
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-user
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-playlist
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-artist
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-album
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-track
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-csat
+	@docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_FILE) build $(SERVICE_NAME)-genre
 
 .PHONY: push-image
 ## Push docker image of microservice to the docker hub.
 push-image:
-	@docker push daronenko/$(SERVICE_NAME)-backend:$(VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-user:$(USER_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-playlist:$(PLAYLIST_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-artist:$(CSAT_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-album:$(ARTIST_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-track:$(ALBUM_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-csat:$(GENRE_VERSION)
+	@docker push daronenko/$(SERVICE_NAME)-genre:$(TRACK_VERSION)
 
 ################################################################################
 # Cleaning

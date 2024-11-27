@@ -1,68 +1,203 @@
+networks:
+  prometheus:
+  prometheus-exporters:
+
 services:
-  novamusic-backend:
-    image: daronenko/novamusic-backend:${VERSION}
-    container_name: novamusic-backend
+  novamusic-user:
+    image: daronenko/novamusic-user:${USER_VERSION}
+    container_name: novamusic-user
     platform: linux/amd64
-    env_file: .env
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
+      args:
+        MICROSERVICE: user
     ports:
-      - 8080:8080
+      - 8081:8080
     restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
       minio:
         condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-playlist:
+    image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
+    container_name: novamusic-playlist
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: playlist
+    ports:
+      - 8084:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-artist:
+    image: daronenko/novamusic-artist:${ARTIST_VERSION}
+    container_name: novamusic-artist
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: artist
+    ports:
+      - 8083:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-album:
+    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    container_name: novamusic-album
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: album
+    ports:
+      - 8082:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-track:
+    image: daronenko/novamusic-track:${TRACK_VERSION}
+    container_name: novamusic-track
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: track
+    ports:
+      - 8085:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-csat:
+    image: daronenko/novamusic-csat:${CSAT_VERSION}
+    container_name: novamusic-csat
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: csat
+    ports:
+      - 8087:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
+
+  novamusic-genre:
+    image: daronenko/novamusic-genre:${GENRE_VERSION}
+    container_name: novamusic-genre
+    platform: linux/amd64
+    env_file: .dev.env
+    build:
+      dockerfile: docker/Dockerfile.${ENV}
+      context: ..
+      args:
+        MICROSERVICE: genre
+    ports:
+      - 8086:8080
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prometheus
+      - prometheus-exporters
 
   postgres:
     container_name: novamusic-postgres
     image: postgres:16
     platform: linux/amd64
-    env_file: .env
+    env_file: .dev.env
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     restart: on-failure
     healthcheck:
       test:
         [
-          "CMD-SHELL",
+          'CMD-SHELL',
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
         ]
       interval: 2s
       timeout: 3s
       retries: 3
     volumes:
-      - postgres-volume2:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - prometheus
 
   migrations:
     container_name: novamusic-postgres-migrations
     image: ghcr.io/kukymbr/goose-docker:3.22.1
     platform: linux/amd64
     restart: no
-    env_file: .env
+    env_file: .dev.env
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - GOOSE_DRIVER=postgres
-      - GOOSE_DBSTRING=host=${POSTGRES_HOST} port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}
+      - GOOSE_DBSTRING=host=postgres port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}
       - GOOSE_VERBOSE=true
     volumes:
       - ../internal/db/postgres/migrations:/migrations
+    networks:
+      - prometheus
 
   minio:
     container_name: novamusic-minio
     image: minio/minio:latest
     platform: linux/amd64
     restart: always
-    env_file: .env
+    env_file: .dev.env
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
@@ -73,17 +208,19 @@ services:
       - 8011:9001
     command: server --console-address :9001 /data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 5s
       timeout: 5s
       retries: 5
     volumes:
-      - minio-volume2:/data
+      - minio-data:/data
+    networks:
+      - prometheus
 
   minio-client:
     container_name: minio-client
     image: minio/mc:latest
-    env_file: .env
+    env_file: .dev.env
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host rm local;
@@ -97,11 +234,104 @@ services:
 
       /usr/bin/mc mb --quiet local/tracks;
       /usr/bin/mc policy set public local/tracks;
+
+      /usr/bin/mc mb --quiet local/playlists;
+      /usr/bin/mc policy set public local/playlists;
       "
     depends_on:
       minio:
         condition: service_healthy
+    networks:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.rapl'
+    restart: unless-stopped
+    expose:
+      - 9100
+    networks:
+      - prometheus-exporters
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    env_file: .dev.env
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus/'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=365d'
+      - '--web.external-url=${PROMETHEUS_URL}'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+    networks:
+      - prometheus
+      - prometheus-exporters
+    depends_on:
+      - node-exporter
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    env_file: .dev.env
+    environment:
+      - GF_SECURITY_ADMIN_USER
+      - GF_SECURITY_ADMIN_PASSWORD
+      - GF_DEFAULT_INSTANCE_NAME=${HOST}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ENABLE_GZIP=true
+      - GF_SERVER_ROOT_URL
+    restart: unless-stopped
+    ports:
+      - 9080:3000
+    networks:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    volumes:
+      - alertmanager-data:/alertmanager
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./alertmanager/telegram.tmpl:/etc/alertmanager/telegram.tmpl
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL}'
+    restart: unless-stopped
+    expose:
+      - 9093
+    ports:
+      - 9093:9093
+    networks:
+      - prometheus
 
 volumes:
-  postgres-volume2:
-  minio-volume2:
+  postgres-data:
+  minio-data:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:

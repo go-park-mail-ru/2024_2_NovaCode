@@ -1,0 +1,33 @@
+{{ define "__text_alert_list" }}{{ range . }}
+🆔 <b>{{ .Labels.alertname }}</b>
+
+{{- if .Annotations.summary }}
+📝 <b>Summary:</b> {{ .Annotations.summary }}
+{{- end }}
+
+{{- if .Annotations.description }}
+📖 <b>Description:</b> {{ .Annotations.description }}
+{{- end }}
+
+🏷 <b>Labels:</b>
+{{ range .Labels.SortedPairs }}
+  - <i>{{ .Name }}</i>: <code>{{ .Value }}</code>{{ end }}
+
+⏰ <b>Starts At:</b> {{ .StartsAt }}
+{{- if .EndsAt }}
+⏳ <b>Ends At:</b> {{ .EndsAt }}
+{{- end }}
+{{ end }}
+{{ end }}
+
+{{ define "telegram.default" }}
+{{ if gt (len .Alerts.Firing) 0 }}
+🔥 <b>Alerts Firing:</b>
+{{ template "__text_alert_list" .Alerts.Firing }}
+{{ end }}
+
+{{ if gt (len .Alerts.Resolved) 0 }}
+✅ <b>Alerts Resolved:</b>
+{{ template "__text_alert_list" .Alerts.Resolved }}
+{{ end }}
+{{ end }}

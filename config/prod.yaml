@@ -1,9 +1,17 @@
 service:
-  port: :8080
-  readTimeout: 10
-  writeTimeout: 10
-  idleTimeout: 120
-  contextTimeout: 5
+  http:
+    port: :8080
+    readTimeout: 10
+    writeTimeout: 10
+    idleTimeout: 120
+    contextTimeout: 5
+  
+  grpc:
+    port: :9000
+    maxConnectionIdle: 5
+    timeout: 15
+    maxConnectionAge: 5
+    time: 120
 
   tls:
     certPath: "/etc/ssl/nova-music.ru/fullchain.pem"
@@ -23,10 +31,8 @@ service:
   auth:
     csrf:
       headerName: X-Csrf-Token
-      salt: yD5pwD0JG03NxFAz9VAOtbba6I7kPv2deg3C7SpEZUk=
 
     jwt:
-      secret: secret
       expire: 3600
       cookie:
         name: jwt-token
@@ -36,10 +42,6 @@ service:
 
 postgres:
   host: postgres
-  port: 5432
-  user: user
-  password: password
-  dbName: db
   sslMode: false
   driver: postgres
 
@@ -50,6 +52,4 @@ postgres:
 
 minio:
   url: nova-music.ru:8010
-  user: user
-  password: password
   sslMode: true

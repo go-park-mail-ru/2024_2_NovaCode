@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -16,21 +15,28 @@ type Config struct {
 }
 
 type ServiceConfig struct {
-	Port           string        `yaml:"port"`
-	ReadTimeout    time.Duration `yaml:"readTimeout"`
-	WriteTimeout   time.Duration `yaml:"writeTimeout"`
-	IdleTimeout    time.Duration `yaml:"idleTimeout"`
-	ContextTimeout time.Duration `yaml:"contextTimeout"`
-
+	HTTP   HTTPConfig   `yaml:"http"`
+	GRPC   GRPCConfig   `yaml:"grpc"`
 	TLS    TLSConfig    `yaml:"tls"`
 	CORS   CORSConfig   `yaml:"cors"`
 	Logger LoggerConfig `yaml:"logger"`
 	Auth   AuthConfig   `yaml:"auth"`
 }
 
-type TLSConfig struct {
-	CertPath string `yaml:"certPath"`
-	KeyPath  string `yaml:"keyPath"`
+type HTTPConfig struct {
+	Port           string        `yaml:"port"`
+	ReadTimeout    time.Duration `yaml:"readTimeout"`
+	WriteTimeout   time.Duration `yaml:"writeTimeout"`
+	IdleTimeout    time.Duration `yaml:"idleTimeout"`
+	ContextTimeout time.Duration `yaml:"contextTimeout"`
+}
+
+type GRPCConfig struct {
+	Port              string        `yaml:"port"`
+	MaxConnectionIdle time.Duration `yaml:"maxConnectionIdle"`
+	Timeout           time.Duration `yaml:"timeout"`
+	MaxConnectionAge  time.Duration `yaml:"maxConnectionAge"`
+	Time              time.Duration `yaml:"time"`
 }
 
 type CORSConfig struct {
@@ -39,6 +45,11 @@ type CORSConfig struct {
 	AllowHeaders     string `yaml:"allowHeaders"`
 	ExposeHeaders    string `yaml:"exposeHeaders"`
 	AllowCredentials bool   `yaml:"allowCredentials"`
+}
+
+type TLSConfig struct {
+	CertPath string `yaml:"certPath"`
+	KeyPath  string `yaml:"keyPath"`
 }
 
 type LoggerConfig struct {
@@ -111,9 +122,14 @@ func newViper() (*viper.Viper, error) {
 	v.SetConfigName(os.Getenv("ENV"))
 	v.SetConfigType("yaml")
 
+	err := bindEnv(v)
+	if err != nil {
+		return nil, fmt.Errorf("cannot bind env variables: %v", err)
+	}
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return nil, errors.New("config file not found")
+			return nil, fmt.Errorf("config file not found")
 		}
 
 		return nil, err
@@ -131,4 +147,25 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func bindEnv(v *viper.Viper) error {
+	envBindings := map[string]string{
+		"postgres.port":           "POSTGRES_PORT",
+		"postgres.dbname":         "POSTGRES_DB",
+		"postgres.user":           "POSTGRES_USER",
+		"postgres.password":       "POSTGRES_PASSWORD",
+		"minio.user":              "MINIO_USER",
+		"minio.password":          "MINIO_PASSWORD",
+		"service.auth.csrf.salt":  "CSRF_SALT",
+		"service.auth.jwt.secret": "JWT_SECRET",
+	}
+
+	for key, env := range envBindings {
+		if err := v.BindEnv(key, env); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

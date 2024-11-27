@@ -84,13 +84,13 @@ const docTemplate = `{
         },
         "/api/v1/albums/search": {
             "get": {
-                "description": "Searches for albums based on the provided \"name\" query parameter.",
-                "summary": "Search albums by name",
+                "description": "Searches for albums based on the provided \"query\" query parameter.",
+                "summary": "Search albums by query",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Name of the album to search for",
-                        "name": "name",
+                        "name": "query",
                         "in": "query",
                         "required": true
                     }
@@ -198,13 +198,13 @@ const docTemplate = `{
         },
         "/api/v1/artists/search": {
             "get": {
-                "description": "Searches for artists based on the provided \"name\" query parameter.",
-                "summary": "Search artists by name",
+                "description": "Searches for artists based on the provided \"query\" parameter.",
+                "summary": "Search artists by query",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Name of the artist to search for",
-                        "name": "name",
+                        "name": "query",
                         "in": "query",
                         "required": true
                     }
@@ -323,17 +323,6 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "User Login",
-                "parameters": [
-                    {
-                        "description": "User login details",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Login successful with token",
@@ -398,17 +387,6 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "User registration details",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "User registration successful with token",
@@ -424,44 +402,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to return token",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/genres/album/{albumID}": {
-            "get": {
-                "description": "Retrieves a list of all genres for a given album ID from the database.",
-                "summary": "Get all genres by album ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Album ID",
-                        "name": "albumID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of genres by album",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.GenreDTO"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No genres found for the album",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to load genres",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -619,20 +559,11 @@ const docTemplate = `{
         },
         "/api/v1/tracks/byArtistId/{artistId}": {
             "get": {
-                "description": "Retrieves a list of all tracks for a given artist ID.",
-                "summary": "Get all tracks by artist ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Artist ID",
-                        "name": "artistId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "description": "Retrieves a list of favorite tracks for the user.",
+                "summary": "Get favorite tracks",
                 "responses": {
                     "200": {
-                        "description": "List of tracks by artist",
+                        "description": "List of favorite tracks",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -641,13 +572,119 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "No tracks found for the given artist ID",
+                        "description": "User id not found",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to load tracks by artist ID",
+                        "description": "Failed to get favorite tracks",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tracks/favorite": {
+            "post": {
+                "description": "Add new favorite track for user.",
+                "summary": "Add favorite track for user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track ID",
+                        "name": "trackID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "User id not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Can't add track to favorite",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Add new favorite track for user.",
+                "summary": "Add favorite track for user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track ID",
+                        "name": "trackID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "User id not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Can't delete track from favorite",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tracks/favorite/{trackID}": {
+            "get": {
+                "description": "Checks if a specific track is marked as a favorite for the authenticated user.",
+                "summary": "Check if a track is a user's favorite",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Track ID",
+                        "name": "trackID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response indicating whether the track is a favorite",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid track ID or user ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Track ID not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -657,13 +694,13 @@ const docTemplate = `{
         },
         "/api/v1/tracks/search": {
             "get": {
-                "description": "Searches for tracks based on the provided \"name\" query parameter.",
-                "summary": "Search tracks by name",
+                "description": "Searches for tracks based on the provided \"query\" query parameter.",
+                "summary": "Search tracks by query",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Name of the track to search for",
-                        "name": "name",
+                        "description": "Query of the track to search for",
+                        "name": "query",
                         "in": "query",
                         "required": true
                     }
@@ -792,15 +829,6 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Updated user details",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
                     }
                 ],
                 "responses": {
@@ -963,9 +991,6 @@ const docTemplate = `{
                 },
                 "release": {
                     "type": "string"
-                },
-                "trackCount": {
-                    "type": "integer"
                 }
             }
         },
@@ -1032,6 +1057,9 @@ const docTemplate = `{
                 "filepath": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "image": {
                     "type": "string"
                 },
@@ -1068,35 +1096,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/dto.UserDTO"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "userID": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },

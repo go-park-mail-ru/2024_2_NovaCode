@@ -1,15 +1,19 @@
 FROM golang:1.22-alpine3.20
 
-WORKDIR /service
+ARG MICROSERVICE
+WORKDIR /microservice
 
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-ENV CGO_ENABLED=0 GOOS=linux GOCACHE=/root/.cache/go-build
+ENV CGO_ENABLED=0
+ENV GOOS=linux 
+ENV GO111MODULE=on
 
+ENV GOCACHE=/root/.cache/go-build
 RUN --mount=type=cache,target="/root/.cache/go-build" \
-    go build -mod=vendor -o bin/main cmd/main.go
+    go build -mod=vendor -o bin/main cmd/$MICROSERVICE/main.go
 
-ENTRYPOINT [ "/service/bin/main" ]
+ENTRYPOINT [ "/microservice/bin/main" ]

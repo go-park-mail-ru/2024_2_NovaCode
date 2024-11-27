@@ -1,13 +1,17 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Playlist struct {
-	ID         uint64
-	Name       string
-	TrackCount uint64
-	Image      string
-	OwnerID    uint64
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID        uint64
+	Name      string
+	Image     string
+	OwnerID   uuid.UUID
+	IsPrivate bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

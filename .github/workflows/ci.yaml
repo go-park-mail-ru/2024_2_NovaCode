@@ -4,7 +4,13 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+      - dev
+      - NM-*
+  push:
+    branches:
+      - main
+      - dev
+      - NM-*
 
 jobs:
   lint:
@@ -61,4 +67,4 @@ jobs:
         with:
           profile: coverage.out
           local-prefix: github.com/go-park-mail-ru/2024_2_NovaCode
-          threshold-total: 10
+          threshold-total: 60
