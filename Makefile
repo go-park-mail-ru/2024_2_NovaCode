@@ -88,6 +88,8 @@ test:
 .PHONY: view-coverage
 ## View code coverage report if it exists otherwise generate.
 view-coverage: --check-coverage
+	@go test -coverpkg=./... -coverprofile=coverage.out.tmp ./...
+	@cat coverage.out.tmp | grep -v "mock\|cmd\|config\|internal\|docs\|metrics\|pkg\|routes\|proto" > coverage.out
 	@go tool cover -func=coverage.out
 
 .PHONY: view-coverage-html
