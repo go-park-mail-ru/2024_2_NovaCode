@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist"
-	pldto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/dto"
 	userService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/user"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
@@ -27,8 +27,8 @@ func NewPlaylistUsecase(
 	return &PlaylistUsecase{playlistRepo, userClient, logger}
 }
 
-func (u *PlaylistUsecase) CreatePlaylist(ctx context.Context, newPlaylistDTO *pldto.PlaylistDTO) (*pldto.PlaylistDTO, error) {
-	playlist := pldto.NewPlaylistFromPlaylistDTO(newPlaylistDTO)
+func (u *PlaylistUsecase) CreatePlaylist(ctx context.Context, newPlaylistDTO *dto.PlaylistDTO) (*dto.PlaylistDTO, error) {
+	playlist := dto.NewPlaylistFromPlaylistDTO(newPlaylistDTO)
 	playlist, err := u.playlistRepo.CreatePlaylist(ctx, playlist)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
@@ -40,13 +40,13 @@ func (u *PlaylistUsecase) CreatePlaylist(ctx context.Context, newPlaylistDTO *pl
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
 		return nil, err
 	}
-	playlistDTO := pldto.NewPlaylistToPlaylistDTO(playlist)
+	playlistDTO := dto.NewPlaylistToPlaylistDTO(playlist)
 	playlistDTO.OwnerName = owner.User.Username
 
 	return playlistDTO, nil
 }
 
-func (u *PlaylistUsecase) GetPlaylist(ctx context.Context, playlistID uint64) (*pldto.PlaylistDTO, error) {
+func (u *PlaylistUsecase) GetPlaylist(ctx context.Context, playlistID uint64) (*dto.PlaylistDTO, error) {
 	playlist, err := u.playlistRepo.GetPlaylist(ctx, playlistID)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
@@ -58,27 +58,27 @@ func (u *PlaylistUsecase) GetPlaylist(ctx context.Context, playlistID uint64) (*
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
 		return nil, err
 	}
-	playlistDTO := pldto.NewPlaylistToPlaylistDTO(playlist)
+	playlistDTO := dto.NewPlaylistToPlaylistDTO(playlist)
 	playlistDTO.OwnerName = owner.User.Username
 
 	return playlistDTO, nil
 }
 
-func (u *PlaylistUsecase) GetAllPlaylists(ctx context.Context) ([]*pldto.PlaylistDTO, error) {
+func (u *PlaylistUsecase) GetAllPlaylists(ctx context.Context) ([]*dto.PlaylistDTO, error) {
 	playlists, err := u.playlistRepo.GetAllPlaylists(ctx)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
 		return nil, err
 	}
 
-	playlistsDTO := []*pldto.PlaylistDTO{}
+	playlistsDTO := []*dto.PlaylistDTO{}
 	for _, playlist := range playlists {
 		owner, err := u.userClient.FindByID(ctx, &userService.FindByIDRequest{Uuid: playlist.OwnerID.String()})
 		if err != nil {
 			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
 			return nil, err
 		}
-		playlistDTO := pldto.NewPlaylistToPlaylistDTO(playlist)
+		playlistDTO := dto.NewPlaylistToPlaylistDTO(playlist)
 		playlistDTO.OwnerName = owner.User.Username
 		playlistsDTO = append(playlistsDTO, playlistDTO)
 	}
@@ -86,7 +86,7 @@ func (u *PlaylistUsecase) GetAllPlaylists(ctx context.Context) ([]*pldto.Playlis
 	return playlistsDTO, nil
 }
 
-func (u *PlaylistUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*pldto.PlaylistDTO, error) {
+func (u *PlaylistUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*dto.PlaylistDTO, error) {
 	playlists, err := u.playlistRepo.GetUserPlaylists(ctx, userID)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
@@ -99,9 +99,9 @@ func (u *PlaylistUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 
-	playlistsDTO := []*pldto.PlaylistDTO{}
+	playlistsDTO := []*dto.PlaylistDTO{}
 	for _, playlist := range playlists {
-		playlistDTO := pldto.NewPlaylistToPlaylistDTO(playlist)
+		playlistDTO := dto.NewPlaylistToPlaylistDTO(playlist)
 		playlistDTO.OwnerName = owner.User.Username
 		playlistsDTO = append(playlistsDTO, playlistDTO)
 	}
@@ -109,7 +109,7 @@ func (u *PlaylistUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID
 	return playlistsDTO, nil
 }
 
-func (u *PlaylistUsecase) AddToPlaylist(ctx context.Context, playlistTrackDTO *pldto.PlaylistTrackDTO) (*models.PlaylistTrack, error) {
+func (u *PlaylistUsecase) AddToPlaylist(ctx context.Context, playlistTrackDTO *dto.PlaylistTrackDTO) (*models.PlaylistTrack, error) {
 	length, err := u.playlistRepo.GetLengthPlaylist(ctx, playlistTrackDTO.PlaylistID)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
@@ -124,7 +124,7 @@ func (u *PlaylistUsecase) AddToPlaylist(ctx context.Context, playlistTrackDTO *p
 	return playlistTrack, nil
 }
 
-func (u *PlaylistUsecase) RemoveFromPlaylist(ctx context.Context, playlistTrackDTO *pldto.PlaylistTrackDTO) error {
+func (u *PlaylistUsecase) RemoveFromPlaylist(ctx context.Context, playlistTrackDTO *dto.PlaylistTrackDTO) error {
 	_, err := u.playlistRepo.RemoveFromPlaylist(ctx, playlistTrackDTO.PlaylistID, playlistTrackDTO.TrackID)
 	if err != nil {
 		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
