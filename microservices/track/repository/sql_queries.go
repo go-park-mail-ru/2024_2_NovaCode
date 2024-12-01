@@ -12,7 +12,8 @@ const (
 	findByQuery = `
     SELECT id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at
     FROM "track"
-    WHERE fts @@ to_tsquery($1)`
+    WHERE fts @@ to_tsquery('english', $1 || ':*') 
+        OR fts @@ to_tsquery('russian_hunspell', $1 || ':*')`
 
 	getByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
 

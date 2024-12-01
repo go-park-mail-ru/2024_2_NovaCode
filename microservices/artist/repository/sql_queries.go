@@ -12,5 +12,6 @@ const (
 	findByQuery = `
 	SELECT id, name, bio, country, image, created_at, updated_at
 	FROM artist
-    WHERE fts @@ to_tsquery($1)`
+    WHERE fts @@ to_tsquery('english', $1 || ':*') 
+        OR fts @@ to_tsquery('russian_hunspell', $1 || ':*')`
 )
