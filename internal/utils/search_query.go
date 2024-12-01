@@ -6,7 +6,7 @@ import (
 )
 
 func MakeSearchQuery(query string) string {
-	re := regexp.MustCompile(`\w+`)
+	re := regexp.MustCompile(`\p{L}+`)
 	words := re.FindAllString(query, -1)
 	return strings.Join(words, " | ")
 }

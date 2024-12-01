@@ -159,7 +159,10 @@ services:
 
   postgres:
     container_name: novamusic-postgres
-    image: postgres:16
+    image: daronenko/postgres-ru:latest
+    build:
+      dockerfile: postgres/Dockerfile
+      context: .
     platform: linux/amd64
     env_file: .prod.env
     environment:
