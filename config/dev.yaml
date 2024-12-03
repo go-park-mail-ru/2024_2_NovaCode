@@ -41,7 +41,7 @@ postgres:
   sslMode: false
   driver: postgres
 
-  maxOpenConns: 60
+  maxOpenConns: 100
   connMaxLifetime: 120
   maxIdleConns: 30
   connMaxIdleTime: 20

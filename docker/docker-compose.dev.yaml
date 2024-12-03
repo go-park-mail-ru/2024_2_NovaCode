@@ -149,7 +149,9 @@ services:
 
   postgres:
     container_name: novamusic-postgres
-    image: postgres:16
+    build:
+      dockerfile: docker/Dockerfile.postgres
+      context: ..
     platform: linux/amd64
     env_file: .dev.env
     environment:
@@ -171,6 +173,8 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ../internal/db/postgres/configuration/:/etc/postgresql/
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - prometheus
 

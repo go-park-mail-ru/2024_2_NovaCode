@@ -153,8 +153,8 @@ func bindEnv(v *viper.Viper) error {
 	envBindings := map[string]string{
 		"postgres.port":           "POSTGRES_PORT",
 		"postgres.dbname":         "POSTGRES_DB",
-		"postgres.user":           "POSTGRES_USER",
-		"postgres.password":       "POSTGRES_PASSWORD",
+		"postgres.user":           "POSTGRES_APP_USER",
+		"postgres.password":       "POSTGRES_APP_PASSWORD",
 		"minio.user":              "MINIO_USER",
 		"minio.password":          "MINIO_PASSWORD",
 		"service.auth.csrf.salt":  "CSRF_SALT",

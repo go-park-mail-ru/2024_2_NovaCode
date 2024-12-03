@@ -28,3 +28,6 @@ go.work.sum
 .prod.env
 
 coverage.out.tmp
+
+# Pgbadger reports
+internal/db/postgres/pgbadger/reports/
