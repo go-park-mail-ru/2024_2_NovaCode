@@ -26,7 +26,7 @@ func main() {
 	}
 
 	logger := logger.New(&cfg.Service.Logger)
-	
+
 	pg, err := postgres.New(&cfg.Postgres)
 	if err != nil {
 		log.Fatalf("failed to create postgres client: %v", err)
