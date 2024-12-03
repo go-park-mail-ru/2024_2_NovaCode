@@ -78,6 +78,13 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 
 	user := dto.NewUserFromRegisterDTO(&regDTO)
 
+	err := user.Sanitize()
+	if err != nil {
+		handlers.logger.Warn(fmt.Sprintf("sanitized: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("invalid username or password: %v", err))
+		return
+	}
+
 	userTokenDTO, err := handlers.usecase.Register(request.Context(), user)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("failed to register user: %v", err), requestID)
@@ -133,6 +140,12 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	}
 
 	user := dto.NewUserFromLoginDTO(&loginDTO)
+
+	err := user.Sanitize()
+	if err != nil {
+		handlers.logger.Warn(fmt.Sprintf("sanitized user: %v", err), requestID)
+		utils.JSONError(response, http.StatusUnauthorized, fmt.Sprintf("invalid username or password: %v", err))
+	}
 
 	userTokenDTO, err := handlers.usecase.Login(request.Context(), user)
 	if err != nil {
