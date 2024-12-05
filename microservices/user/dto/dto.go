@@ -67,6 +67,18 @@ type UpdateDTO struct {
 	Email    string    `json:"email,omitempty"`
 }
 
+func (dto *UpdateDTO) Validate() error {
+	if err := models.ValidateUsername(dto.Username); err != nil {
+		return err
+	}
+
+	if err := models.ValidateEmail(dto.Email); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewUserFromUpdateDTO(updateDTO *UpdateDTO) *models.User {
 	return &models.User{
 		UserID:   updateDTO.UserID,

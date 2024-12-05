@@ -265,7 +265,20 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 		return
 	}
 
+	if err := updateDTO.Validate(); err != nil {
+		handlers.logger.Warnf(fmt.Sprintf("validation error: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("validation error: %v", err))
+		return
+	}
+
 	user := dto.NewUserFromUpdateDTO(&updateDTO)
+
+	err := user.Sanitize()
+	if err != nil {
+		handlers.logger.Warn(fmt.Sprintf("sanitized user: %v", err), requestID)
+		utils.JSONError(response, http.StatusUnauthorized, fmt.Sprintf("invalid username or password: %v", err))
+	}
+
 	updatedUserDTO, err := handlers.usecase.Update(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warn(fmt.Sprintf("failed to update user: %v", err), requestID)
