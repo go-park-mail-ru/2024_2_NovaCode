@@ -100,7 +100,10 @@ func TestPlaylistRepositoryGetPlaylist(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(GetPlaylistQuery).WithArgs(mockPlaylistID).WillReturnRows(row)
+	mock.ExpectPrepare(GetPlaylistQuery).
+		ExpectQuery().
+		WithArgs(mockPlaylistID).
+		WillReturnRows(row)
 
 	playlist, err := playlistRepository.GetPlaylist(context.Background(), mockPlaylistID)
 	require.NoError(t, err)
@@ -119,7 +122,9 @@ func TestPlaylistRepositoryGetLengthPlaylist(t *testing.T) {
 	mockPlaylistID := uint64(1)
 	mockLength := uint64(10)
 
-	mock.ExpectQuery(GetLengthPlaylistsQuery).WithArgs(mockPlaylistID).
+	mock.ExpectPrepare(GetLengthPlaylistsQuery).
+		ExpectQuery().
+		WithArgs(mockPlaylistID).
 		WillReturnRows(sqlmock.NewRows([]string{"length"}).AddRow(mockLength))
 
 	length, err := playlistRepository.GetLengthPlaylist(context.Background(), mockPlaylistID)
@@ -141,7 +146,10 @@ func TestPlaylistRepositoryGetUserPlaylists(t *testing.T) {
 		AddRow(1, "Playlist 1", "/images/playlists/1.jpg", mockUserID, false, time.Now(), time.Now()).
 		AddRow(2, "Playlist 2", "/images/playlists/2.jpg", mockUserID, false, time.Now(), time.Now())
 
-	mock.ExpectQuery(GetUserPlaylistsQuery).WithArgs(mockUserID).WillReturnRows(mockRows)
+	mock.ExpectPrepare(GetUserPlaylistsQuery).
+		ExpectQuery().
+		WithArgs(mockUserID).
+		WillReturnRows(mockRows)
 
 	playlists, err := playlistRepository.GetUserPlaylists(context.Background(), mockUserID)
 	require.NoError(t, err)
@@ -164,7 +172,10 @@ func TestPlaylistRepositoryAddToPlaylist(t *testing.T) {
 	columns := []string{"id", "playlist_id", "track_order_in_playlist", "track_id", "created_at"}
 	row := sqlmock.NewRows(columns).AddRow(1, mockPlaylistID, mockTrackOrder, mockTrackID, time.Now())
 
-	mock.ExpectQuery(AddToPlaylistQuery).WithArgs(mockPlaylistID, mockTrackOrder, mockTrackID).WillReturnRows(row)
+	mock.ExpectPrepare(AddToPlaylistQuery).
+		ExpectQuery().
+		WithArgs(mockPlaylistID, mockTrackOrder, mockTrackID).
+		WillReturnRows(row)
 
 	track, err := playlistRepository.AddToPlaylist(context.Background(), mockPlaylistID, mockTrackOrder, mockTrackID)
 	require.NoError(t, err)
@@ -184,7 +195,9 @@ func TestPlaylistRepositoryRemoveFromPlaylist(t *testing.T) {
 	mockPlaylistID := uint64(1)
 	mockTrackID := uint64(42)
 
-	mock.ExpectExec(RemoveFromPlaylistQuery).WithArgs(mockPlaylistID, mockTrackID).
+	mock.ExpectPrepare(RemoveFromPlaylistQuery).
+		ExpectExec().
+		WithArgs(mockPlaylistID, mockTrackID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	res, err := playlistRepository.RemoveFromPlaylist(context.Background(), mockPlaylistID, mockTrackID)
@@ -203,7 +216,9 @@ func TestPlaylistRepositoryDeletePlaylist(t *testing.T) {
 	playlistRepository := NewPlaylistRepository(db)
 	mockPlaylistID := uint64(1)
 
-	mock.ExpectExec(DeletePlaylistQuery).WithArgs(mockPlaylistID).
+	mock.ExpectPrepare(DeletePlaylistQuery).
+		ExpectExec().
+		WithArgs(mockPlaylistID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	res, err := playlistRepository.DeletePlaylist(context.Background(), mockPlaylistID)

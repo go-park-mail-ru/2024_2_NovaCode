@@ -97,9 +97,14 @@ func (repo *UserPostgresRepo) Update(ctx context.Context, user *models.User) (*m
 }
 
 func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*models.User, error) {
-	var user models.User
+	stmt, err := repo.db.PrepareContext(ctx, findByIDQuery)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
 
-	if err := repo.db.QueryRowContext(ctx, findByIDQuery, uuid).Scan(
+	var user models.User
+	if err := stmt.QueryRowContext(ctx, uuid).Scan(
 		&user.UserID,
 		&user.Username,
 		&user.Email,

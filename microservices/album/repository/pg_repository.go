@@ -45,28 +45,39 @@ func (r *AlbumRepository) Create(ctx context.Context, album *models.Album) (*mod
 }
 
 func (r *AlbumRepository) FindById(ctx context.Context, albumID uint64) (*models.Album, error) {
-	albums := &models.Album{}
-	row := r.db.QueryRowContext(ctx, findByIDQuery, albumID)
-	if err := row.Scan(
-		&albums.ID,
-		&albums.Name,
-		&albums.ReleaseDate,
-		&albums.Image,
-		&albums.ArtistID,
-		&albums.CreatedAt,
-		&albums.UpdatedAt,
+	stmt, err := r.db.PrepareContext(ctx, findByIDQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindById.Prepare")
+	}
+	defer stmt.Close()
+
+	album := &models.Album{}
+	if err := stmt.QueryRowContext(ctx, albumID).Scan(
+		&album.ID,
+		&album.Name,
+		&album.ReleaseDate,
+		&album.Image,
+		&album.ArtistID,
+		&album.CreatedAt,
+		&album.UpdatedAt,
 	); err != nil {
 		return nil, errors.Wrap(err, "FindById.Query")
 	}
 
-	return albums, nil
+	return album, nil
 }
 
 func (r *AlbumRepository) FindByQuery(ctx context.Context, query string) ([]*models.Album, error) {
 	tsQuery := utils.MakeSearchQuery(query)
 
+	stmt, err := r.db.PrepareContext(ctx, findByQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindByQuery.Prepare")
+	}
+	defer stmt.Close()
+
 	var albums []*models.Album
-	rows, err := r.db.QueryContext(ctx, findByQuery, tsQuery)
+	rows, err := stmt.QueryContext(ctx, tsQuery)
 	if err != nil {
 		return nil, errors.Wrap(err, "FindByQuery.Query")
 	}
@@ -84,7 +95,7 @@ func (r *AlbumRepository) FindByQuery(ctx context.Context, query string) ([]*mod
 			&album.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByQuery.Query")
+			return nil, errors.Wrap(err, "FindByQuery.Scan")
 		}
 
 		albums = append(albums, album)
@@ -122,8 +133,14 @@ func (r *AlbumRepository) GetAll(ctx context.Context) ([]*models.Album, error) {
 }
 
 func (r *AlbumRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Album, error) {
+	stmt, err := r.db.PrepareContext(ctx, getByArtistIDQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAllByArtistID.Prepare")
+	}
+	defer stmt.Close()
+
 	var albums []*models.Album
-	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
+	rows, err := stmt.QueryContext(ctx, artistID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
 	}
@@ -141,7 +158,7 @@ func (r *AlbumRepository) GetAllByArtistID(ctx context.Context, artistID uint64)
 			&album.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+			return nil, errors.Wrap(err, "GetAllByArtistID.Scan")
 		}
 		albums = append(albums, album)
 	}

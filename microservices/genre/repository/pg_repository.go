@@ -41,7 +41,14 @@ func (r *GenreRepository) Create(ctx context.Context, genre *models.Genre) (*mod
 
 func (r *GenreRepository) FindById(ctx context.Context, genreID uint64) (*models.Genre, error) {
 	genre := &models.Genre{}
-	row := r.db.QueryRowContext(ctx, findByIDQuery, genreID)
+
+	stmt, err := r.db.PrepareContext(ctx, findByIDQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindById.PrepareContext")
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(ctx, genreID)
 	if err := row.Scan(
 		&genre.ID,
 		&genre.Name,
@@ -49,7 +56,7 @@ func (r *GenreRepository) FindById(ctx context.Context, genreID uint64) (*models
 		&genre.CreatedAt,
 		&genre.UpdatedAt,
 	); err != nil {
-		return nil, errors.Wrap(err, "FindById.Query")
+		return nil, errors.Wrap(err, "FindById.QueryRow")
 	}
 
 	return genre, nil
@@ -82,10 +89,16 @@ func (r *GenreRepository) GetAll(ctx context.Context) ([]*models.Genre, error) {
 }
 
 func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID uint64) ([]*models.Genre, error) {
-	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getByArtistIDQuery, artistID)
+	stmt, err := r.db.PrepareContext(ctx, getByArtistIDQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetAllByArtistID.Query")
+		return nil, errors.Wrap(err, "GetAllByArtistID.PrepareContext")
+	}
+	defer stmt.Close()
+
+	var genres []*models.Genre
+	rows, err := stmt.QueryContext(ctx, artistID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAllByArtistID.QueryContext")
 	}
 	defer rows.Close()
 
@@ -108,10 +121,16 @@ func (r *GenreRepository) GetAllByArtistID(ctx context.Context, artistID uint64)
 }
 
 func (r *GenreRepository) GetAllByTrackID(ctx context.Context, trackID uint64) ([]*models.Genre, error) {
-	var genres []*models.Genre
-	rows, err := r.db.QueryContext(ctx, getByTrackIDQuery, trackID)
+	stmt, err := r.db.PrepareContext(ctx, getByTrackIDQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetAllByTrackID.Query")
+		return nil, errors.Wrap(err, "GetAllByTrackID.PrepareContext")
+	}
+	defer stmt.Close()
+
+	var genres []*models.Genre
+	rows, err := stmt.QueryContext(ctx, trackID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetAllByTrackID.QueryContext")
 	}
 	defer rows.Close()
 

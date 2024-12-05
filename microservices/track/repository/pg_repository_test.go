@@ -98,7 +98,8 @@ func TestTrackRepositoryFindById(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(mockTrack.ID).WillReturnRows(rows)
+	stmt := mock.ExpectPrepare(findByIDQuery)
+	stmt.ExpectQuery().WithArgs(mockTrack.ID).WillReturnRows(rows)
 
 	foundTrack, err := trackPGRepository.FindById(context.Background(), mockTrack.ID)
 	require.NoError(t, err)
@@ -175,7 +176,7 @@ func TestTrackRepositoryFindByQuery(t *testing.T) {
 
 	findName := "test"
 	expectedTracks := []*models.Track{&tracks[0], &tracks[1], &tracks[2]}
-	mock.ExpectQuery(findByQuery).WithArgs(utils.MakeSearchQuery(findName)).WillReturnRows(rows)
+	mock.ExpectPrepare(findByQuery).ExpectQuery().WithArgs(utils.MakeSearchQuery(findName)).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
@@ -316,7 +317,8 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 	}
 
 	expectedTracks := []*models.Track{&tracks[0], &tracks[1]}
-	mock.ExpectQuery(getByArtistIDQuery).WithArgs(1).WillReturnRows(rows)
+	stmt := mock.ExpectPrepare(getByArtistIDQuery)
+	stmt.ExpectQuery().WithArgs(uint64(1)).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.GetAllByArtistID(context.Background(), uint64(1))
 	require.NoError(t, err)
@@ -381,7 +383,7 @@ func TestTrackRepositoryGetAllByAlbumID(t *testing.T) {
 	}
 
 	expectedTracks := []*models.Track{&tracks[0], &tracks[1]}
-	mock.ExpectQuery(getByAlbumIDQuery).WithArgs(1).WillReturnRows(rows)
+	mock.ExpectPrepare(getByAlbumIDQuery).ExpectQuery().WithArgs(1).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.GetAllByAlbumID(context.Background(), uint64(1))
 	require.NoError(t, err)
@@ -401,7 +403,7 @@ func TestTrackRepositoryAddFavoriteTrack(t *testing.T) {
 	userID := uuid.New()
 	trackID := uint64(12345)
 
-	mock.ExpectExec(addFavoriteTrackQuery).WithArgs(userID, trackID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectPrepare(addFavoriteTrackQuery).ExpectExec().WithArgs(userID, trackID).WillReturnResult(sqlmock.NewResult(0, 0))
 	err = trackPGRepository.AddFavoriteTrack(context.Background(), userID, trackID)
 
 	require.NoError(t, err)
@@ -419,7 +421,7 @@ func TestTrackRepositoryDeleteFavoriteTrack(t *testing.T) {
 	userID := uuid.New()
 	trackID := uint64(12345)
 
-	mock.ExpectExec(deleteFavoriteTrackQuery).WithArgs(userID, trackID).WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectPrepare(deleteFavoriteTrackQuery).ExpectExec().WithArgs(userID, trackID).WillReturnResult(sqlmock.NewResult(0, 1))
 	err = trackPGRepository.DeleteFavoriteTrack(context.Background(), userID, trackID)
 
 	require.NoError(t, err)
@@ -437,7 +439,7 @@ func TestTrackRepositoryIsFavoriteTrack(t *testing.T) {
 	userID := uuid.New()
 	trackID := uint64(12345)
 
-	mock.ExpectQuery(isFavoriteTrackQuery).WithArgs(userID, trackID).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
+	mock.ExpectPrepare(isFavoriteTrackQuery).ExpectQuery().WithArgs(userID, trackID).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
 
 	exists, err := trackPGRepository.IsFavoriteTrack(context.Background(), userID, trackID)
 
@@ -504,10 +506,56 @@ func TestTrackRepositoryGetFavoriteTracks(t *testing.T) {
 	userID := uuid.New()
 
 	expectedTracks := []*models.Track{&tracks[0], &tracks[1]}
-	mock.ExpectQuery(getFavoriteQuery).WithArgs(userID).WillReturnRows(rows)
+	mock.ExpectPrepare(getFavoriteQuery).ExpectQuery().WithArgs(userID).WillReturnRows(rows)
 
 	foundTracks, err := trackPGRepository.GetFavoriteTracks(context.Background(), userID)
 	require.NoError(t, err)
 	require.NotNil(t, foundTracks)
 	require.Equal(t, foundTracks, expectedTracks)
+}
+
+func TestTrackRepositoryGetTracksFromPlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	trackPGRepository := NewTrackPGRepository(db)
+
+	playlistTracks := []*models.PlaylistTrack{
+		{
+			ID:                   1,
+			PlaylistID:           1,
+			TrackOrderInPlaylist: 1,
+			TrackID:              1,
+			CreatedAt:            time.Now(),
+		},
+		{
+			ID:                   2,
+			PlaylistID:           1,
+			TrackOrderInPlaylist: 2,
+			TrackID:              2,
+			CreatedAt:            time.Now(),
+		},
+	}
+
+	columns := []string{"id", "playlist_id", "track_order_in_playlist", "track_id", "created_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, track := range playlistTracks {
+		rows.AddRow(
+			track.ID,
+			track.PlaylistID,
+			track.TrackOrderInPlaylist,
+			track.TrackID,
+			track.CreatedAt,
+		)
+	}
+
+	mock.ExpectPrepare(GetTracksFromPlaylistQuery).ExpectQuery().WithArgs(uint64(1)).WillReturnRows(rows)
+
+	foundPlaylistTracks, err := trackPGRepository.GetTracksFromPlaylist(context.Background(), uint64(1))
+	require.NoError(t, err)
+	require.NotNil(t, foundPlaylistTracks)
+	require.Equal(t, foundPlaylistTracks, playlistTracks)
 }

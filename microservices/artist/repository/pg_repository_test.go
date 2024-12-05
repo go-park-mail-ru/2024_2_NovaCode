@@ -7,6 +7,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -76,12 +77,15 @@ func TestArtistRepositoryFindById(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(mockArtist.ID).WillReturnRows(rows)
+	mock.ExpectPrepare(findByIDQuery).
+		ExpectQuery().
+		WithArgs(mockArtist.ID).
+		WillReturnRows(rows)
 
 	foundArtist, err := artistPGRepository.FindById(context.Background(), mockArtist.ID)
 	require.NoError(t, err)
 	require.NotNil(t, foundArtist)
-	require.Equal(t, foundArtist.ID, foundArtist.ID)
+	require.Equal(t, mockArtist.ID, foundArtist.ID)
 }
 
 func TestArtistRepositoryFindByQuery(t *testing.T) {
@@ -137,12 +141,15 @@ func TestArtistRepositoryFindByQuery(t *testing.T) {
 
 	findName := "test"
 	expectedArtists := []*models.Artist{&artists[0], &artists[1], &artists[2]}
-	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
+	mock.ExpectPrepare(findByQuery).
+		ExpectQuery().
+		WithArgs(utils.MakeSearchQuery(findName)).
+		WillReturnRows(rows)
 
 	foundArtists, err := artistPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
 	require.NotNil(t, foundArtists)
-	require.Equal(t, foundArtists, expectedArtists)
+	require.Equal(t, expectedArtists, foundArtists)
 }
 
 func TestArtistRepositoryGetAll(t *testing.T) {

@@ -1,3 +1,8 @@
+REPORTS_DIR="./internal/db/postgres/pgbadger/reports"
+if [ ! -d "$REPORTS_DIR" ]; then
+  mkdir -p "$REPORTS_DIR"
+fi
+
 echo '#!/bin/bash
 LOG_DIR="/var/lib/postgresql/data/log"
 REPORT_DIR="${LOG_DIR}/pgbadger_report"

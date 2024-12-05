@@ -7,6 +7,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -69,7 +70,6 @@ func TestAlbumRepositoryFindById(t *testing.T) {
 	rows := sqlmock.NewRows(columns).AddRow(
 		mockAlbum.ID,
 		mockAlbum.Name,
-
 		mockAlbum.ReleaseDate,
 		mockAlbum.Image,
 		mockAlbum.ArtistID,
@@ -77,12 +77,15 @@ func TestAlbumRepositoryFindById(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(mockAlbum.ID).WillReturnRows(rows)
+	mock.ExpectPrepare(findByIDQuery).
+		ExpectQuery().
+		WithArgs(mockAlbum.ID).
+		WillReturnRows(rows)
 
 	foundAlbum, err := albumPGRepository.FindById(context.Background(), mockAlbum.ID)
 	require.NoError(t, err)
 	require.NotNil(t, foundAlbum)
-	require.Equal(t, foundAlbum.ID, foundAlbum.ID)
+	require.Equal(t, mockAlbum.ID, foundAlbum.ID)
 }
 
 func TestAlbumRepositoryFindByQuery(t *testing.T) {
@@ -138,12 +141,15 @@ func TestAlbumRepositoryFindByQuery(t *testing.T) {
 
 	findName := "test"
 	expectedAlbums := []*models.Album{&albums[0], &albums[1], &albums[2]}
-	mock.ExpectQuery(findByQuery).WithArgs(findName).WillReturnRows(rows)
+	mock.ExpectPrepare(findByQuery).
+		ExpectQuery().
+		WithArgs(utils.MakeSearchQuery(findName)).
+		WillReturnRows(rows)
 
 	foundAlbums, err := albumPGRepository.FindByQuery(context.Background(), findName)
 	require.NoError(t, err)
 	require.NotNil(t, foundAlbums)
-	require.Equal(t, foundAlbums, expectedAlbums)
+	require.Equal(t, expectedAlbums, foundAlbums)
 }
 
 func TestAlbumRepositoryGetAll(t *testing.T) {
@@ -249,10 +255,13 @@ func TestAlbumRepositoryGetAllByArtistID(t *testing.T) {
 	}
 
 	expectedAlbums := []*models.Album{&albums[0], &albums[1]}
-	mock.ExpectQuery(getByArtistIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
+	mock.ExpectPrepare(getByArtistIDQuery).
+		ExpectQuery().
+		WithArgs(uint64(1)).
+		WillReturnRows(rows)
 
 	foundAlbums, err := albumPGRepository.GetAllByArtistID(context.Background(), uint64(1))
 	require.NoError(t, err)
 	require.NotNil(t, foundAlbums)
-	require.Equal(t, foundAlbums, expectedAlbums)
+	require.Equal(t, expectedAlbums, foundAlbums)
 }

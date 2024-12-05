@@ -45,7 +45,14 @@ func (r *ArtistRepository) Create(ctx context.Context, artist *models.Artist) (*
 
 func (r *ArtistRepository) FindById(ctx context.Context, artistID uint64) (*models.Artist, error) {
 	artist := &models.Artist{}
-	row := r.db.QueryRowContext(ctx, findByIDQuery, artistID)
+
+	stmt, err := r.db.PrepareContext(ctx, findByIDQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindById.PrepareContext")
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(ctx, artistID)
 	if err := row.Scan(
 		&artist.ID,
 		&artist.Name,
@@ -55,7 +62,7 @@ func (r *ArtistRepository) FindById(ctx context.Context, artistID uint64) (*mode
 		&artist.CreatedAt,
 		&artist.UpdatedAt,
 	); err != nil {
-		return nil, errors.Wrap(err, "FindById.Query")
+		return nil, errors.Wrap(err, "FindById.QueryRow")
 	}
 
 	return artist, nil
@@ -64,10 +71,16 @@ func (r *ArtistRepository) FindById(ctx context.Context, artistID uint64) (*mode
 func (r *ArtistRepository) FindByQuery(ctx context.Context, query string) ([]*models.Artist, error) {
 	tsQuery := utils.MakeSearchQuery(query)
 
-	var artists []*models.Artist
-	rows, err := r.db.QueryContext(ctx, findByQuery, tsQuery)
+	stmt, err := r.db.PrepareContext(ctx, findByQuery)
 	if err != nil {
-		return nil, errors.Wrap(err, "FindByQuery.Query")
+		return nil, errors.Wrap(err, "FindByQuery.PrepareContext")
+	}
+	defer stmt.Close()
+
+	var artists []*models.Artist
+	rows, err := stmt.QueryContext(ctx, tsQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindByQuery.QueryContext")
 	}
 	defer rows.Close()
 
@@ -83,7 +96,7 @@ func (r *ArtistRepository) FindByQuery(ctx context.Context, query string) ([]*mo
 			&artist.UpdatedAt,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "FindByQuery.Query")
+			return nil, errors.Wrap(err, "FindByQuery.Scan")
 		}
 
 		artists = append(artists, artist)

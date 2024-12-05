@@ -80,11 +80,9 @@ func ValidateUsername(username string) error {
 	validChars := regexp.MustCompile(`^[a-zA-Z0-9-_]*$`)
 	if !validChars.MatchString(username) {
 		return fmt.Errorf("username must contain only latin letters and underscores")
-
 	}
 
 	return nil
-
 }
 
 func ValidateEmail(email string) error {

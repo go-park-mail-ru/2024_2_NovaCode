@@ -140,7 +140,7 @@ func TestFindByID_Regular(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows(columns).AddRow(
-		userUUID,
+		userMock.UserID,
 		userMock.Username,
 		userMock.Email,
 		userMock.Password,
@@ -150,7 +150,7 @@ func TestFindByID_Regular(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(userMock.UserID).WillReturnRows(rows)
+	mock.ExpectPrepare(findByIDQuery).ExpectQuery().WithArgs(userMock.UserID).WillReturnRows(rows)
 
 	foundUser, err := postgresRepo.FindByID(context.Background(), userMock.UserID)
 	require.NoError(t, err)
@@ -179,7 +179,7 @@ func TestFindByID_Error(t *testing.T) {
 
 	userUUID := uuid.New()
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(userUUID).WillReturnError(fmt.Errorf("some error"))
+	mock.ExpectPrepare(findByIDQuery).ExpectQuery().WithArgs(userUUID).WillReturnError(fmt.Errorf("some error"))
 
 	_, err = postgresRepo.FindByID(context.Background(), userUUID)
 	require.Error(t, err)
@@ -207,7 +207,7 @@ func TestFindByID_NotFound(t *testing.T) {
 
 	userUUID := uuid.New()
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(userUUID).WillReturnRows(sqlmock.NewRows(nil))
+	mock.ExpectPrepare(findByIDQuery).ExpectQuery().WithArgs(userUUID).WillReturnRows(sqlmock.NewRows(nil))
 
 	_, err = postgresRepo.FindByID(context.Background(), userUUID)
 	require.Error(t, err)

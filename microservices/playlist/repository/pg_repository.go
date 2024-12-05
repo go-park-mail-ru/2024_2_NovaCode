@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 type PlaylistRepository struct {
@@ -70,11 +71,14 @@ func (r *PlaylistRepository) GetAllPlaylists(ctx context.Context) ([]*models.Pla
 
 func (r *PlaylistRepository) GetPlaylist(ctx context.Context, playlistID uint64) (*models.Playlist, error) {
 	playlist := &models.Playlist{}
-	row := r.db.QueryRowContext(ctx,
-		GetPlaylistQuery,
-		playlistID,
-	)
 
+	stmt, err := r.db.PrepareContext(ctx, GetPlaylistQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetPlaylist.PrepareContext")
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(ctx, playlistID)
 	if err := row.Scan(
 		&playlist.ID,
 		&playlist.Name,
@@ -84,36 +88,41 @@ func (r *PlaylistRepository) GetPlaylist(ctx context.Context, playlistID uint64)
 		&playlist.CreatedAt,
 		&playlist.UpdatedAt,
 	); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "GetPlaylist.QueryRow")
 	}
+
 	return playlist, nil
 }
 
 func (r *PlaylistRepository) GetLengthPlaylist(ctx context.Context, playlistID uint64) (uint64, error) {
-	var length uint64
-	row := r.db.QueryRowContext(ctx,
-		GetLengthPlaylistsQuery,
-		playlistID,
-	)
+	stmt, err := r.db.PrepareContext(ctx, GetLengthPlaylistsQuery)
+	if err != nil {
+		return 0, errors.Wrap(err, "GetLengthPlaylist.PrepareContext")
+	}
+	defer stmt.Close()
 
-	if err := row.Scan(
-		&length,
-	); err != nil {
-		return 0, err
+	var length uint64
+	row := stmt.QueryRowContext(ctx, playlistID)
+	if err := row.Scan(&length); err != nil {
+		return 0, errors.Wrap(err, "GetLengthPlaylist.QueryRow")
 	}
 
 	return length, nil
 }
 
 func (r *PlaylistRepository) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
-	playlists := []*models.Playlist{}
-	rows, err := r.db.QueryContext(ctx,
-		GetUserPlaylistsQuery,
-		userID,
-	)
+	stmt, err := r.db.PrepareContext(ctx, GetUserPlaylistsQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "GetUserPlaylists.PrepareContext")
 	}
+	defer stmt.Close()
+
+	var playlists []*models.Playlist
+	rows, err := stmt.QueryContext(ctx, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetUserPlaylists.QueryContext")
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 		playlist := &models.Playlist{}
@@ -126,7 +135,7 @@ func (r *PlaylistRepository) GetUserPlaylists(ctx context.Context, userID uuid.U
 			&playlist.CreatedAt,
 			&playlist.UpdatedAt,
 		); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "GetUserPlaylists.Scan")
 		}
 		playlists = append(playlists, playlist)
 	}
@@ -135,14 +144,14 @@ func (r *PlaylistRepository) GetUserPlaylists(ctx context.Context, userID uuid.U
 }
 
 func (r *PlaylistRepository) AddToPlaylist(ctx context.Context, playlistID uint64, trackOrder uint64, trackID uint64) (*models.PlaylistTrack, error) {
-	insertedTrack := &models.PlaylistTrack{}
-	row := r.db.QueryRowContext(ctx,
-		AddToPlaylistQuery,
-		playlistID,
-		trackOrder,
-		trackID,
-	)
+	stmt, err := r.db.PrepareContext(ctx, AddToPlaylistQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "AddToPlaylist.PrepareContext")
+	}
+	defer stmt.Close()
 
+	insertedTrack := &models.PlaylistTrack{}
+	row := stmt.QueryRowContext(ctx, playlistID, trackOrder, trackID)
 	if err := row.Scan(
 		&insertedTrack.ID,
 		&insertedTrack.PlaylistID,
@@ -150,31 +159,37 @@ func (r *PlaylistRepository) AddToPlaylist(ctx context.Context, playlistID uint6
 		&insertedTrack.TrackID,
 		&insertedTrack.CreatedAt,
 	); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "AddToPlaylist.QueryRow")
 	}
+
 	return insertedTrack, nil
 }
 
 func (r *PlaylistRepository) RemoveFromPlaylist(ctx context.Context, playlistID uint64, trackID uint64) (sql.Result, error) {
-	res, err := r.db.ExecContext(ctx,
-		RemoveFromPlaylistQuery,
-		playlistID,
-		trackID,
-	)
+	stmt, err := r.db.PrepareContext(ctx, RemoveFromPlaylistQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "RemoveFromPlaylist.PrepareContext")
+	}
+	defer stmt.Close()
+
+	res, err := stmt.ExecContext(ctx, playlistID, trackID)
+	if err != nil {
+		return nil, errors.Wrap(err, "RemoveFromPlaylist.Exec")
 	}
 
 	return res, nil
 }
 
 func (r *PlaylistRepository) DeletePlaylist(ctx context.Context, playlistID uint64) (sql.Result, error) {
-	res, err := r.db.ExecContext(ctx,
-		DeletePlaylistQuery,
-		playlistID,
-	)
+	stmt, err := r.db.PrepareContext(ctx, DeletePlaylistQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "DeletePlaylist.PrepareContext")
+	}
+	defer stmt.Close()
+
+	res, err := stmt.ExecContext(ctx, playlistID)
+	if err != nil {
+		return nil, errors.Wrap(err, "DeletePlaylist.Exec")
 	}
 	return res, nil
 }

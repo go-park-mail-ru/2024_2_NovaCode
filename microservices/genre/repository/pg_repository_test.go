@@ -75,7 +75,10 @@ func TestGenreRepositoryFindById(t *testing.T) {
 		mockGenre.UpdatedAt,
 	)
 
-	mock.ExpectQuery(findByIDQuery).WithArgs(mockGenre.ID).WillReturnRows(rows)
+	mock.ExpectPrepare(findByIDQuery).
+		ExpectQuery().
+		WithArgs(mockGenre.ID).
+		WillReturnRows(rows)
 
 	foundGenre, err := genrePGRepository.FindById(context.Background(), mockGenre.ID)
 	require.NoError(t, err)
@@ -183,7 +186,10 @@ func TestGenreRepositoryGetByArtistID(t *testing.T) {
 	}
 
 	expectedGenres := []*models.Genre{&genres[0], &genres[1], &genres[2]}
-	mock.ExpectQuery(getByArtistIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
+	mock.ExpectPrepare(getByArtistIDQuery).
+		ExpectQuery().
+		WithArgs(uint64(1)).
+		WillReturnRows(rows)
 
 	foundGenres, err := genrePGRepository.GetAllByArtistID(context.Background(), uint64(1))
 	require.NoError(t, err)
@@ -235,10 +241,13 @@ func TestGenreRepositoryGetAllByTrackID(t *testing.T) {
 	}
 
 	expectedGenres := []*models.Genre{&genres[0], &genres[1], &genres[2]}
-	mock.ExpectQuery(getByTrackIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
+	mock.ExpectPrepare(getByTrackIDQuery).
+		ExpectQuery().
+		WithArgs(uint64(1)).
+		WillReturnRows(rows)
 
 	foundGenres, err := genrePGRepository.GetAllByTrackID(context.Background(), uint64(1))
 	require.NoError(t, err)
 	require.NotNil(t, foundGenres)
-	require.Equal(t, foundGenres, expectedGenres)
+	require.Equal(t, expectedGenres, foundGenres)
 }
