@@ -256,7 +256,10 @@ func TestFindByUsername_Regular(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByUsernameQuery).WithArgs(userMock.Username).WillReturnRows(rows)
+	mock.ExpectPrepare(findByUsernameQuery).
+		ExpectQuery().
+		WithArgs(userMock.Username).
+		WillReturnRows(rows)
 
 	foundUser, err := postgresRepo.FindByUsername(context.Background(), userMock.Username)
 	require.NoError(t, err)
@@ -285,7 +288,10 @@ func TestFindByUsername_Error(t *testing.T) {
 
 	username := "test_user"
 
-	mock.ExpectQuery(findByUsernameQuery).WithArgs(username).WillReturnError(fmt.Errorf("some error"))
+	mock.ExpectPrepare(findByUsernameQuery).
+		ExpectQuery().
+		WithArgs(username).
+		WillReturnError(fmt.Errorf("some error"))
 
 	_, err = postgresRepo.FindByUsername(context.Background(), username)
 	require.Error(t, err)
@@ -313,7 +319,10 @@ func TestFindByUsername_NotFound(t *testing.T) {
 
 	username := "test_user"
 
-	mock.ExpectQuery(findByUsernameQuery).WithArgs(username).WillReturnRows(sqlmock.NewRows(nil))
+	mock.ExpectPrepare(findByUsernameQuery).
+		ExpectQuery().
+		WithArgs(username).
+		WillReturnRows(sqlmock.NewRows(nil))
 
 	_, err = postgresRepo.FindByUsername(context.Background(), username)
 	require.Error(t, err)
@@ -362,7 +371,10 @@ func TestFindByEmail_Regular(t *testing.T) {
 		time.Now(),
 	)
 
-	mock.ExpectQuery(findByEmailQuery).WithArgs(userMock.Email).WillReturnRows(rows)
+	mock.ExpectPrepare(findByEmailQuery).
+		ExpectQuery().
+		WithArgs(userMock.Email).
+		WillReturnRows(rows)
 
 	foundUser, err := postgresRepo.FindByEmail(context.Background(), userMock.Email)
 	require.NoError(t, err)
@@ -391,7 +403,10 @@ func TestFindByEmail_Error(t *testing.T) {
 
 	email := "test@email.com"
 
-	mock.ExpectQuery(findByEmailQuery).WithArgs(email).WillReturnError(fmt.Errorf("some error"))
+	mock.ExpectPrepare(findByEmailQuery).
+		ExpectQuery().
+		WithArgs(email).
+		WillReturnError(fmt.Errorf("some error"))
 
 	_, err = postgresRepo.FindByEmail(context.Background(), email)
 	require.Error(t, err)
@@ -419,7 +434,10 @@ func TestFindByEmail_NotFound(t *testing.T) {
 
 	email := "test@email.com"
 
-	mock.ExpectQuery(findByEmailQuery).WithArgs(email).WillReturnRows(sqlmock.NewRows(nil))
+	mock.ExpectPrepare(findByEmailQuery).
+		ExpectQuery().
+		WithArgs(email).
+		WillReturnRows(sqlmock.NewRows(nil))
 
 	_, err = postgresRepo.FindByEmail(context.Background(), email)
 	require.Error(t, err)

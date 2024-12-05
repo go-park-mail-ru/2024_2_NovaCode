@@ -45,7 +45,14 @@ func (r *CSATRepository) GetStatistics(ctx context.Context) ([]*models.CSATStat,
 
 func (r *CSATRepository) GetQuestionsByTopic(ctx context.Context, topic string) ([]*models.CSATQuestion, error) {
 	var questions []*models.CSATQuestion
-	rows, err := r.db.QueryContext(ctx, getQuestionsByTopic, topic)
+
+	stmt, err := r.db.PrepareContext(ctx, getQuestionsByTopic)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetQuestionsByTopic.Prepare")
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, topic)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetQuestionsByTopic.Query")
 	}
@@ -58,9 +65,13 @@ func (r *CSATRepository) GetQuestionsByTopic(ctx context.Context, topic string) 
 			&question.Question,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "GetByArtistID.Query")
+			return nil, errors.Wrap(err, "GetQuestionsByTopic.Scan")
 		}
 		questions = append(questions, question)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "GetQuestionsByTopic.Rows")
 	}
 
 	return questions, nil

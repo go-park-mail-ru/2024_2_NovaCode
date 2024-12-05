@@ -123,7 +123,13 @@ func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*mo
 func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
 
-	if err := repo.db.QueryRowContext(ctx, findByUsernameQuery, username).Scan(
+	stmt, err := repo.db.PrepareContext(ctx, findByUsernameQuery)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	if err := stmt.QueryRowContext(ctx, username).Scan(
 		&user.UserID,
 		&user.Username,
 		&user.Email,
@@ -142,7 +148,13 @@ func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username strin
 func (repo *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 
-	if err := repo.db.QueryRowContext(ctx, findByEmailQuery, email).Scan(
+	stmt, err := repo.db.PrepareContext(ctx, findByEmailQuery)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	if err := stmt.QueryRowContext(ctx, email).Scan(
 		&user.UserID,
 		&user.Username,
 		&user.Email,

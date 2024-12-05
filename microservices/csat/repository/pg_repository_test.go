@@ -63,7 +63,10 @@ func TestCSATRepositoryGetQuestionsByTopic_Success(t *testing.T) {
 		AddRow(101, "How would you rate our UI?").
 		AddRow(102, "How would you rate our navigation?")
 
-	mock.ExpectQuery(getQuestionsByTopic).WithArgs(topic).WillReturnRows(mockRows)
+	mock.ExpectPrepare(getQuestionsByTopic).
+		ExpectQuery().
+		WithArgs(topic).
+		WillReturnRows(mockRows)
 
 	ctx := context.Background()
 	questions, err := csatRepo.GetQuestionsByTopic(ctx, topic)
@@ -82,7 +85,10 @@ func TestCSATRepositoryGetQuestionsByTopic_NoRows(t *testing.T) {
 	csatRepo := NewCSATPGRepository(db)
 
 	topic := "Nonexistent Topic"
-	mock.ExpectQuery(getQuestionsByTopic).WithArgs(topic).WillReturnError(sql.ErrNoRows)
+	mock.ExpectPrepare(getQuestionsByTopic).
+		ExpectQuery().
+		WithArgs(topic).
+		WillReturnError(sql.ErrNoRows)
 
 	ctx := context.Background()
 	questions, err := csatRepo.GetQuestionsByTopic(ctx, topic)
