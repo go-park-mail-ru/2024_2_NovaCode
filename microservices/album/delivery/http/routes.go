@@ -11,7 +11,7 @@ import (
 func BindRoutes(s *httpServer.Server, artistClient artistService.ArtistServiceClient) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	albumRepo := albumRepo.NewAlbumPGRepository(s.PG)
+	albumRepo := albumRepo.NewAlbumPGRepository(s.PG, s.Logger)
 	albumUsecase := albumUsecase.NewAlbumUsecase(albumRepo, artistClient, s.Logger)
 	albumHandleres := NewAlbumHandlers(albumUsecase, s.Logger)
 

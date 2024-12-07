@@ -10,7 +10,7 @@ import (
 func BindRoutes(s *httpServer.Server) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	genreRepo := genreRepo.NewGenrePGRepository(s.PG)
+	genreRepo := genreRepo.NewGenrePGRepository(s.PG, s.Logger)
 	genreUsecase := genreUsecase.NewGenreUsecase(genreRepo, s.Logger)
 	genreHandleres := NewGenreHandlers(genreUsecase, s.Logger)
 

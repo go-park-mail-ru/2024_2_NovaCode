@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +19,18 @@ func TestGenreRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	genrePGRepository := NewGenrePGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	genrePGRepository := NewGenrePGRepository(db, logger)
 	mockGenre := &models.Genre{
 		ID:        1,
 		Name:      "Rock",
@@ -57,7 +70,18 @@ func TestGenreRepositoryFindById(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	genrePGRepository := NewGenrePGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	genrePGRepository := NewGenrePGRepository(db, logger)
 	mockGenre := &models.Genre{
 		ID:        1,
 		Name:      "Rock",
@@ -96,7 +120,18 @@ func TestGenreRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	genrePGRepository := NewGenrePGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	genrePGRepository := NewGenrePGRepository(db, logger)
 	genres := []models.Genre{
 		{
 			ID:        1,
@@ -148,7 +183,18 @@ func TestGenreRepositoryGetByArtistID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	genrePGRepository := NewGenrePGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	genrePGRepository := NewGenrePGRepository(db, logger)
 	genres := []models.Genre{
 		{
 			ID:        1,
@@ -203,7 +249,18 @@ func TestGenreRepositoryGetAllByTrackID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	genrePGRepository := NewGenrePGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	genrePGRepository := NewGenrePGRepository(db, logger)
 	genres := []models.Genre{
 		{
 			ID:        1,

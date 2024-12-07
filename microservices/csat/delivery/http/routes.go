@@ -14,7 +14,7 @@ import (
 func BindRoutes(s *httpServer.Server) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	csatRepo := csatRepo.NewCSATPGRepository(s.PG)
+	csatRepo := csatRepo.NewCSATPGRepository(s.PG, s.Logger)
 	csatUsecase := csatUsecase.NewCSATUsecase(csatRepo, s.Logger)
 	csatHandlers := NewCSATHandlers(csatUsecase, s.Logger)
 

@@ -6,7 +6,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +18,18 @@ func TestCSATRepositoryGetStatistics_Success(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	columns := []string{"id", "topic", "question_id", "question", "average_score"}
 	mockRows := sqlmock.NewRows(columns).
@@ -39,7 +52,18 @@ func TestCSATRepositoryGetStatistics_ConnDone(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	mock.ExpectQuery(getStatistics).WillReturnError(sql.ErrConnDone)
 
@@ -55,7 +79,18 @@ func TestCSATRepositoryGetQuestionsByTopic_Success(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	topic := "UX Design"
 	columns := []string{"id", "question"}
@@ -82,7 +117,18 @@ func TestCSATRepositoryGetQuestionsByTopic_NoRows(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	topic := "Nonexistent Topic"
 	mock.ExpectPrepare(getQuestionsByTopic).
@@ -102,7 +148,18 @@ func TestCSATRepositoryInsertAnswer_Success(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	answer := &models.CSATAnswer{
 		Score:          5,
@@ -134,7 +191,18 @@ func TestCSATRepositoryInsertAnswer_ConnDone(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	csatRepo := NewCSATPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	csatRepo := NewCSATPGRepository(db, logger)
 
 	answer := &models.CSATAnswer{
 		Score:          5,

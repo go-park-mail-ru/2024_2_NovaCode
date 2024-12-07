@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +20,18 @@ func TestPlaylistRepositoryCreatePlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylist := &models.Playlist{
 		ID:        1,
 		Name:      "gym training playlist",
@@ -58,7 +71,18 @@ func TestPlaylistRepositoryGetAllPlaylists(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
 	mockPlaylists := sqlmock.NewRows(columns).
 		AddRow(1, "Playlist 1", "/images/playlists/1.jpg", uuid.New(), false, time.Now(), time.Now()).
@@ -79,7 +103,18 @@ func TestPlaylistRepositoryGetPlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylistID := uint64(1)
 	mockPlaylist := &models.Playlist{
 		ID:        mockPlaylistID,
@@ -118,7 +153,18 @@ func TestPlaylistRepositoryGetLengthPlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylistID := uint64(1)
 	mockLength := uint64(10)
 
@@ -139,7 +185,18 @@ func TestPlaylistRepositoryGetUserPlaylists(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockUserID := uuid.New()
 	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
 	mockRows := sqlmock.NewRows(columns).
@@ -164,7 +221,18 @@ func TestPlaylistRepositoryAddToPlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylistID := uint64(1)
 	mockTrackID := uint64(42)
 	mockTrackOrder := uint64(1)
@@ -191,7 +259,18 @@ func TestPlaylistRepositoryRemoveFromPlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylistID := uint64(1)
 	mockTrackID := uint64(42)
 
@@ -213,7 +292,18 @@ func TestPlaylistRepositoryDeletePlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	playlistRepository := NewPlaylistRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	playlistRepository := NewPlaylistRepository(db, logger)
 	mockPlaylistID := uint64(1)
 
 	mock.ExpectPrepare(DeletePlaylistQuery).

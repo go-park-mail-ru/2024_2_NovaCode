@@ -15,7 +15,7 @@ import (
 func BindRoutes(s *httpServer.Server, artistClient artistService.ArtistServiceClient, albumClient albumService.AlbumServiceClient) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	trackRepo := trackRepo.NewTrackPGRepository(s.PG)
+	trackRepo := trackRepo.NewTrackPGRepository(s.PG, s.Logger)
 	trackUsecase := trackUsecase.NewTrackUsecase(trackRepo, artistClient, albumClient, s.Logger)
 	trackHandleres := NewTrackHandlers(trackUsecase, s.Logger)
 

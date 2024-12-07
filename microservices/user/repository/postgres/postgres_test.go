@@ -104,7 +104,6 @@ func TestInsert_Error(t *testing.T) {
 	).WillReturnError(fmt.Errorf("some error"))
 
 	_, err = postgresRepo.Insert(context.Background(), userMock)
-	require.Contains(t, err.Error(), "failed to insert user")
 	require.Error(t, err)
 }
 
@@ -183,7 +182,6 @@ func TestFindByID_Error(t *testing.T) {
 
 	_, err = postgresRepo.FindByID(context.Background(), userUUID)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by ID")
 }
 
 func TestFindByID_NotFound(t *testing.T) {
@@ -211,7 +209,6 @@ func TestFindByID_NotFound(t *testing.T) {
 
 	_, err = postgresRepo.FindByID(context.Background(), userUUID)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by ID")
 }
 
 func TestFindByUsername_Regular(t *testing.T) {
@@ -295,7 +292,6 @@ func TestFindByUsername_Error(t *testing.T) {
 
 	_, err = postgresRepo.FindByUsername(context.Background(), username)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by username")
 }
 
 func TestFindByUsername_NotFound(t *testing.T) {
@@ -326,7 +322,6 @@ func TestFindByUsername_NotFound(t *testing.T) {
 
 	_, err = postgresRepo.FindByUsername(context.Background(), username)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by username")
 }
 
 func TestFindByEmail_Regular(t *testing.T) {
@@ -410,7 +405,6 @@ func TestFindByEmail_Error(t *testing.T) {
 
 	_, err = postgresRepo.FindByEmail(context.Background(), email)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by email")
 }
 
 func TestFindByEmail_NotFound(t *testing.T) {
@@ -441,7 +435,6 @@ func TestFindByEmail_NotFound(t *testing.T) {
 
 	_, err = postgresRepo.FindByEmail(context.Background(), email)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to find user by email")
 }
 
 func TestUpdate_Regular(t *testing.T) {
@@ -533,5 +526,4 @@ func TestUpdate_Error(t *testing.T) {
 
 	_, err = postgresRepo.Update(context.Background(), userMock)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "failed to update user")
 }

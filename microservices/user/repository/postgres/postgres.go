@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/user"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
@@ -47,6 +48,7 @@ func NewUserPostgresRepository(db *sql.DB, logger logger.Logger) user.PostgresRe
 }
 
 func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*models.User, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	var insertedUser models.User
 
 	if err := repo.db.QueryRowContext(
@@ -66,13 +68,16 @@ func (repo *UserPostgresRepo) Insert(ctx context.Context, user *models.User) (*m
 		&insertedUser.CreatedAt,
 		&insertedUser.UpdatedAt,
 	); err != nil {
-		return nil, fmt.Errorf("failed to insert user: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to scan row in Insert %v", err), requestID)
+		return nil, fmt.Errorf("Insert.Scan: %w", err)
 	}
+	repo.logger.Info("[user repo] successful Insert scan row", requestID)
 
 	return &insertedUser, nil
 }
 
 func (repo *UserPostgresRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	var updatedUser models.User
 
 	if err := repo.db.QueryRowContext(
@@ -90,17 +95,22 @@ func (repo *UserPostgresRepo) Update(ctx context.Context, user *models.User) (*m
 		&updatedUser.CreatedAt,
 		&updatedUser.UpdatedAt,
 	); err != nil {
-		return nil, fmt.Errorf("failed to update user: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to scan row in Update: %v", err), requestID)
+		return nil, fmt.Errorf("Update.Scan: %w", err)
 	}
+	repo.logger.Info("[user repo] successful Update scan row", requestID)
 
 	return &updatedUser, nil
 }
 
 func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*models.User, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	stmt, err := repo.db.PrepareContext(ctx, findByIDQuery)
 	if err != nil {
-		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to prepare context in FindById: %v", err), requestID)
+		return nil, fmt.Errorf("FindById.PrepareContext: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindById prepare context", requestID)
 	defer stmt.Close()
 
 	var user models.User
@@ -114,19 +124,24 @@ func (repo *UserPostgresRepo) FindByID(ctx context.Context, uuid uuid.UUID) (*mo
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
-		return nil, fmt.Errorf("failed to find user by ID: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to scan row in FindByID: %v", err), requestID)
+		return nil, fmt.Errorf("FindByID.Scan: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindByID scan row", requestID)
 
 	return &user, nil
 }
 
 func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username string) (*models.User, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	var user models.User
 
 	stmt, err := repo.db.PrepareContext(ctx, findByUsernameQuery)
 	if err != nil {
-		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to prepare context in FindByUsername: %v", err), requestID)
+		return nil, fmt.Errorf("FindByUsername.PrepareContext: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindByUsername prepare context", requestID)
 	defer stmt.Close()
 
 	if err := stmt.QueryRowContext(ctx, username).Scan(
@@ -139,19 +154,24 @@ func (repo *UserPostgresRepo) FindByUsername(ctx context.Context, username strin
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
-		return nil, fmt.Errorf("failed to find user by username: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to scan row in FindByUsername: %v", err), requestID)
+		return nil, fmt.Errorf("FindByUsername.Scan: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindByUsername scan row", requestID)
 
 	return &user, nil
 }
 
 func (repo *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
 	var user models.User
 
 	stmt, err := repo.db.PrepareContext(ctx, findByEmailQuery)
 	if err != nil {
-		return nil, fmt.Errorf("failed to prepare statement: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo] failed to prepare context in FindByEmail: %v", err), requestID)
+		return nil, fmt.Errorf("FindByEmail.PrepareContext: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindByEmail prepare context", requestID)
 	defer stmt.Close()
 
 	if err := stmt.QueryRowContext(ctx, email).Scan(
@@ -164,8 +184,10 @@ func (repo *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*m
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
-		return nil, fmt.Errorf("failed to find user by email: %w", err)
+		repo.logger.Error(fmt.Sprintf("[user repo]  failed to scan row in FindByEmail: %v", err), requestID)
+		return nil, fmt.Errorf("indByEmail.Scan: %w", err)
 	}
+	repo.logger.Info("[user repo] successful FindByEmail scan row", requestID)
 
 	return &user, nil
 }

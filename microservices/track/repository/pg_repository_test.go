@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	uuid "github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +21,18 @@ func TestTrackRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	mockTrack := &models.Track{
 		ID:           1,
 		Name:         "ok im cool",
@@ -70,7 +83,18 @@ func TestTrackRepositoryFindById(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	mockTrack := &models.Track{
 		ID:           1,
 		Name:         "ok im cool",
@@ -113,7 +137,18 @@ func TestTrackRepositoryFindByQuery(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:           1,
@@ -190,7 +225,18 @@ func TestTrackRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:           1,
@@ -267,8 +313,18 @@ func TestTrackRepositoryGetAllByArtistID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
 
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:           1,
@@ -333,8 +389,18 @@ func TestTrackRepositoryGetAllByAlbumID(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
 
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:           1,
@@ -398,7 +464,18 @@ func TestTrackRepositoryAddFavoriteTrack(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 
 	userID := uuid.New()
 	trackID := uint64(12345)
@@ -416,7 +493,18 @@ func TestTrackRepositoryDeleteFavoriteTrack(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 
 	userID := uuid.New()
 	trackID := uint64(12345)
@@ -434,7 +522,18 @@ func TestTrackRepositoryIsFavoriteTrack(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 
 	userID := uuid.New()
 	trackID := uint64(12345)
@@ -454,8 +553,18 @@ func TestTrackRepositoryGetFavoriteTracks(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
 
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	tracks := []models.Track{
 		{
 			ID:           1,
@@ -521,8 +630,18 @@ func TestTrackRepositoryGetTracksFromPlaylist(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	trackPGRepository := NewTrackPGRepository(db)
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
 
+	logger := logger.New(&cfg.Service.Logger)
+
+	trackPGRepository := NewTrackPGRepository(db, logger)
 	playlistTracks := []*models.PlaylistTrack{
 		{
 			ID:                   1,

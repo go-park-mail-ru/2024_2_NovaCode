@@ -45,7 +45,7 @@ func main() {
 		}
 	}()
 
-	artistPGRepo := artistRepo.NewArtistPGRepository(pg)
+	artistPGRepo := artistRepo.NewArtistPGRepository(pg, logger)
 	artistUsecase := artistUsecase.NewArtistUsecase(artistPGRepo, logger)
 	registerArtistService := artistService.RegisterArtistService(artistUsecase, logger)
 

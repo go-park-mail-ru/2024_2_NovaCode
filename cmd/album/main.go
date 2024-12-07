@@ -55,7 +55,7 @@ func main() {
 		}
 	}()
 
-	albumPGRepo := albumRepo.NewAlbumPGRepository(pg)
+	albumPGRepo := albumRepo.NewAlbumPGRepository(pg, logger)
 	albumUsecase := albumUsecase.NewAlbumUsecase(albumPGRepo, artistClient, logger)
 	registerAlbumService := albumService.RegisterAlbumService(albumUsecase, logger)
 

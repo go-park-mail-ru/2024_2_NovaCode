@@ -10,7 +10,7 @@ import (
 func BindRoutes(s *httpServer.Server) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	artistRepo := artistRepo.NewArtistPGRepository(s.PG)
+	artistRepo := artistRepo.NewArtistPGRepository(s.PG, s.Logger)
 	artistUsecase := artistUsecase.NewArtistUsecase(artistRepo, s.Logger)
 	artistHandlers := NewArtistHandlers(artistUsecase, s.Logger)
 

@@ -14,7 +14,7 @@ import (
 func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) {
 	s.MUX.Handle("/metrics", promhttp.Handler())
 
-	playlistRepo := playlistRepo.NewPlaylistRepository(s.PG)
+	playlistRepo := playlistRepo.NewPlaylistRepository(s.PG, s.Logger)
 	playlistUsecase := playlistUsecase.NewPlaylistUsecase(playlistRepo, userClient, s.Logger)
 	playlistHandleres := NewPlaylistHandlers(playlistUsecase, s.Logger)
 
