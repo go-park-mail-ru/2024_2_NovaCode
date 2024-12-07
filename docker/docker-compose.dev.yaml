@@ -4,10 +4,9 @@ networks:
 
 services:
   novamusic-user:
-    image: daronenko/novamusic-user:${USER_VERSION}
+    image: daronenko/novamusic-user:latest
     container_name: novamusic-user
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -26,10 +25,9 @@ services:
       - prometheus-exporters
 
   novamusic-playlist:
-    image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
+    image: daronenko/novamusic-playlist:latest
     container_name: novamusic-playlist
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -46,10 +44,9 @@ services:
       - prometheus-exporters
 
   novamusic-artist:
-    image: daronenko/novamusic-artist:${ARTIST_VERSION}
+    image: daronenko/novamusic-artist:latest
     container_name: novamusic-artist
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -66,10 +63,9 @@ services:
       - prometheus-exporters
 
   novamusic-album:
-    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    image: daronenko/novamusic-album:latest
     container_name: novamusic-album
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -86,10 +82,9 @@ services:
       - prometheus-exporters
 
   novamusic-track:
-    image: daronenko/novamusic-track:${TRACK_VERSION}
+    image: daronenko/novamusic-track:latest
     container_name: novamusic-track
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -106,10 +101,9 @@ services:
       - prometheus-exporters
 
   novamusic-csat:
-    image: daronenko/novamusic-csat:${CSAT_VERSION}
+    image: daronenko/novamusic-csat:latest
     container_name: novamusic-csat
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -128,10 +122,9 @@ services:
       - prometheus-exporters
 
   novamusic-genre:
-    image: daronenko/novamusic-genre:${GENRE_VERSION}
+    image: daronenko/novamusic-genre:latest
     container_name: novamusic-genre
     platform: linux/amd64
-    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -156,18 +149,18 @@ services:
     platform: linux/amd64
     env_file: .dev.env
     environment:
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST:-}
+      - POSTGRES_DB=${POSTGRES_DB:-}
+      - POSTGRES_USER=${POSTGRES_USER:-}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}
     restart: on-failure
     healthcheck:
       test:
         [
           'CMD-SHELL',
-          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+          "sh -c 'pg_isready -U ${POSTGRES_USER:-} -d ${POSTGRES_DB:-}'",
         ]
       interval: 2s
       timeout: 3s
@@ -188,7 +181,7 @@ services:
         condition: service_healthy
     environment:
       - GOOSE_DRIVER=postgres
-      - GOOSE_DBSTRING=host=postgres port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}
+      - GOOSE_DBSTRING=host=postgres port=${POSTGRES_PORT:-} user=${POSTGRES_USER:-} password=${POSTGRES_PASSWORD:-} dbname=${POSTGRES_DB:-}
       - GOOSE_VERBOSE=true
     volumes:
       - ../internal/db/postgres/migrations:/migrations
@@ -202,10 +195,10 @@ services:
     restart: always
     env_file: .dev.env
     environment:
-      - MINIO_ROOT_USER=${MINIO_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
-      - MINIO_SERVER_URL=http://${HOST}:9000
-      - MINIO_BROWSER_REDIRECT_URL=http://${HOST}:3000
+      - MINIO_ROOT_USER=${MINIO_USER:-}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-}
+      - MINIO_SERVER_URL=http://${HOST:-}:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://${HOST:-}:3000
     ports:
       - 8010:9000
       - 8011:9001
@@ -227,7 +220,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host rm local;
-      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
+      /usr/bin/mc config host add --quiet --api s3v4 local http://minio:9000 ${MINIO_USER:-} ${MINIO_PASSWORD:-};
 
       /usr/bin/mc mb --quiet local/avatars;
       /usr/bin/mc policy set public local/avatars;
@@ -276,7 +269,7 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=365d'
-      - '--web.external-url=${PROMETHEUS_URL}'
+      - '--web.external-url=${PROMETHEUS_URL:-}'
       - '--web.enable-admin-api'
     restart: unless-stopped
     expose:
@@ -299,7 +292,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER
       - GF_SECURITY_ADMIN_PASSWORD
-      - GF_DEFAULT_INSTANCE_NAME=${HOST}
+      - GF_DEFAULT_INSTANCE_NAME=${HOST:-}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ENABLE_GZIP=true
       - GF_SERVER_ROOT_URL
@@ -323,7 +316,7 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL}'
+      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL:-}'
     restart: unless-stopped
     expose:
       - 9093
