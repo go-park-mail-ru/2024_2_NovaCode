@@ -20,6 +20,7 @@ jobs:
     env:
       ENV: prod
       DOCKER_COMPOSE_PATH: docker/docker-compose.prod.yaml
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     steps:
       - name: Check out code into directory
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push microservice images
@@ -40,6 +41,7 @@ jobs:
           services=(user playlist artist album track csat genre)
           for service in "${services[@]}"; do
             docker compose -f "$DOCKER_COMPOSE_PATH" build novamusic-${service}
-            docker tag novamusic-${service}:latest daronenko/novamusic-${service}:${GITHUB_SHA::8}
-            docker push daronenko/novamusic-${service}:${GITHUB_SHA::8}
+            docker tag ${DOCKER_USERNAME}/novamusic-${service}:latest ${DOCKER_USERNAME}/novamusic-${service}:${GITHUB_SHA::8}
+            docker push ${DOCKER_USERNAME}/novamusic-${service}:${GITHUB_SHA::8}
+            docker push ${DOCKER_USERNAME}/novamusic-${service}:latest
           done
