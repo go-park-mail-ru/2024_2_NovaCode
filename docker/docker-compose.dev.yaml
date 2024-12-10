@@ -349,7 +349,7 @@ services:
       - 8080:80
     volumes:
       - ./nginx/dev.conf:/etc/nginx/nginx.conf
-      - ~/technopark/sem2/frontend/2024_2_NovaCode/dist:/var/www/dist
+      - ~/dist:/var/www/dist
       - ./nginx/logs:/var/log/nginx
     networks:
       - app-network
