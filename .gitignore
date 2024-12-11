@@ -28,3 +28,4 @@ go.work.sum
 .prod.env
 
 coverage.out.tmp
+*/nginx/logs/

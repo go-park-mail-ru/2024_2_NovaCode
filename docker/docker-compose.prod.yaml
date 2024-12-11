@@ -1,6 +1,8 @@
 networks:
   prometheus:
   prometheus-exporters:
+  app-network:
+    driver: bridge
 
 services:
   novamusic-user:
@@ -22,6 +24,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -44,6 +47,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -66,6 +70,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -88,6 +93,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -110,6 +116,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -132,6 +139,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -154,6 +162,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -176,7 +185,7 @@ services:
     healthcheck:
       test:
         [
-          'CMD-SHELL',
+          "CMD-SHELL",
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
         ]
       interval: 2s
@@ -254,11 +263,11 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--no-collector.rapl'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--no-collector.rapl"
     restart: unless-stopped
     expose:
       - 9100
@@ -274,13 +283,13 @@ services:
     container_name: prometheus
     env_file: .prod.env
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus/'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=365d'
-      - '--web.external-url=${PROMETHEUS_URL}'
-      - '--web.enable-admin-api'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus/"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=365d"
+      - "--web.external-url=${PROMETHEUS_URL}"
+      - "--web.enable-admin-api"
     restart: unless-stopped
     expose:
       - 8002
@@ -330,9 +339,9 @@ services:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - ./alertmanager/telegram.tmpl:/etc/alertmanager/telegram.tmpl
     command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--storage.path=/alertmanager'
-      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL}'
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=${ALERTMANAGER_EXTERNAL_URL}"
     restart: unless-stopped
     expose:
       - 8004
@@ -340,6 +349,27 @@ services:
       - 8004:9093
     networks:
       - prometheus
+
+  nginx:
+    image: nginx:latest
+    # restart: always
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf
+      - ~/dist:/var/www/dist
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - app-network
+    depends_on:
+      - novamusic-user
+      - novamusic-track
+      - novamusic-artist
+      - novamusic-album
+      - novamusic-playlist
+      - novamusic-csat
+      - novamusic-genre
 
 volumes:
   postgres-volume:
