@@ -9,9 +9,6 @@ on:
       - 'microservices/**'
       - 'config/**'
       - 'cmd/**'
-  pull_request:
-    branches:
-      - dev  # TODO: remove after test
 
 jobs:
   build:
