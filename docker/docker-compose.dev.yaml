@@ -1,6 +1,8 @@
 networks:
   prometheus:
   prometheus-exporters:
+  app-network:
+    driver: bridge
 
 services:
   novamusic-user:
@@ -23,6 +25,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-playlist:
     image: daronenko/novamusic-playlist:latest
@@ -42,6 +45,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-artist:
     image: daronenko/novamusic-artist:latest
@@ -61,6 +65,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-album:
     image: daronenko/novamusic-album:latest
@@ -80,6 +85,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-track:
     image: daronenko/novamusic-track:latest
@@ -99,6 +105,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-csat:
     image: daronenko/novamusic-csat:latest
@@ -120,6 +127,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   novamusic-genre:
     image: daronenko/novamusic-genre:latest
@@ -139,6 +147,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
 
   postgres:
     container_name: novamusic-postgres
@@ -161,7 +170,6 @@ services:
         [
           'CMD-SHELL',
           "sh -c 'pg_isready -U ${POSTGRES_USER:-} -d ${POSTGRES_DB:-}'",
-        ]
       interval: 2s
       timeout: 3s
       retries: 3
@@ -204,7 +212,7 @@ services:
       - 8011:9001
     command: server --console-address :9001 /data
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -244,11 +252,11 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--no-collector.rapl'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--no-collector.rapl"
     restart: unless-stopped
     expose:
       - 9100
@@ -324,6 +332,27 @@ services:
       - 9093:9093
     networks:
       - prometheus
+
+  nginx:
+    image: nginx:latest
+    # restart: always
+    container_name: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/nginx.conf
+      - ~/dist:/var/www/dist
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - app-network
+    depends_on:
+      - novamusic-user
+      - novamusic-track
+      - novamusic-artist
+      - novamusic-album
+      - novamusic-playlist
+      - novamusic-csat
+      - novamusic-genre
 
 volumes:
   postgres-data:

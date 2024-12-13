@@ -1,6 +1,8 @@
 networks:
   prometheus:
   prometheus-exporters:
+  app-network:
+    driver: bridge
 
 services:
   watchtower:
@@ -43,6 +45,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -64,6 +67,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -85,6 +89,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -106,6 +111,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -127,6 +133,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -148,6 +155,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -169,6 +177,7 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
@@ -265,11 +274,11 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--no-collector.rapl'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--no-collector.rapl"
     restart: unless-stopped
     expose:
       - 9100
@@ -349,6 +358,27 @@ services:
       - 8004:9093
     networks:
       - prometheus
+
+  nginx:
+    image: nginx:latest
+    # restart: always
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf
+      - ~/dist:/var/www/dist
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - app-network
+    depends_on:
+      - novamusic-user
+      - novamusic-track
+      - novamusic-artist
+      - novamusic-album
+      - novamusic-playlist
+      - novamusic-csat
+      - novamusic-genre
 
 volumes:
   postgres-volume:
