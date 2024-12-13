@@ -9,6 +9,7 @@ services:
     image: daronenko/novamusic-user:latest
     container_name: novamusic-user
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -31,6 +32,7 @@ services:
     image: daronenko/novamusic-playlist:latest
     container_name: novamusic-playlist
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -51,6 +53,7 @@ services:
     image: daronenko/novamusic-artist:latest
     container_name: novamusic-artist
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -71,6 +74,7 @@ services:
     image: daronenko/novamusic-album:latest
     container_name: novamusic-album
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -91,6 +95,7 @@ services:
     image: daronenko/novamusic-track:latest
     container_name: novamusic-track
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -111,6 +116,7 @@ services:
     image: daronenko/novamusic-csat:latest
     container_name: novamusic-csat
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -133,6 +139,7 @@ services:
     image: daronenko/novamusic-genre:latest
     container_name: novamusic-genre
     platform: linux/amd64
+    env_file: .dev.env
     build:
       dockerfile: docker/Dockerfile.${ENV}
       context: ..
@@ -318,6 +325,7 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
+    env_file: .dev.env
     volumes:
       - alertmanager-data:/alertmanager
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
@@ -336,7 +344,6 @@ services:
 
   nginx:
     image: nginx:latest
-    # restart: always
     container_name: nginx
     ports:
       - 8080:80
