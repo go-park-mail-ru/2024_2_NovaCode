@@ -47,7 +47,7 @@ jobs:
           done
   
   migrate:
-    name: Apply Postgres Migrations
+    name: Postgres Migration
     runs-on: ubuntu-latest
     needs: build
     steps:
