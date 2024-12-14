@@ -1,0 +1,2 @@
+2024/12/12 19:40:37 [emerg] 1#1: host not found in upstream "novamusic-track:8080" in /etc/nginx/nginx.conf:35
+2024/12/13 12:30:30 [emerg] 1#1: host not found in upstream "novamusic-track:8080" in /etc/nginx/nginx.conf:35

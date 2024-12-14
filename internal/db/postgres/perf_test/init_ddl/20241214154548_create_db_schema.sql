@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS "album" (
 
 CREATE TABLE IF NOT EXISTS "playlist" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name TEXT NOT NULL
+  name TEXT NOT NULL UNIQUE
     CONSTRAINT playlist_name_length CHECK (char_length(name) <= 31),
   image TEXT DEFAULT 'default.jpeg'
     CONSTRAINT playlist_image_length CHECK (char_length(image) <= 255),
