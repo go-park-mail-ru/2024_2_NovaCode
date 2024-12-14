@@ -5,7 +5,7 @@ service:
     writeTimeout: 10
     idleTimeout: 120
     contextTimeout: 5
-  
+
   grpc:
     port: :9000
     maxConnectionIdle: 5
@@ -33,10 +33,10 @@ service:
       headerName: X-Csrf-Token
 
     jwt:
-      expire: 3600
+      expire: 604800
       cookie:
         name: jwt-token
-        maxAge: 86400
+        maxAge: 604800
         secure: true
         httpOnly: true
 
