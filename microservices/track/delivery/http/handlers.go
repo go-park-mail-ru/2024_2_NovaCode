@@ -213,7 +213,7 @@ func (handlers *trackHandlers) GetAllByAlbumID(response http.ResponseWriter, req
 // @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
 // @Failure 404 {object} utils.ErrorResponse "User id not found"
 // @Failure 500 {object} utils.ErrorResponse "Can't add track to favorite"
-// @Router /api/v1/tracks/favorite [post]
+// @Router /api/v1/tracks/favorite/{trackID} [post]
 func (handlers *trackHandlers) AddFavoriteTrack(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
@@ -241,14 +241,14 @@ func (handlers *trackHandlers) AddFavoriteTrack(response http.ResponseWriter, re
 }
 
 // DeleteFavoriteTrack godoc
-// @Summary Add favorite track for user
-// @Description Add new favorite track for user.
+// @Summary Delete favorite track
+// @Description Delete track from favorite for user.
 // @Param trackID path int true "Track ID"
 // @Success 200
 // @Failure 404 {object} utils.ErrorResponse "Invalid track ID"
 // @Failure 404 {object} utils.ErrorResponse "User id not found"
 // @Failure 500 {object} utils.ErrorResponse "Can't delete track from favorite"
-// @Router /api/v1/tracks/favorite [delete]
+// @Router /api/v1/tracks/favorite/{trackID} [delete]
 func (handlers *trackHandlers) DeleteFavoriteTrack(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
@@ -324,7 +324,7 @@ func (handlers *trackHandlers) IsFavoriteTrack(response http.ResponseWriter, req
 // @Success 200 {array} dto.TrackDTO "List of favorite tracks"
 // @Failure 404 {object} utils.ErrorResponse "User id not found"
 // @Failure 500 {object} utils.ErrorResponse "Failed to get favorite tracks"
-// @Router /api/v1/tracks/byArtistId/{artistId} [get]
+// @Router /api/v1/tracks/favorite [get]
 func (handlers *trackHandlers) GetFavoriteTracks(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)

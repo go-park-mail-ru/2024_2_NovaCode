@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	uuid "github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -113,6 +114,62 @@ func (r *ArtistRepository) GetAll(ctx context.Context) ([]*models.Artist, error)
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "GetAll.Query")
+		}
+		artists = append(artists, artist)
+	}
+
+	return artists, nil
+}
+
+func (r *ArtistRepository) AddFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error {
+	_, err := r.db.ExecContext(ctx, addFavoriteArtistQuery, userID, artistID)
+	if err != nil {
+		return errors.Wrap(err, "AddFavoriteArtist.Query")
+	}
+
+	return nil
+}
+
+func (r *ArtistRepository) DeleteFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error {
+	_, err := r.db.ExecContext(ctx, deleteFavoriteArtistQuery, userID, artistID)
+	if err != nil {
+		return errors.Wrap(err, "DeleteFavoriteArtist.Query")
+	}
+
+	return nil
+}
+
+func (r *ArtistRepository) IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error) {
+	var exists bool
+	err := r.db.QueryRowContext(ctx, isFavoriteArtistQuery, userID, artistID).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		return false, errors.Wrap(err, "IsFavoriteArtist.Query")
+	}
+
+	return exists, nil
+}
+
+func (r *ArtistRepository) GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error) {
+	var artists []*models.Artist
+	rows, err := r.db.QueryContext(ctx, getFavoriteQuery, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetFavoriteArtists.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		artist := &models.Artist{}
+		err := rows.Scan(
+			&artist.ID,
+			&artist.Name,
+			&artist.Bio,
+			&artist.Country,
+			&artist.Image,
+			&artist.CreatedAt,
+			&artist.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFavoriteArtists.Query")
 		}
 		artists = append(artists, artist)
 	}
