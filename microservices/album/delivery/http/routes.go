@@ -1,6 +1,9 @@
 package http
 
 import (
+	"net/http"
+
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
 	httpServer "github.com/go-park-mail-ru/2024_2_NovaCode/internal/server/http"
 	albumRepo "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/repository"
 	albumUsecase "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/usecase"
@@ -19,4 +22,24 @@ func BindRoutes(s *httpServer.Server, artistClient artistService.ArtistServiceCl
 	s.MUX.HandleFunc("/api/v1/albums/{id:[0-9]+}", albumHandleres.ViewAlbum).Methods("GET")
 	s.MUX.HandleFunc("/api/v1/albums", albumHandleres.GetAll).Methods("GET")
 	s.MUX.HandleFunc("/api/v1/albums/byArtistId/{artistId:[0-9]+}", albumHandleres.GetAllByArtistID).Methods("GET")
+
+	s.MUX.Handle(
+		"/api/v1/albums/favorite",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(albumHandleres.GetFavoriteAlbums)),
+	).Methods("GET")
+
+	s.MUX.Handle(
+		"/api/v1/albums/favorite/{artistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(albumHandleres.IsFavoriteAlbum)),
+	).Methods("GET")
+
+	s.MUX.Handle(
+		"/api/v1/albums/favorite/{artistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(albumHandleres.AddFavoriteAlbum)),
+	).Methods("POST")
+
+	s.MUX.Handle(
+		"/api/v1/albums/favorite/{artistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(albumHandleres.DeleteFavoriteAlbum)),
+	).Methods("DELETE")
 }
