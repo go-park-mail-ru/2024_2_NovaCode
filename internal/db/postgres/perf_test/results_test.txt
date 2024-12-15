@@ -1,0 +1,154 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   370  100   325  100    45   6203    858 --:--:-- --:--:-- --:--:--  7115
+Running 40s test @ http://localhost:8084/api/v1/playlists
+  100 threads and 150 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    14.37ms   14.05ms 162.59ms   97.63%
+    Req/Sec    71.94     19.58   120.00     80.23%
+  10000 requests in 40.00s, 4.43MB read
+  Non-2xx or 3xx responses: 93
+Requests/sec:    249.99
+Transfer/sec:    113.35KB
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   370  100   325  100    45   5867    812 --:--:-- --:--:-- --:--:--  6727
+Running 20s test @ http://localhost:8084/api/v1/playlists/0f328246-a500-49eb-808f-5c1ee0108143/allPlaylists
+  100 threads and 150 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   246.70ms  272.70ms   1.00s    75.77%
+    Req/Sec     6.23     15.18   260.00     95.49%
+  8139 requests in 20.03s, 2.64GB read
+  Non-2xx or 3xx responses: 5374
+Requests/sec:    406.28
+Transfer/sec:    135.15MB
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   370  100   325  100    45   5871    812 --:--:-- --:--:-- --:--:--  6727
+Running 20s test @ http://localhost:8084/api/v1/playlists/0f328246-a500-49eb-808f-5c1ee0108143/allPlaylists
+  100 threads and 150 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   217.05ms  262.16ms 959.92ms   69.67%
+    Req/Sec     7.57     16.55   242.00     94.53%
+  9327 requests in 20.10s, 3.26GB read
+  Non-2xx or 3xx responses: 5914
+Requests/sec:    463.98
+Transfer/sec:    166.24MB
+
+
+План выполнения запроса на localhost при заполненности БД 20000 плейлистами без индекса на owner_id:
+[
+  {
+    "Plan": {
+      "Node Type": "Sort",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 472.65,
+      "Total Cost": 472.65,
+      "Plan Rows": 1,
+      "Plan Width": 48,
+      "Actual Startup Time": 1.827,
+      "Actual Total Time": 1.828,
+      "Actual Rows": 0,
+      "Actual Loops": 1,
+      "Sort Key": ["created_at DESC"],
+      "Sort Method": "quicksort",
+      "Sort Space Used": 25,
+      "Sort Space Type": "Memory",
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "playlist",
+          "Alias": "playlist",
+          "Startup Cost": 0.00,
+          "Total Cost": 472.64,
+          "Plan Rows": 1,
+          "Plan Width": 48,
+          "Actual Startup Time": 1.801,
+          "Actual Total Time": 1.802,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Filter": "(owner_id = 'bb44b064-8daa-4642-b14e-ff4482cdeab2'::uuid)",
+          "Rows Removed by Filter": 19971
+        }
+      ]
+    },
+    "Planning Time": 0.406,
+    "Triggers": [
+    ],
+    "Execution Time": 1.870
+  }
+]
+
+
+План выполнения запроса на localhost при заполненности БД 20000 плейлистами с индексом на owner_id:
+[
+  {
+    "Plan": {
+      "Node Type": "Sort",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 11.31,
+      "Total Cost": 11.31,
+      "Plan Rows": 3,
+      "Plan Width": 101,
+      "Actual Startup Time": 0.018,
+      "Actual Total Time": 0.019,
+      "Actual Rows": 0,
+      "Actual Loops": 1,
+      "Sort Key": ["created_at DESC"],
+      "Sort Method": "quicksort",
+      "Sort Space Used": 25,
+      "Sort Space Type": "Memory",
+      "Plans": [
+        {
+          "Node Type": "Bitmap Heap Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "playlist",
+          "Alias": "playlist",
+          "Startup Cost": 4.17,
+          "Total Cost": 11.28,
+          "Plan Rows": 3,
+          "Plan Width": 101,
+          "Actual Startup Time": 0.004,
+          "Actual Total Time": 0.004,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Recheck Cond": "(owner_id = 'bb44b064-8daa-4642-b14e-ff4482cdeab2'::uuid)",
+          "Rows Removed by Index Recheck": 0,
+          "Exact Heap Blocks": 0,
+          "Lossy Heap Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Bitmap Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Index Name": "idx_playlist_owner_id",
+              "Startup Cost": 0.00,
+              "Total Cost": 4.17,
+              "Plan Rows": 3,
+              "Plan Width": 0,
+              "Actual Startup Time": 0.002,
+              "Actual Total Time": 0.002,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Index Cond": "(owner_id = 'bb44b064-8daa-4642-b14e-ff4482cdeab2'::uuid)"
+            }
+          ]
+        }
+      ]
+    },
+    "Planning Time": 0.330,
+    "Triggers": [
+    ],
+    "Execution Time": 0.057
+  }
+]
