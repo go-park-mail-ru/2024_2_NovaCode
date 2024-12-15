@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -227,6 +228,121 @@ func (h *playlistHandlers) DeletePlaylist(response http.ResponseWriter, request 
 	message := utils.NewMessageResponse("")
 	if err = json.NewEncoder(response).Encode(message); err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (h *playlistHandlers) AddFavoritePlaylist(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	playlistID, err := strconv.ParseUint(vars["playlistID"], 10, 64)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("Invalid playlist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid playlist ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		h.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := h.usecase.AddFavoritePlaylist(request.Context(), userID, playlistID); err != nil {
+		h.logger.Error("Can't add playlist to favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't add playlist to favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (h *playlistHandlers) DeleteFavoritePlaylist(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	playlistID, err := strconv.ParseUint(vars["playlistID"], 10, 64)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("Invalid playlist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid playlist ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		h.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := h.usecase.DeleteFavoritePlaylist(request.Context(), userID, playlistID); err != nil {
+		h.logger.Error("Can't delete playlist from favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't delete playlist from favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (h *playlistHandlers) IsFavoritePlaylist(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	playlistID, err := strconv.ParseUint(vars["playlistID"], 10, 64)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("Invalid playlist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid playlist ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		h.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	exists, err := h.usecase.IsFavoritePlaylist(request.Context(), userID, playlistID)
+	if err != nil {
+		h.logger.Error("Can't check is playlist in favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't check is playlist in favorite")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(map[string]bool{"exists": exists}); err != nil {
+		h.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (h *playlistHandlers) GetFavoritePlaylists(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		h.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	playlists, err := h.usecase.GetFavoritePlaylists(request.Context(), userID)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("Failed to get favorite playlists: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite playlists: %v", err))
+		return
+	} else if len(playlists) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite playlists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(playlists); err != nil {
+		h.logger.Error(fmt.Sprintf("Failed to encode playlists: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode playlists: %v", err))
 		return
 	}
 

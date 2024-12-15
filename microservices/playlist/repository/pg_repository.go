@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 type PlaylistRepository struct {
@@ -177,4 +178,60 @@ func (r *PlaylistRepository) DeletePlaylist(ctx context.Context, playlistID uint
 		return nil, err
 	}
 	return res, nil
+}
+
+func (r *PlaylistRepository) AddFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error {
+	_, err := r.db.ExecContext(ctx, addFavoritePlaylistQuery, userID, playlistID)
+	if err != nil {
+		return errors.Wrap(err, "AddFavoritePlaylist.Query")
+	}
+
+	return nil
+}
+
+func (r *PlaylistRepository) DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error {
+	_, err := r.db.ExecContext(ctx, deleteFavoritePlaylistQuery, userID, playlistID)
+	if err != nil {
+		return errors.Wrap(err, "DeleteFavoritePlaylist.Query")
+	}
+
+	return nil
+}
+
+func (r *PlaylistRepository) IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error) {
+	var exists bool
+	err := r.db.QueryRowContext(ctx, isFavoritePlaylistQuery, userID, playlistID).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		return false, errors.Wrap(err, "IsFavoritePlaylist.Query")
+	}
+
+	return exists, nil
+}
+
+func (r *PlaylistRepository) GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
+	var playlists []*models.Playlist
+	rows, err := r.db.QueryContext(ctx, getFavoriteQuery, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetFavoritePlaylists.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		err := rows.Scan(
+			&playlist.ID,
+			&playlist.Name,
+			&playlist.Image,
+			&playlist.OwnerID,
+			&playlist.IsPrivate,
+			&playlist.CreatedAt,
+			&playlist.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFavoritePlaylists.Query")
+		}
+		playlists = append(playlists, playlist)
+	}
+
+	return playlists, nil
 }
