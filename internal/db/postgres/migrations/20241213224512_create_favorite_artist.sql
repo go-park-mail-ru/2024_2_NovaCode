@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS "favorite_playlist" (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX favorite_artist_unique ON favorite_track (user_id, artist_id);
-CREATE UNIQUE INDEX favorite_album_unique ON favorite_track (user_id, album_id);
-CREATE UNIQUE INDEX favorite_playlist_unique ON favorite_track (user_id, playlist_id);
+CREATE UNIQUE INDEX favorite_artist_unique ON favorite_artist (user_id, artist_id);
+CREATE UNIQUE INDEX favorite_album_unique ON favorite_album (user_id, album_id);
+CREATE UNIQUE INDEX favorite_playlist_unique ON favorite_playlist (user_id, playlist_id);
 -- +goose StatementEnd
 
 -- +goose Down
