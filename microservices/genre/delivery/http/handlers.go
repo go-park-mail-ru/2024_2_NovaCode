@@ -1,15 +1,16 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/genre"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/genre/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type genreHandlers struct {
@@ -42,12 +43,13 @@ func (handlers *genreHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(genres); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.GenreDTOs(genres))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -82,12 +84,13 @@ func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(genres); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.GenreDTOs(genres))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -122,11 +125,12 @@ func (handlers *genreHandlers) GetAllByTrackID(response http.ResponseWriter, req
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(genres); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.GenreDTOs(genres))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode genres: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }

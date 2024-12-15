@@ -1,15 +1,16 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type artistHandlers struct {
@@ -51,12 +52,13 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(foundArtists))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -87,12 +89,13 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
+	rawBytes, err := easyjson.Marshal(foundArtist)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artist: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -116,11 +119,12 @@ func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *ht
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(artists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(artists))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }

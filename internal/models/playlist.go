@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// //easyjson:json
 type Playlist struct {
 	ID        uint64
 	Name      string
@@ -15,3 +16,6 @@ type Playlist struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+//easyjson:json
+type Playlists []*Playlist

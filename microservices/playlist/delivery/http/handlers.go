@@ -1,7 +1,7 @@
 package http
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type playlistHandlers struct {
@@ -31,8 +32,9 @@ func (h *playlistHandlers) CreatePlaylist(response http.ResponseWriter, request 
 	}
 
 	playlistDTO := &dto.PlaylistDTO{}
-
-	if err := json.NewDecoder(request.Body).Decode(playlistDTO); err != nil {
+	rawBytes, _ := io.ReadAll(request.Body)
+	err := easyjson.Unmarshal(rawBytes, playlistDTO)
+	if err != nil {
 		h.logger.Errorf("can't decode")
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
@@ -46,12 +48,13 @@ func (h *playlistHandlers) CreatePlaylist(response http.ResponseWriter, request 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(newPlaylist); err != nil {
+	rawBytes, err = easyjson.Marshal(newPlaylist)
+	if err != nil {
 		h.logger.Errorf("can't encode")
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -63,11 +66,12 @@ func (h *playlistHandlers) GetAllPlaylists(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(playlists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.PlaylistDTOs(playlists))
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -87,11 +91,12 @@ func (h *playlistHandlers) GetPlaylist(response http.ResponseWriter, request *ht
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(playlist); err != nil {
+	rawBytes, err := easyjson.Marshal(playlist)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -111,11 +116,12 @@ func (h *playlistHandlers) GetUserPlaylists(response http.ResponseWriter, reques
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(playlists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.PlaylistDTOs(playlists))
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -134,16 +140,16 @@ func (h *playlistHandlers) AddToPlaylist(response http.ResponseWriter, request *
 		return
 	}
 
-	payload := &struct {
-		TrackID uint64 `json:"track_id"`
-	}{}
+	trackIdDTO := &dto.TrackIdDTO{}
 
-	if err := json.NewDecoder(request.Body).Decode(payload); err != nil {
+	rawBytes, _ := io.ReadAll(request.Body)
+	err = easyjson.Unmarshal(rawBytes, trackIdDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	playlistTrackDTO := &dto.PlaylistTrackDTO{PlaylistID: playlistID, TrackID: payload.TrackID}
+	playlistTrackDTO := &dto.PlaylistTrackDTO{PlaylistID: playlistID, TrackID: trackIdDTO.TrackID}
 
 	playlistTrack, err := h.usecase.AddToPlaylist(request.Context(), playlistTrackDTO)
 	if err != nil {
@@ -152,11 +158,12 @@ func (h *playlistHandlers) AddToPlaylist(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(playlistTrack); err != nil {
+	rawBytes, err = easyjson.Marshal(playlistTrack)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -175,16 +182,15 @@ func (h *playlistHandlers) RemoveFromPlaylist(response http.ResponseWriter, requ
 		return
 	}
 
-	payload := &struct {
-		TrackID uint64 `json:"track_id"`
-	}{}
-
-	if err := json.NewDecoder(request.Body).Decode(payload); err != nil {
+	trackIdDTO := &dto.TrackIdDTO{}
+	rawBytes, _ := io.ReadAll(request.Body)
+	err = easyjson.Unmarshal(rawBytes, trackIdDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	playlistTrackDTO := &dto.PlaylistTrackDTO{PlaylistID: playlistID, TrackID: payload.TrackID}
+	playlistTrackDTO := &dto.PlaylistTrackDTO{PlaylistID: playlistID, TrackID: trackIdDTO.TrackID}
 
 	err = h.usecase.RemoveFromPlaylist(request.Context(), playlistTrackDTO)
 	if err != nil {
@@ -193,12 +199,13 @@ func (h *playlistHandlers) RemoveFromPlaylist(response http.ResponseWriter, requ
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	message := utils.NewMessageResponse("")
-	if err := json.NewEncoder(response).Encode(message); err != nil {
+	message := &utils.MessageResponse{}
+	rawBytes, err = easyjson.Marshal(message)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -224,11 +231,12 @@ func (h *playlistHandlers) DeletePlaylist(response http.ResponseWriter, request 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	message := utils.NewMessageResponse("")
-	if err = json.NewEncoder(response).Encode(message); err != nil {
+	message := &utils.MessageResponse{}
+	rawBytes, err := easyjson.Marshal(message)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }

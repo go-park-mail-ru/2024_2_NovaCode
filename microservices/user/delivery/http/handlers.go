@@ -2,13 +2,13 @@ package http
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
@@ -37,13 +37,18 @@ func NewUserHandlers(cfg *config.AuthConfig, usecase user.Usecase, logger logger
 // @Router /api/v1/health [get]
 func (handlers *userHandlers) Health(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
+
+	message := utils.NewMessageResponse("OK")
+
 	response.Header().Set("Content-Type", "application/json")
-	response.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("OK")); err != nil {
+	rawBytes, err := easyjson.Marshal(message)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding health response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to get health status")
 		return
 	}
+	response.Write(rawBytes)
+	response.WriteHeader(http.StatusOK)
 }
 
 // Register godoc
@@ -58,9 +63,11 @@ func (handlers *userHandlers) Health(response http.ResponseWriter, request *http
 // @Router /api/v1/auth/register [post]
 func (handlers *userHandlers) Register(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	var regDTO dto.RegisterDTO
+	regDTO := &dto.RegisterDTO{}
 
-	if err := json.NewDecoder(request.Body).Decode(&regDTO); err != nil {
+	rawBytes, _ := io.ReadAll(request.Body)
+	err := easyjson.Unmarshal(rawBytes, regDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		handlers.logger.Errorf("error encoding register response: %v", err)
 		return
@@ -76,7 +83,7 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		regDTO.Role = "regular"
 	}
 
-	user := dto.NewUserFromRegisterDTO(&regDTO)
+	user := dto.NewUserFromRegisterDTO(regDTO)
 	userTokenDTO, err := handlers.usecase.Register(request.Context(), user)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("failed to register user: %v", err), requestID)
@@ -96,12 +103,13 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
+	rawBytes, err = easyjson.Marshal(userTokenDTO)
+	if err != nil {
 		handlers.logger.Errorf("error encoding userTokenDTO: %v", err)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -118,9 +126,11 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 // @Router /api/v1/auth/login [post]
 func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	var loginDTO dto.LoginDTO
+	loginDTO := &dto.LoginDTO{}
 
-	if err := json.NewDecoder(request.Body).Decode(&loginDTO); err != nil {
+	rawBytes, _ := io.ReadAll(request.Body)
+	err := easyjson.Unmarshal(rawBytes, loginDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
 	}
@@ -130,7 +140,7 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 		return
 	}
 
-	user := dto.NewUserFromLoginDTO(&loginDTO)
+	user := dto.NewUserFromLoginDTO(loginDTO)
 	userTokenDTO, err := handlers.usecase.Login(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warn(fmt.Sprintf("failed to login user: %v", err), requestID)
@@ -150,12 +160,13 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 	http.SetCookie(response, &accessTokenCookie)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userTokenDTO); err != nil {
+	rawBytes, err = easyjson.Marshal(userTokenDTO)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("failed to encode userTokenDTO: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -179,13 +190,16 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 
 	http.SetCookie(response, &accessTokenCookie)
 
+	message := utils.NewMessageResponse("successfully logged out")
+
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(utils.NewMessageResponse("successfully logged out")); err != nil {
+	rawBytes, err := easyjson.Marshal(message)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding logout response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -208,13 +222,16 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 
 	token := csrf.Generate(userID.String(), handlers.cfg.CSRF.Salt)
 
+	tokenResponse := utils.NewCSRFResponse(token)
+
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(utils.NewCSRFResponse(token)); err != nil {
+	rawBytes, err := easyjson.Marshal(tokenResponse)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding csrf token response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -234,7 +251,7 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 // @Router /api/v1/users/{user_id} [put]
 func (handlers *userHandlers) Update(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	var updateDTO dto.UpdateDTO
+	updateDTO := &dto.UpdateDTO{}
 
 	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
 	if !ok {
@@ -244,12 +261,14 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 	}
 	updateDTO.UserID = userID
 
-	if err := json.NewDecoder(request.Body).Decode(&updateDTO); err != nil {
+	rawBytes, _ := io.ReadAll(request.Body)
+	err := easyjson.Unmarshal(rawBytes, updateDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	user := dto.NewUserFromUpdateDTO(&updateDTO)
+	user := dto.NewUserFromUpdateDTO(updateDTO)
 	updatedUserDTO, err := handlers.usecase.Update(request.Context(), user)
 	if err != nil {
 		handlers.logger.Warn(fmt.Sprintf("failed to update user: %v", err), requestID)
@@ -258,12 +277,13 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(updatedUserDTO); err != nil {
+	rawBytes, err = easyjson.Marshal(updatedUserDTO)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -327,12 +347,13 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userDTO); err != nil {
+	rawBytes, err := easyjson.Marshal(userDTO)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -362,11 +383,12 @@ func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, re
 	publicUserDTO := dto.NewPublicUserDTO(userDTO)
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(publicUserDTO); err != nil {
+	rawBytes, err := easyjson.Marshal(publicUserDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -395,10 +417,11 @@ func (handlers *userHandlers) GetMe(response http.ResponseWriter, request *http.
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(userDTO); err != nil {
+	rawBytes, err := easyjson.Marshal(userDTO)
+	if err != nil {
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }

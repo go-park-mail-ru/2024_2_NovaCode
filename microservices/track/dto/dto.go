@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 )
 
+//easyjson:json
 type TrackDTO struct {
 	ID          uint64    `json:"id"`
 	Name        string    `json:"name"`
@@ -28,4 +29,12 @@ func NewTrackDTO(track *models.Track) *TrackDTO {
 		Image:       track.Image,
 		ReleaseDate: track.ReleaseDate,
 	}
+}
+
+//easyjson:json
+type TrackDTOs []*TrackDTO
+
+//easyjson:json
+type ExistsDTO struct {
+	Exists bool `json:"exists"`
 }

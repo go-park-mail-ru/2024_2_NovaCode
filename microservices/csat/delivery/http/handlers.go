@@ -1,13 +1,14 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/csat"
@@ -42,8 +43,10 @@ func (handlers *csatHandlers) SubmitAnswer(response http.ResponseWriter, request
 		return
 	}
 
-	var csatAnswerDTO dto.CSATAnswerDTO
-	if err := json.NewDecoder(request.Body).Decode(&csatAnswerDTO); err != nil {
+	csatAnswerDTO := &dto.CSATAnswerDTO{}
+	rawBytes, _ := io.ReadAll(request.Body)
+	err = easyjson.Unmarshal(rawBytes, csatAnswerDTO)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("invalid request body: %v", err), requestID)
 		utils.JSONError(response, http.StatusBadRequest, "invalid request body")
 		return
@@ -51,7 +54,7 @@ func (handlers *csatHandlers) SubmitAnswer(response http.ResponseWriter, request
 	csatAnswerDTO.CSATQuestionID = questionID
 	csatAnswerDTO.UserID = userID
 
-	answer := dto.NewAnswerFromCSATAnswerDTO(&csatAnswerDTO)
+	answer := dto.NewAnswerFromCSATAnswerDTO(csatAnswerDTO)
 	answerDTO, err := handlers.usecase.SubmitAnswer(request.Context(), answer)
 	if err != nil {
 		handlers.logger.Error("cannot submit answer for question", requestID)
@@ -60,12 +63,13 @@ func (handlers *csatHandlers) SubmitAnswer(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(answerDTO); err != nil {
+	rawBytes, err = easyjson.Marshal(answerDTO)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -94,12 +98,13 @@ func (handlers *csatHandlers) GetQuestionsByTopic(response http.ResponseWriter, 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(questions); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.CSATQuestionDTOs(questions))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("error encoding updated user response: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -113,11 +118,12 @@ func (handlers *csatHandlers) GetStatistics(response http.ResponseWriter, reques
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(stat); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.CSATStatisticsDTOs(stat))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode statistics: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }

@@ -1,15 +1,16 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type albumHandlers struct {
@@ -51,12 +52,13 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(foundAlbums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -87,12 +89,13 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbum); err != nil {
+	rawBytes, err := easyjson.Marshal(foundAlbum)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -117,12 +120,13 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
 
@@ -157,11 +161,12 @@ func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-
+	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
 }
