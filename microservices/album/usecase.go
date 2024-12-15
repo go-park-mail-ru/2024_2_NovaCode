@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
+	uuid "github.com/google/uuid"
 )
 
 type Usecase interface {
@@ -11,4 +12,8 @@ type Usecase interface {
 	Search(ctx context.Context, name string) ([]*dto.AlbumDTO, error)
 	GetAll(ctx context.Context) ([]*dto.AlbumDTO, error)
 	GetAllByArtistID(ctx context.Context, artistID uint64) ([]*dto.AlbumDTO, error)
+	AddFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error
+	DeleteFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error
+	IsFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) (bool, error)
+	GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) ([]*dto.AlbumDTO, error)
 }
