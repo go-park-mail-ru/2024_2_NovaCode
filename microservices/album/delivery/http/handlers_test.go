@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	mocks "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/mock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
@@ -277,5 +280,355 @@ func TestAlbumHandlers_GetAllByArtistIDAlbums(t *testing.T) {
 
 		res := response.Result()
 		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+}
+
+func TestAlbumHandlers_AddFavoriteAlbum(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
+
+	t.Run("Successful add album to favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		usecaseMock.EXPECT().AddFavoriteAlbum(gomock.Any(), userID, albumID).Return(nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.AddFavoriteAlbum).Methods("POST")
+
+		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+	})
+
+	t.Run("Invalid album ID", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.AddFavoriteAlbum).Methods("POST")
+
+		request, err := http.NewRequest(http.MethodPost, "/albums/favorite/abc", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+
+	t.Run("User ID not found in context", func(t *testing.T) {
+		albumID := uint64(1)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.AddFavoriteAlbum).Methods("POST")
+
+		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "User id not found")
+	})
+
+	t.Run("Error in usecase when adding album to favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		mockError := fmt.Errorf("usecase error")
+		usecaseMock.EXPECT().AddFavoriteAlbum(gomock.Any(), userID, albumID).Return(mockError)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.AddFavoriteAlbum).Methods("POST")
+
+		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Can't add album to favorite")
+	})
+}
+
+func TestAlbumHandlers_DeleteFavoriteAlbum(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
+
+	t.Run("Successful delete album from favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		usecaseMock.EXPECT().DeleteFavoriteAlbum(gomock.Any(), userID, albumID).Return(nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.DeleteFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+	})
+
+	t.Run("Invalid album ID", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.DeleteFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, "/albums/favorite/abc", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+
+	t.Run("Error in usecase when deleting album from favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		mockError := fmt.Errorf("usecase error")
+		usecaseMock.EXPECT().DeleteFavoriteAlbum(gomock.Any(), userID, albumID).Return(mockError)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/albums/favorite/{albumID}", albumHandlers.DeleteFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Can't delete album from favorite")
+	})
+}
+
+func TestAlbumHandlers_IsFavoriteAlbum(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
+
+	t.Run("Album is in favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		usecaseMock.EXPECT().IsFavoriteAlbum(gomock.Any(), userID, albumID).Return(true, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite/{albumID}", albumHandlers.IsFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		var result map[string]bool
+		err = json.NewDecoder(res.Body).Decode(&result)
+		assert.NoError(t, err)
+		assert.True(t, result["exists"])
+	})
+
+	t.Run("Album is not in favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		usecaseMock.EXPECT().IsFavoriteAlbum(gomock.Any(), userID, albumID).Return(false, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite/{albumID}", albumHandlers.IsFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		var result map[string]bool
+		err = json.NewDecoder(res.Body).Decode(&result)
+		assert.NoError(t, err)
+		assert.False(t, result["exists"])
+	})
+
+	t.Run("Invalid album ID", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite/{albumID}", albumHandlers.IsFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, "/api/v1/albums/favorite/abc", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
+
+	t.Run("User ID not found in context", func(t *testing.T) {
+		albumID := uint64(1)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite/{albumID}", albumHandlers.IsFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "User id not found")
+	})
+
+	t.Run("Error when checking if album is in favorites", func(t *testing.T) {
+		userID := uuid.New()
+		albumID := uint64(1)
+		mockError := fmt.Errorf("usecase error")
+		usecaseMock.EXPECT().IsFavoriteAlbum(gomock.Any(), userID, albumID).Return(false, mockError)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite/{albumID}", albumHandlers.IsFavoriteAlbum).Methods("DELETE")
+
+		request, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/albums/favorite/%d", albumID), nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Can't check is album in favorite")
+	})
+}
+
+func TestAlbumHandlers_GetFavoriteAlbums(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
+
+	t.Run("Success", func(t *testing.T) {
+		userID := uuid.New()
+		albums := []*dto.AlbumDTO{
+			{ID: 1, Name: "Album 1", ArtistName: "Artist 1"},
+			{ID: 2, Name: "Album 2", ArtistName: "Artist 2"},
+		}
+
+		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(albums, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		var result []*dto.AlbumDTO
+		err = json.NewDecoder(res.Body).Decode(&result)
+		assert.NoError(t, err)
+		assert.Len(t, result, 2)
+		assert.Equal(t, "Album 1", result[0].Name)
+		assert.Equal(t, "Album 2", result[1].Name)
+	})
+
+	t.Run("User ID not found", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "User id not found")
+	})
+
+	t.Run("Error while getting favorite albums", func(t *testing.T) {
+		userID := uuid.New()
+		mockError := fmt.Errorf("usecase error")
+		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(nil, mockError)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Failed to get favorite albums")
+	})
+
+	t.Run("No favorite albums found", func(t *testing.T) {
+		userID := uuid.New()
+		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(nil, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
+		assert.NoError(t, err)
+		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "No favorite albums were found")
 	})
 }

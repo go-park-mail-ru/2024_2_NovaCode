@@ -3,11 +3,15 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	mockAlbum "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/mock"
 	mockArtist "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/mock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
@@ -386,4 +390,249 @@ func TestUsecase_GetAllByArtistID_NotFoundAlbums(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, dtoAlbums)
 	require.EqualError(t, err, "Can't load albums by artist ID 1")
+}
+
+func TestAlbumUsecase_AddFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockAlbumRepo := mockAlbum.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumUsecase := &albumUsecase{
+		albumRepo: mockAlbumRepo,
+		logger:    logger,
+	}
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockAlbumRepo.EXPECT().AddFavoriteAlbum(ctx, userID, albumID).Return(nil)
+		err := albumUsecase.AddFavoriteAlbum(ctx, userID, albumID)
+		require.NoError(t, err)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockAlbumRepo.EXPECT().AddFavoriteAlbum(ctx, userID, albumID).Return(mockError)
+
+		err := albumUsecase.AddFavoriteAlbum(ctx, userID, albumID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+	})
+}
+
+func TestAlbumUsecase_DeleteFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockAlbumRepo := mockAlbum.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumUsecase := &albumUsecase{
+		albumRepo: mockAlbumRepo,
+		logger:    logger,
+	}
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockAlbumRepo.EXPECT().DeleteFavoriteAlbum(ctx, userID, albumID).Return(nil)
+		err := albumUsecase.DeleteFavoriteAlbum(ctx, userID, albumID)
+		require.NoError(t, err)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockAlbumRepo.EXPECT().DeleteFavoriteAlbum(ctx, userID, albumID).Return(mockError)
+
+		err := albumUsecase.DeleteFavoriteAlbum(ctx, userID, albumID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+	})
+}
+
+func TestAlbumUsecase_IsFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockAlbumRepo := mockAlbum.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	albumUsecase := &albumUsecase{
+		albumRepo: mockAlbumRepo,
+		logger:    logger,
+	}
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockAlbumRepo.EXPECT().IsFavoriteAlbum(ctx, userID, albumID).Return(true, nil)
+		exists, err := albumUsecase.IsFavoriteAlbum(ctx, userID, albumID)
+		require.NoError(t, err)
+		require.True(t, exists)
+	})
+
+	t.Run("album not found", func(t *testing.T) {
+		mockAlbumRepo.EXPECT().IsFavoriteAlbum(ctx, userID, albumID).Return(false, nil)
+		exists, err := albumUsecase.IsFavoriteAlbum(ctx, userID, albumID)
+		require.NoError(t, err)
+		require.False(t, exists)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockAlbumRepo.EXPECT().IsFavoriteAlbum(ctx, userID, albumID).Return(false, mockError)
+
+		exists, err := albumUsecase.IsFavoriteAlbum(ctx, userID, albumID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+		require.False(t, exists)
+	})
+}
+
+func TestUsecase_GetFavoriteAlbums_FoundAlbums(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	now := time.Now()
+	albums := []*models.Album{
+		{
+			ID: 1, Name: "album1", Image: "image1", ReleaseDate: now, ArtistID: 1,
+		},
+		{
+			ID: 2, Name: "album2", Image: "image2", ReleaseDate: now, ArtistID: 1,
+		},
+		{
+			ID: 3, Name: "album3", Image: "image3", ReleaseDate: now, ArtistID: 2,
+		},
+	}
+
+	findByIDResponseArtists := []*artistService.FindByIDResponse{
+		{
+			Artist: &artistService.Artist{
+				Id:      1,
+				Name:    "artist1",
+				Bio:     "bio1",
+				Country: "country1",
+				Image:   "image1",
+			},
+		},
+		{
+			Artist: &artistService.Artist{
+				Id:      2,
+				Name:    "artist2",
+				Bio:     "bio2",
+				Country: "country2",
+				Image:   "image2",
+			},
+		},
+	}
+
+	userID := uuid.New()
+	ctx := context.Background()
+	albumRepoMock.EXPECT().GetFavoriteAlbums(ctx, userID).Return(albums, nil)
+	for _, album := range albums {
+		artistClientMock.EXPECT().FindByID(ctx, &artistService.FindByIDRequest{Id: album.ArtistID}).Return(findByIDResponseArtists[album.ArtistID-1], nil)
+	}
+
+	dtoAlbums, err := albumUsecase.GetFavoriteAlbums(ctx, userID)
+
+	require.NoError(t, err)
+	require.NotNil(t, dtoAlbums)
+	require.Equal(t, len(albums), len(dtoAlbums))
+
+	for i := 0; i < len(albums); i++ {
+		require.Equal(t, albums[i].Name, dtoAlbums[i].Name)
+		require.Equal(t, findByIDResponseArtists[albums[i].ArtistID-1].Artist.Name, dtoAlbums[i].ArtistName)
+	}
+}
+
+func TestUsecase_GetFavoriteAlbums_NotFoundAlbums(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	albumRepoMock.EXPECT().GetFavoriteAlbums(ctx, userID).Return(nil, errors.New(fmt.Sprintf("Can't load albums by user ID %v", userID)))
+
+	dtoAlbums, err := albumUsecase.GetFavoriteAlbums(ctx, userID)
+
+	require.Error(t, err)
+	require.Nil(t, dtoAlbums)
+	require.EqualError(t, err, fmt.Sprintf("Can't load albums by user ID %v", userID))
 }

@@ -10,6 +10,7 @@ import (
 
 	dto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockUsecase is a mock of Usecase interface.
@@ -33,6 +34,34 @@ func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
+}
+
+// AddFavoriteAlbum mocks base method.
+func (m *MockUsecase) AddFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFavoriteAlbum", ctx, userID, albumID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFavoriteAlbum indicates an expected call of AddFavoriteAlbum.
+func (mr *MockUsecaseMockRecorder) AddFavoriteAlbum(ctx, userID, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavoriteAlbum", reflect.TypeOf((*MockUsecase)(nil).AddFavoriteAlbum), ctx, userID, albumID)
+}
+
+// DeleteFavoriteAlbum mocks base method.
+func (m *MockUsecase) DeleteFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFavoriteAlbum", ctx, userID, albumID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFavoriteAlbum indicates an expected call of DeleteFavoriteAlbum.
+func (mr *MockUsecaseMockRecorder) DeleteFavoriteAlbum(ctx, userID, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFavoriteAlbum", reflect.TypeOf((*MockUsecase)(nil).DeleteFavoriteAlbum), ctx, userID, albumID)
 }
 
 // GetAll mocks base method.
@@ -63,6 +92,36 @@ func (m *MockUsecase) GetAllByArtistID(ctx context.Context, artistID uint64) ([]
 func (mr *MockUsecaseMockRecorder) GetAllByArtistID(ctx, artistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByArtistID", reflect.TypeOf((*MockUsecase)(nil).GetAllByArtistID), ctx, artistID)
+}
+
+// GetFavoriteAlbums mocks base method.
+func (m *MockUsecase) GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) ([]*dto.AlbumDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteAlbums", ctx, userID)
+	ret0, _ := ret[0].([]*dto.AlbumDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteAlbums indicates an expected call of GetFavoriteAlbums.
+func (mr *MockUsecaseMockRecorder) GetFavoriteAlbums(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteAlbums", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteAlbums), ctx, userID)
+}
+
+// IsFavoriteAlbum mocks base method.
+func (m *MockUsecase) IsFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFavoriteAlbum", ctx, userID, albumID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsFavoriteAlbum indicates an expected call of IsFavoriteAlbum.
+func (mr *MockUsecaseMockRecorder) IsFavoriteAlbum(ctx, userID, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFavoriteAlbum", reflect.TypeOf((*MockUsecase)(nil).IsFavoriteAlbum), ctx, userID, albumID)
 }
 
 // Search mocks base method.
