@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/stretchr/testify/require"
@@ -252,6 +254,117 @@ func TestAlbumRepositoryGetAllByArtistID(t *testing.T) {
 	mock.ExpectQuery(getByArtistIDQuery).WithArgs(uint64(1)).WillReturnRows(rows)
 
 	foundAlbums, err := albumPGRepository.GetAllByArtistID(context.Background(), uint64(1))
+	require.NoError(t, err)
+	require.NotNil(t, foundAlbums)
+	require.Equal(t, foundAlbums, expectedAlbums)
+}
+
+func TestAlbumRepositoryAddFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+
+	mock.ExpectExec(addFavoriteAlbumQuery).WithArgs(userID, albumID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = albumRepository.AddFavoriteAlbum(context.Background(), userID, albumID)
+
+	require.NoError(t, err)
+}
+
+func TestAlbumRepositoryDeleteFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+
+	mock.ExpectExec(deleteFavoriteAlbumQuery).WithArgs(userID, albumID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = albumRepository.DeleteFavoriteAlbum(context.Background(), userID, albumID)
+
+	require.NoError(t, err)
+}
+
+func TestAlbumRepositoryIsFavoriteAlbum(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	userID := uuid.New()
+	albumID := uint64(12345)
+
+	mock.ExpectQuery(isFavoriteAlbumQuery).WithArgs(userID, albumID).WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
+
+	exists, err := albumRepository.IsFavoriteAlbum(context.Background(), userID, albumID)
+
+	require.NoError(t, err)
+	require.True(t, exists)
+}
+
+func TestAlbumRepositoryGetFavoriteAlbums(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	albums := []models.Album{
+		{
+			ID:          1,
+			Name:        "Album 1",
+			ReleaseDate: time.Now(),
+			Image:       "/imgs/albums/album_1.jpg",
+			ArtistID:    101,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          2,
+			Name:        "Album 2",
+			ReleaseDate: time.Now(),
+			Image:       "/imgs/albums/album_2.jpg",
+			ArtistID:    102,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "release_date", "image", "artist_id", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, album := range albums {
+		rows.AddRow(
+			album.ID,
+			album.Name,
+			album.ReleaseDate,
+			album.Image,
+			album.ArtistID,
+			album.CreatedAt,
+			album.UpdatedAt,
+		)
+	}
+
+	userID := uuid.New()
+
+	expectedAlbums := []*models.Album{&albums[0], &albums[1]}
+	mock.ExpectQuery(getFavoriteQuery).WithArgs(userID).WillReturnRows(rows)
+
+	foundAlbums, err := albumRepository.GetFavoriteAlbums(context.Background(), userID)
 	require.NoError(t, err)
 	require.NotNil(t, foundAlbums)
 	require.Equal(t, foundAlbums, expectedAlbums)
