@@ -109,8 +109,8 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-	response.Write(rawBytes)
 	response.WriteHeader(http.StatusOK)
+	response.Write(rawBytes)
 }
 
 // Login godoc

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//easyjson:json
 type User struct {
 	UserID    uuid.UUID
 	Role      string
