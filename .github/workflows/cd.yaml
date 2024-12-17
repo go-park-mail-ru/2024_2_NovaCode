@@ -55,14 +55,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Clear target directory
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: 185.241.194.24
-          username: ubuntu
-          key: ${{ secrets.PRIVATE_KEY }}
-          script: |
-            rm -rf /home/ubuntu/nova-music/backend/internal/db/postgres/migrations/*
+      # - name: Clear target directory
+      #   uses: appleboy/ssh-action@v0.1.7
+      #   with:
+      #     host: 185.241.194.24
+      #     username: ubuntu
+      #     key: ${{ secrets.PRIVATE_KEY }}
+      #     script: |
+      #       rm -rf /home/ubuntu/nova-music/backend/internal/db/postgres/migrations/*
 
       - name: Copy migration files to server
         uses: appleboy/scp-action@v0.1.7
