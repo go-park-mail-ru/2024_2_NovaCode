@@ -48,7 +48,7 @@ jobs:
   migrate:
     name: Postgres Migration
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
     steps:
       - name: Check out code into directory
         uses: actions/checkout@v4
