@@ -42,7 +42,7 @@ jobs:
             docker push ${DOCKER_USERNAME}/novamusic-${service}:${GITHUB_SHA::8}
             docker push ${DOCKER_USERNAME}/novamusic-${service}:latest
           done
-  
+
   migrate:
     name: Postgres Migration
     runs-on: ubuntu-latest
