@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"sync"
 
@@ -36,7 +35,6 @@ func main() {
 
 	s := httpServer.New(cfg, pg, s3, logger, metrics)
 	csatHttp.BindRoutes(s)
-	fmt.Println("csat http binded")
 
 	var wg sync.WaitGroup
 	wg.Add(1)
