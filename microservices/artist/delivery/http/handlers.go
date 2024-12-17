@@ -60,8 +60,14 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewArtist godoc
@@ -97,8 +103,14 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -127,8 +139,14 @@ func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *ht
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // AddFavoriteArtist godoc
@@ -242,8 +260,14 @@ func (handlers *artistHandlers) IsFavoriteArtist(response http.ResponseWriter, r
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetFavoriteArtists godoc
@@ -279,6 +303,12 @@ func (handlers *artistHandlers) GetFavoriteArtists(response http.ResponseWriter,
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

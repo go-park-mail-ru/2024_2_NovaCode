@@ -49,8 +49,14 @@ func (handlers *genreHandlers) GetAll(response http.ResponseWriter, request *htt
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByArtistID godoc
@@ -90,8 +96,14 @@ func (handlers *genreHandlers) GetAllByArtistID(response http.ResponseWriter, re
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByTrackID godoc
@@ -131,6 +143,12 @@ func (handlers *genreHandlers) GetAllByTrackID(response http.ResponseWriter, req
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

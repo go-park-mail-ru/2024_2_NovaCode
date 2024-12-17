@@ -60,8 +60,14 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewAlbum godoc
@@ -97,8 +103,14 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -128,8 +140,14 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByArtistID godoc
@@ -169,8 +187,14 @@ func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, re
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *albumHandlers) AddFavoriteAlbum(response http.ResponseWriter, request *http.Request) {
@@ -257,8 +281,14 @@ func (handlers *albumHandlers) IsFavoriteAlbum(response http.ResponseWriter, req
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, request *http.Request) {
@@ -287,6 +317,12 @@ func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, r
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode albums: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

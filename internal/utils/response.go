@@ -38,12 +38,12 @@ func JSONError(response http.ResponseWriter, statusCode int, message string) {
 	response.WriteHeader(statusCode)
 
 	errorResponse := NewErrorResponse(message)
-	//if err := json.NewEncoder(response).Encode(errorResponse); err != nil {
 	rawBytes, err := easyjson.Marshal(errorResponse)
 	if err != nil {
 		http.Error(response, "failed to encode error message", http.StatusInternalServerError)
 	}
-	response.Write(rawBytes)
+	_, _ = response.Write(rawBytes)
+
 }
 
 //easyjson:json

@@ -55,8 +55,14 @@ func (h *playlistHandlers) CreatePlaylist(response http.ResponseWriter, request 
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) GetAllPlaylists(response http.ResponseWriter, request *http.Request) {
@@ -72,8 +78,14 @@ func (h *playlistHandlers) GetAllPlaylists(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) GetPlaylist(response http.ResponseWriter, request *http.Request) {
@@ -97,8 +109,14 @@ func (h *playlistHandlers) GetPlaylist(response http.ResponseWriter, request *ht
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) GetUserPlaylists(response http.ResponseWriter, request *http.Request) {
@@ -122,8 +140,14 @@ func (h *playlistHandlers) GetUserPlaylists(response http.ResponseWriter, reques
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) AddToPlaylist(response http.ResponseWriter, request *http.Request) {
@@ -164,8 +188,14 @@ func (h *playlistHandlers) AddToPlaylist(response http.ResponseWriter, request *
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) RemoveFromPlaylist(response http.ResponseWriter, request *http.Request) {
@@ -206,8 +236,14 @@ func (h *playlistHandlers) RemoveFromPlaylist(response http.ResponseWriter, requ
 		utils.JSONError(response, http.StatusBadRequest, "")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) DeletePlaylist(response http.ResponseWriter, request *http.Request) {
@@ -238,8 +274,14 @@ func (h *playlistHandlers) DeletePlaylist(response http.ResponseWriter, request 
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) AddFavoritePlaylist(response http.ResponseWriter, request *http.Request) {
@@ -326,8 +368,14 @@ func (h *playlistHandlers) IsFavoritePlaylist(response http.ResponseWriter, requ
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (h *playlistHandlers) GetFavoritePlaylists(response http.ResponseWriter, request *http.Request) {
@@ -356,6 +404,12 @@ func (h *playlistHandlers) GetFavoritePlaylists(response http.ResponseWriter, re
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode playlists: %v", err))
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

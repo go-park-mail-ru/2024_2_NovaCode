@@ -283,8 +283,14 @@ func (handlers *userHandlers) Update(response http.ResponseWriter, request *http
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // UploadImage godoc
@@ -353,8 +359,14 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetUserByUsername godoc
@@ -368,6 +380,7 @@ func (handlers *userHandlers) UploadImage(response http.ResponseWriter, request 
 // @Failure 404 {object} utils.ErrorResponse "User not found"
 // @Router /api/v1/users/{username} [get]
 func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
 	username, ok := vars["username"]
 	if !ok {
@@ -388,8 +401,14 @@ func (handlers *userHandlers) GetUserByUsername(response http.ResponseWriter, re
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetMe godoc
@@ -422,6 +441,12 @@ func (handlers *userHandlers) GetMe(response http.ResponseWriter, request *http.
 		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

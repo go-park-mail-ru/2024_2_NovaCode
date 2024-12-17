@@ -69,8 +69,14 @@ func (handlers *csatHandlers) SubmitAnswer(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *csatHandlers) GetQuestionsByTopic(response http.ResponseWriter, request *http.Request) {
@@ -104,8 +110,14 @@ func (handlers *csatHandlers) GetQuestionsByTopic(response http.ResponseWriter, 
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return updated user details")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *csatHandlers) GetStatistics(response http.ResponseWriter, request *http.Request) {
@@ -124,6 +136,12 @@ func (handlers *csatHandlers) GetStatistics(response http.ResponseWriter, reques
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
