@@ -8,6 +8,7 @@ services:
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
+    privileged: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 30
