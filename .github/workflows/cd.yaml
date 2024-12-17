@@ -1,17 +1,16 @@
 name: CD
 
 on:
-  push:
-    branches:
-      - main
-      - dev
-    paths:
-      - 'microservices/**'
-      - 'config/**'
-      - 'cmd/**'
-  pull_request:
-    branches:
-      - dev
+  # push:
+  #   branches:
+  #     - main
+  #     - dev
+  #   paths:
+  #     - 'microservices/**'
+  #     - 'config/**'
+  #     - 'cmd/**'
+  pull_request: {}
+  push: {}
 
 jobs:
   # build:
