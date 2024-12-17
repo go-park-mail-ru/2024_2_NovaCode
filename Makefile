@@ -89,7 +89,7 @@ test:
 ## View code coverage report if it exists otherwise generate.
 view-coverage: --check-coverage
 	@go test -coverpkg=./... -coverprofile=coverage.out.tmp ./...
-	@cat coverage.out.tmp | grep -v "mock\|cmd\|config\|internal\|docs\|metrics\|pkg\|routes\|proto" > coverage.out
+	@cat coverage.out.tmp | grep -v "mock\|cmd\|config\|internal\|docs\|metrics\|pkg\|routes\|proto\|easyjson" > coverage.out
 	@go tool cover -func=coverage.out
 
 .PHONY: view-coverage-html
@@ -275,3 +275,17 @@ clean-all: clean clean-test
 %-reset:
 	$(eval DB := $(shell echo $* | tr '[:lower:]' '[:upper:]'))
 	@GOOSE_DRIVER=$* goose -dir $(MIGRATIONS_PATH) $($(DB)_CONNECTION) reset
+
+################################################################################
+# Codegen
+################################################################################
+
+.PHONY: generate
+## Create easyjson unmarshalers for structs with ////easyjson:json flag
+generate:
+	@find . -type f -name '*_easyjson.go' -delete
+	@FILES=$$(find . -type f -name "*dto.go" -o -wholename "*/models/*.go" -o -wholename "*/utils/response.go"); \
+	for file in $$FILES; do \
+            easyjson $$file; \
+        done
+
