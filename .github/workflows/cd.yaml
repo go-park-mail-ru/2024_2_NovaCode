@@ -71,7 +71,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           source: "internal/db/postgres/migrations/*"
-          target: "/home/ubuntu/nova-music/backend/internal/db/postgres/migrations/"
+          target: "/home/ubuntu/nova-music/backend/"
 
       - name: Run database migrations
         uses: appleboy/ssh-action@v0.1.7
