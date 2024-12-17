@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,8 +9,10 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type artistHandlers struct {
@@ -53,13 +54,20 @@ func (handlers *artistHandlers) SearchArtist(response http.ResponseWriter, reque
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(foundArtists))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewArtist godoc
@@ -89,13 +97,20 @@ func (handlers *artistHandlers) ViewArtist(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundArtist); err != nil {
+	rawBytes, err := easyjson.Marshal(foundArtist)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artist: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -118,13 +133,20 @@ func (handlers *artistHandlers) GetAll(response http.ResponseWriter, request *ht
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(artists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(artists))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // AddFavoriteArtist godoc
@@ -231,13 +253,21 @@ func (handlers *artistHandlers) IsFavoriteArtist(response http.ResponseWriter, r
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(map[string]bool{"exists": exists}); err != nil {
+	existsResponse := &utils.ExistsResponse{Exists: exists}
+	rawBytes, err := easyjson.Marshal(existsResponse)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetFavoriteArtists godoc
@@ -267,11 +297,18 @@ func (handlers *artistHandlers) GetFavoriteArtists(response http.ResponseWriter,
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(artists); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(artists))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

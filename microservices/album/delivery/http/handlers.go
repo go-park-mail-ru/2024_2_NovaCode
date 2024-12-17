@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,8 +9,10 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type albumHandlers struct {
@@ -53,13 +54,20 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(foundAlbums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewAlbum godoc
@@ -89,13 +97,20 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbum); err != nil {
+	rawBytes, err := easyjson.Marshal(foundAlbum)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -119,13 +134,20 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByArtistID godoc
@@ -159,13 +181,20 @@ func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *albumHandlers) AddFavoriteAlbum(response http.ResponseWriter, request *http.Request) {
@@ -245,13 +274,21 @@ func (handlers *albumHandlers) IsFavoriteAlbum(response http.ResponseWriter, req
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(map[string]bool{"exists": exists}); err != nil {
+	existsResponse := &utils.ExistsResponse{Exists: exists}
+	rawBytes, err := easyjson.Marshal(existsResponse)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, request *http.Request) {
@@ -274,11 +311,18 @@ func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, r
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode albums: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

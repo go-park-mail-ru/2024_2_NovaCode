@@ -70,20 +70,22 @@ func TestUserHandlers_Register(t *testing.T) {
 	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
 
 	t.Run("successful registration", func(t *testing.T) {
-		user := models.User{
+		regDTO := &dto.RegisterDTO{
+			Role:     "regular",
 			Username: "test_user",
 			Email:    "test@example.com",
 			Password: "password",
-			Role:     "regular",
 		}
+
+		user := dto.NewUserFromRegisterDTO(regDTO)
 
 		userTokenDTO := &dto.UserTokenDTO{
 			Token: "test_token",
 		}
 
-		usecaseMock.EXPECT().Register(gomock.Any(), &user).Return(userTokenDTO, nil)
+		usecaseMock.EXPECT().Register(gomock.Any(), user).Return(userTokenDTO, nil)
 
-		body, _ := json.Marshal(user)
+		body, _ := json.Marshal(regDTO)
 		request := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(body))
 		response := httptest.NewRecorder()
 
@@ -126,16 +128,18 @@ func TestUserHandlers_Register(t *testing.T) {
 	})
 
 	t.Run("usecase registration error", func(t *testing.T) {
-		user := models.User{
+		regDTO := &dto.RegisterDTO{
 			Username: "test_user",
 			Email:    "test@example.com",
 			Password: "password",
 			Role:     "regular",
 		}
 
-		usecaseMock.EXPECT().Register(gomock.Any(), &user).Return(nil, errors.New("registration error"))
+		user := dto.NewUserFromRegisterDTO(regDTO)
 
-		body, _ := json.Marshal(user)
+		usecaseMock.EXPECT().Register(gomock.Any(), user).Return(nil, errors.New("registration error"))
+
+		body, _ := json.Marshal(regDTO)
 		request := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(body))
 		response := httptest.NewRecorder()
 
@@ -169,18 +173,20 @@ func TestUserHandlers_Login(t *testing.T) {
 	userHandlers := NewUserHandlers(&cfg.Service.Auth, usecaseMock, logger)
 
 	t.Run("successful login", func(t *testing.T) {
-		user := models.User{
+		loginDTO := &dto.LoginDTO{
 			Username: "test_user",
 			Password: "password",
 		}
+
+		user := dto.NewUserFromLoginDTO(loginDTO)
 
 		userTokenDTO := &dto.UserTokenDTO{
 			Token: "test_token",
 		}
 
-		usecaseMock.EXPECT().Login(gomock.Any(), &user).Return(userTokenDTO, nil)
+		usecaseMock.EXPECT().Login(gomock.Any(), user).Return(userTokenDTO, nil)
 
-		body, _ := json.Marshal(user)
+		body, _ := json.Marshal(loginDTO)
 		request := httptest.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(body))
 		response := httptest.NewRecorder()
 
@@ -227,14 +233,16 @@ func TestUserHandlers_Login(t *testing.T) {
 	})
 
 	t.Run("usecase login error", func(t *testing.T) {
-		user := models.User{
+		loginDTO := &dto.LoginDTO{
 			Username: "test_user",
 			Password: "password",
 		}
 
-		usecaseMock.EXPECT().Login(gomock.Any(), &user).Return(nil, errors.New("login error"))
+		user := dto.NewUserFromLoginDTO(loginDTO)
 
-		body, _ := json.Marshal(user)
+		usecaseMock.EXPECT().Login(gomock.Any(), user).Return(nil, errors.New("login error"))
+
+		body, _ := json.Marshal(loginDTO)
 		request := httptest.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(body))
 		response := httptest.NewRecorder()
 
@@ -313,20 +321,22 @@ func TestUserHandlers_Update(t *testing.T) {
 	userID := uuid.New()
 
 	t.Run("successful update", func(t *testing.T) {
-		user := models.User{
+		updateDTO := &dto.UpdateDTO{
 			UserID:   userID,
 			Email:    "updated@example.com",
 			Username: "newusername",
 		}
+
+		user := dto.NewUserFromUpdateDTO(updateDTO)
 
 		userDTO := &dto.UserDTO{
 			ID:       user.UserID,
 			Username: user.Username,
 		}
 
-		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(userDTO, nil)
+		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(user)).Return(userDTO, nil)
 
-		body, _ := json.Marshal(user)
+		body, _ := json.Marshal(updateDTO)
 		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
 		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
 		request = request.WithContext(ctx)
@@ -355,15 +365,17 @@ func TestUserHandlers_Update(t *testing.T) {
 	})
 
 	t.Run("usecase update error", func(t *testing.T) {
-		user := models.User{
+		updateDTO := &dto.UpdateDTO{
 			UserID:   userID,
 			Username: "updated_user",
 			Email:    "updated@example.com",
 		}
 
-		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(&user)).Return(nil, errors.New("update error"))
+		user := dto.NewUserFromUpdateDTO(updateDTO)
 
-		body, _ := json.Marshal(user)
+		usecaseMock.EXPECT().Update(gomock.Any(), gomock.Eq(user)).Return(nil, errors.New("update error"))
+
+		body, _ := json.Marshal(updateDTO)
 		request := httptest.NewRequest(http.MethodPut, "/update", bytes.NewBuffer(body))
 		ctx := context.WithValue(request.Context(), utils.UserIDKey{}, userID)
 		request = request.WithContext(ctx)

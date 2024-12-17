@@ -1,15 +1,16 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	uuid "github.com/google/uuid"
+	"github.com/mailru/easyjson"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/track"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/track/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
 )
@@ -53,13 +54,20 @@ func (handlers *trackHandlers) SearchTrack(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundTracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(foundTracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewTrack godoc
@@ -89,13 +97,20 @@ func (handlers *trackHandlers) ViewTrack(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundTrack); err != nil {
+	rawBytes, err := easyjson.Marshal(foundTrack)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode track: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -118,13 +133,20 @@ func (handlers *trackHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByArtistID godoc
@@ -157,13 +179,20 @@ func (handlers *trackHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByAlbumID godoc
@@ -196,13 +225,20 @@ func (handlers *trackHandlers) GetAllByAlbumID(response http.ResponseWriter, req
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // AddFavoriteTrack godoc
@@ -309,13 +345,21 @@ func (handlers *trackHandlers) IsFavoriteTrack(response http.ResponseWriter, req
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(map[string]bool{"exists": exists}); err != nil {
+	existsResponse := &utils.ExistsResponse{Exists: exists}
+	rawBytes, err := easyjson.Marshal(existsResponse)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetFavoriteTracks godoc
@@ -345,16 +389,24 @@ func (handlers *trackHandlers) GetFavoriteTracks(response http.ResponseWriter, r
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
-func (h *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request) {
+func (handlers *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
 	playlistIDStr := vars["playlistId"]
 	playlistID, err := strconv.ParseUint(playlistIDStr, 10, 64)
@@ -363,19 +415,26 @@ func (h *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, requ
 		return
 	}
 
-	playlist, err := h.usecase.GetTracksFromPlaylist(request.Context(), playlistID)
+	playlist, err := handlers.usecase.GetTracksFromPlaylist(request.Context(), playlistID)
 	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(response).Encode(playlist); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(playlist))
+	if err != nil {
 		utils.JSONError(response, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 func (handlers *trackHandlers) GetPopular(response http.ResponseWriter, request *http.Request) {
