@@ -35,4 +35,23 @@ const (
       JOIN favorite_artist AS fa
       ON a.id = fa.artist_id
     WHERE fa.user_id = $1`
+
+	getPopularArtistsQuery = `SELECT 
+    a.id, 
+    a.name, 
+    a.bio, 
+    a.country, 
+    a.image, 
+    a.created_at, 
+    a.updated_at
+    FROM 
+        artist a
+    LEFT JOIN 
+        favorite_artist fa ON a.id = fa.artist_id
+    GROUP BY 
+        a.id
+    ORDER BY 
+        COUNT(fa.artist_id) DESC
+    LIMIT 50;
+`
 )

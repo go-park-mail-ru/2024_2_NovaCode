@@ -450,11 +450,18 @@ func (handlers *trackHandlers) GetPopular(response http.ResponseWriter, request 
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

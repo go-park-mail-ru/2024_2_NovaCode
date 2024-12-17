@@ -139,6 +139,21 @@ func (mr *MockRepoMockRecorder) GetFavoriteArtists(ctx, userID interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteArtists", reflect.TypeOf((*MockRepo)(nil).GetFavoriteArtists), ctx, userID)
 }
 
+// GetPopular mocks base method.
+func (m *MockRepo) GetPopular(ctx context.Context) ([]*models.Artist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopular", ctx)
+	ret0, _ := ret[0].([]*models.Artist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopular indicates an expected call of GetPopular.
+func (mr *MockRepoMockRecorder) GetPopular(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopular", reflect.TypeOf((*MockRepo)(nil).GetPopular), ctx)
+}
+
 // IsFavoriteArtist mocks base method.
 func (m *MockRepo) IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error) {
 	m.ctrl.T.Helper()

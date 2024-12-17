@@ -16,4 +16,5 @@ type Repo interface {
 	DeleteFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error
 	IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error)
 	GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error)
+	GetPopular(ctx context.Context) ([]*models.Artist, error)
 }

@@ -312,3 +312,32 @@ func (handlers *artistHandlers) GetFavoriteArtists(response http.ResponseWriter,
 		return
 	}
 }
+
+func (handlers *artistHandlers) GetPopular(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	artists, err := handlers.usecase.GetPopular(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get popular artists: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get popular artists: %v", err))
+		return
+	} else if len(artists) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No popular artists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	rawBytes, err := easyjson.Marshal(dto.ArtistDTOs(artists))
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode artists: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode artists: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}

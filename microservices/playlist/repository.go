@@ -21,4 +21,5 @@ type Repository interface {
 	DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
 	IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error)
 	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error)
+	GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error)
 }

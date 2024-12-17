@@ -170,6 +170,21 @@ func (mr *MockRepositoryMockRecorder) GetPlaylist(ctx, playlistID interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylist", reflect.TypeOf((*MockRepository)(nil).GetPlaylist), ctx, playlistID)
 }
 
+// GetPopularPlaylists mocks base method.
+func (m *MockRepository) GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopularPlaylists", ctx)
+	ret0, _ := ret[0].([]*models.Playlist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopularPlaylists indicates an expected call of GetPopularPlaylists.
+func (mr *MockRepositoryMockRecorder) GetPopularPlaylists(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopularPlaylists", reflect.TypeOf((*MockRepository)(nil).GetPopularPlaylists), ctx)
+}
+
 // GetUserPlaylists mocks base method.
 func (m *MockRepository) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
 	m.ctrl.T.Helper()

@@ -10,4 +10,5 @@ type Handlers interface {
 	DeleteFavoriteArtist(response http.ResponseWriter, request *http.Request)
 	IsFavoriteArtist(response http.ResponseWriter, request *http.Request)
 	GetFavoriteArtists(response http.ResponseWriter, request *http.Request)
+	GetPopular(response http.ResponseWriter, request *http.Request)
 }

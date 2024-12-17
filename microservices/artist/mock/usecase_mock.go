@@ -94,6 +94,21 @@ func (mr *MockUsecaseMockRecorder) GetFavoriteArtists(ctx, userID interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteArtists", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteArtists), ctx, userID)
 }
 
+// GetPopular mocks base method.
+func (m *MockUsecase) GetPopular(ctx context.Context) ([]*dto.ArtistDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopular", ctx)
+	ret0, _ := ret[0].([]*dto.ArtistDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopular indicates an expected call of GetPopular.
+func (mr *MockUsecaseMockRecorder) GetPopular(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopular", reflect.TypeOf((*MockUsecase)(nil).GetPopular), ctx)
+}
+
 // IsFavoriteArtist mocks base method.
 func (m *MockUsecase) IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error) {
 	m.ctrl.T.Helper()
