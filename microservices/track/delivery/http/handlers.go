@@ -377,3 +377,25 @@ func (h *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, requ
 
 	response.WriteHeader(http.StatusOK)
 }
+
+func (handlers *trackHandlers) GetPopular(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	tracks, err := handlers.usecase.GetPopular(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get tracks: %v", err))
+		return
+	} else if len(tracks) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No tracks were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(tracks); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}

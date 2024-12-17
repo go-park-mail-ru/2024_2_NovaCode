@@ -20,4 +20,5 @@ type Usecase interface {
 	GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*dto.TrackDTO, error)
 	ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error)
 	GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error)
+	GetPopular(ctx context.Context) ([]*dto.TrackDTO, error)
 }
