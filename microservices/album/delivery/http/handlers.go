@@ -293,10 +293,11 @@ func (handlers *albumHandlers) IsFavoriteAlbum(response http.ResponseWriter, req
 
 func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
-	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
-	if !ok {
-		handlers.logger.Error("User id not found in context", requestID)
-		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid user ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 

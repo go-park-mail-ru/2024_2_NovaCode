@@ -24,7 +24,7 @@ func BindRoutes(s *httpServer.Server, artistClient artistService.ArtistServiceCl
 	s.MUX.HandleFunc("/api/v1/albums/byArtistId/{artistId:[0-9]+}", albumHandleres.GetAllByArtistID).Methods("GET")
 
 	s.MUX.Handle(
-		"/api/v1/albums/favorite",
+		"/api/v1/albums/favorite/byUser/{userID}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(albumHandleres.GetFavoriteAlbums)),
 	).Methods("GET")
 

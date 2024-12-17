@@ -547,7 +547,11 @@ func TestAlbumHandlers_GetFavoriteAlbums(t *testing.T) {
 	usecaseMock := mocks.NewMockUsecase(ctrl)
 	albumHandlers := NewAlbumHandlers(usecaseMock, logger)
 
+	router := mux.NewRouter()
+	router.HandleFunc("/api/v1/albums/favorite/byUser/{userID}", albumHandlers.GetFavoriteAlbums).Methods("GET")
+
 	t.Run("Success", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		albums := []*dto.AlbumDTO{
 			{ID: 1, Name: "Album 1", ArtistName: "Artist 1"},
@@ -556,79 +560,66 @@ func TestAlbumHandlers_GetFavoriteAlbums(t *testing.T) {
 
 		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(albums, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusOK, res.StatusCode)
+		assert.Equal(t, http.StatusOK, response.Code)
 
 		var result []*dto.AlbumDTO
-		err = json.NewDecoder(res.Body).Decode(&result)
+		err := json.NewDecoder(response.Body).Decode(&result)
 		assert.NoError(t, err)
 		assert.Len(t, result, 2)
 		assert.Equal(t, "Album 1", result[0].Name)
 		assert.Equal(t, "Album 2", result[1].Name)
 	})
 
-	t.Run("User ID not found", func(t *testing.T) {
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
+	t.Run("Invalid user ID", func(t *testing.T) {
+		requestID := "test-request-id"
+		invalidUserID := "invalid-uuid"
 
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
-		assert.NoError(t, err)
-
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/albums/favorite/byUser/"+invalidUserID, nil)
+		request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
-		assert.Contains(t, response.Body.String(), "User id not found")
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Contains(t, response.Body.String(), "Invalid user ID")
 	})
 
 	t.Run("Error while getting favorite albums", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
-		mockError := fmt.Errorf("usecase error")
-		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(nil, mockError)
+		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(nil, fmt.Errorf("usecase error"))
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-
-		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Contains(t, response.Body.String(), "Failed to get favorite albums")
 	})
 
 	t.Run("No favorite albums found", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		usecaseMock.EXPECT().GetFavoriteAlbums(gomock.Any(), userID).Return(nil, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/albums/favorite", albumHandlers.GetFavoriteAlbums).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/albums/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 		assert.Contains(t, response.Body.String(), "No favorite albums were found")
 	})
+}
+
+func createRequestWithVars(requestID string, userID uuid.UUID) *http.Request {
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/albums/favorite/byUser/"+userID.String(), nil)
+	request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
+	return request
 }
