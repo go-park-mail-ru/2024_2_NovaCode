@@ -242,6 +242,7 @@ services:
       - /etc/ssl/nova-music.ru:/root/.minio/certs:ro
     networks:
       - prometheus
+      - app-network
 
   minio-client:
     container_name: minio-client
