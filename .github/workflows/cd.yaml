@@ -55,16 +55,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync migration files to server
+      - name: Clear target directory
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: 185.241.194.24
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            rsync -av --delete \
-              ./internal/db/postgres/migrations/ \
-              ubuntu@185.241.194.24:/home/ubuntu/nova-music/backend/internal/db/postgres/migrations/
+            rm -rf /home/ubuntu/nova-music/backend/internal/db/postgres/migrations/*
+
+      - name: Copy migration files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 185.241.194.24
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          source: "internal/db/postgres/migrations/*"
+          target: "/home/ubuntu/nova-music/backend/internal/db/postgres/migrations/"
 
       - name: Run database migrations
         uses: appleboy/ssh-action@v0.1.7
