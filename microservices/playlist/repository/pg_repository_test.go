@@ -211,3 +211,114 @@ func TestPlaylistRepositoryDeletePlaylist(t *testing.T) {
 	rowsAffected, _ := res.RowsAffected()
 	require.Equal(t, int64(1), rowsAffected)
 }
+
+func TestPlaylistRepositoryAddFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectExec(addFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = playlistRepository.AddFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+}
+
+func TestPlaylistRepositoryDeleteFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectExec(deleteFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = playlistRepository.DeleteFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+}
+
+func TestPlaylistRepositoryIsFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectQuery(isFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
+
+	exists, err := playlistRepository.IsFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+	require.True(t, exists)
+}
+
+func TestPlaylistRepositoryGetFavoritePlaylists(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	playlists := []models.Playlist{
+		{
+			ID:        1,
+			Name:      "Playlist 1",
+			Image:     "/imgs/playlists/playlist_1.jpg",
+			OwnerID:   uuid.New(),
+			IsPrivate: false,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Playlist 2",
+			Image:     "/imgs/playlists/playlist_2.jpg",
+			OwnerID:   uuid.New(),
+			IsPrivate: true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, playlist := range playlists {
+		rows.AddRow(
+			playlist.ID,
+			playlist.Name,
+			playlist.Image,
+			playlist.OwnerID,
+			playlist.IsPrivate,
+			playlist.CreatedAt,
+			playlist.UpdatedAt,
+		)
+	}
+
+	userID := uuid.New()
+
+	expectedPlaylists := []*models.Playlist{&playlists[0], &playlists[1]}
+	mock.ExpectQuery(getFavoriteQuery).WithArgs(userID).WillReturnRows(rows)
+
+	foundPlaylists, err := playlistRepository.GetFavoritePlaylists(context.Background(), userID)
+	require.NoError(t, err)
+	require.NotNil(t, foundPlaylists)
+	require.Equal(t, foundPlaylists, expectedPlaylists)
+}

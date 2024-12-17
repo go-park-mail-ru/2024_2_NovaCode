@@ -45,3 +45,8 @@ func JSONError(response http.ResponseWriter, statusCode int, message string) {
 	}
 	response.Write(rawBytes)
 }
+
+//easyjson:json
+type ExistsResponse struct {
+	Exists bool `json:"exists"`
+}

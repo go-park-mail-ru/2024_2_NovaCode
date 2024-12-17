@@ -33,8 +33,3 @@ func NewTrackDTO(track *models.Track) *TrackDTO {
 
 //easyjson:json
 type TrackDTOs []*TrackDTO
-
-//easyjson:json
-type ExistsDTO struct {
-	Exists bool `json:"exists"`
-}

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   email TEXT NOT NULL UNIQUE,
     CONSTRAINT email_length CHECK (char_length(email) <= 255),
   password_hash TEXT NOT NULL,
-  image TEXT DEFAULT 'default.jpeg',
+  image TEXT DEFAULT 'default.webp',
     CONSTRAINT profile_image_length CHECK (char_length(image) <= 255), 
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS "playlist" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name TEXT NOT NULL UNIQUE
     CONSTRAINT playlist_name_length CHECK (char_length(name) <= 31),
-  image TEXT DEFAULT 'default.jpeg'
+  image TEXT DEFAULT 'default.webp'
     CONSTRAINT playlist_image_length CHECK (char_length(image) <= 255),
   owner_id UUID REFERENCES "user" (id) ON DELETE CASCADE,
   is_private BOOL NOT NULL DEFAULT false,

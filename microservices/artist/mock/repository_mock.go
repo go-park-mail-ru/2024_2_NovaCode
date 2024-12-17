@@ -10,6 +10,7 @@ import (
 
 	models "github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockRepo is a mock of Repo interface.
@@ -35,6 +36,20 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
+// AddFavoriteArtist mocks base method.
+func (m *MockRepo) AddFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFavoriteArtist", ctx, userID, artistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFavoriteArtist indicates an expected call of AddFavoriteArtist.
+func (mr *MockRepoMockRecorder) AddFavoriteArtist(ctx, userID, artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavoriteArtist", reflect.TypeOf((*MockRepo)(nil).AddFavoriteArtist), ctx, userID, artistID)
+}
+
 // Create mocks base method.
 func (m *MockRepo) Create(ctx context.Context, artist *models.Artist) (*models.Artist, error) {
 	m.ctrl.T.Helper()
@@ -48,6 +63,20 @@ func (m *MockRepo) Create(ctx context.Context, artist *models.Artist) (*models.A
 func (mr *MockRepoMockRecorder) Create(ctx, artist interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepo)(nil).Create), ctx, artist)
+}
+
+// DeleteFavoriteArtist mocks base method.
+func (m *MockRepo) DeleteFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFavoriteArtist", ctx, userID, artistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFavoriteArtist indicates an expected call of DeleteFavoriteArtist.
+func (mr *MockRepoMockRecorder) DeleteFavoriteArtist(ctx, userID, artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFavoriteArtist", reflect.TypeOf((*MockRepo)(nil).DeleteFavoriteArtist), ctx, userID, artistID)
 }
 
 // FindById mocks base method.
@@ -93,4 +122,34 @@ func (m *MockRepo) GetAll(ctx context.Context) ([]*models.Artist, error) {
 func (mr *MockRepoMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepo)(nil).GetAll), ctx)
+}
+
+// GetFavoriteArtists mocks base method.
+func (m *MockRepo) GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteArtists", ctx, userID)
+	ret0, _ := ret[0].([]*models.Artist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteArtists indicates an expected call of GetFavoriteArtists.
+func (mr *MockRepoMockRecorder) GetFavoriteArtists(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteArtists", reflect.TypeOf((*MockRepo)(nil).GetFavoriteArtists), ctx, userID)
+}
+
+// IsFavoriteArtist mocks base method.
+func (m *MockRepo) IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFavoriteArtist", ctx, userID, artistID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsFavoriteArtist indicates an expected call of IsFavoriteArtist.
+func (mr *MockRepoMockRecorder) IsFavoriteArtist(ctx, userID, artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFavoriteArtist", reflect.TypeOf((*MockRepo)(nil).IsFavoriteArtist), ctx, userID, artistID)
 }

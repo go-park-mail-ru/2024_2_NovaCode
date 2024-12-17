@@ -3,11 +3,15 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	mockArtist "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/mock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
@@ -205,4 +209,145 @@ func TestUsecase_GetAll_NotFoundArtists(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, dtoArtists)
 	require.EqualError(t, err, "Can't load artists")
+}
+
+func TestArtistUsecase_AddFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockArtistRepo := mockArtist.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistUsecase := &artistUsecase{
+		artistRepo: mockArtistRepo,
+		logger:     logger,
+	}
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockArtistRepo.EXPECT().AddFavoriteArtist(ctx, userID, artistID).Return(nil)
+		err := artistUsecase.AddFavoriteArtist(ctx, userID, artistID)
+		require.NoError(t, err)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockArtistRepo.EXPECT().AddFavoriteArtist(ctx, userID, artistID).Return(mockError)
+
+		err := artistUsecase.AddFavoriteArtist(ctx, userID, artistID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+	})
+}
+
+func TestArtistUsecase_DeleteFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockArtistRepo := mockArtist.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistUsecase := &artistUsecase{
+		artistRepo: mockArtistRepo,
+		logger:     logger,
+	}
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockArtistRepo.EXPECT().DeleteFavoriteArtist(ctx, userID, artistID).Return(nil)
+		err := artistUsecase.DeleteFavoriteArtist(ctx, userID, artistID)
+		require.NoError(t, err)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockArtistRepo.EXPECT().DeleteFavoriteArtist(ctx, userID, artistID).Return(mockError)
+
+		err := artistUsecase.DeleteFavoriteArtist(ctx, userID, artistID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+	})
+}
+
+func TestArtistUsecase_IsFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockArtistRepo := mockArtist.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistUsecase := &artistUsecase{
+		artistRepo: mockArtistRepo,
+		logger:     logger,
+	}
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+	requestID := "request-id"
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	t.Run("success", func(t *testing.T) {
+		mockArtistRepo.EXPECT().IsFavoriteArtist(ctx, userID, artistID).Return(true, nil)
+		exists, err := artistUsecase.IsFavoriteArtist(ctx, userID, artistID)
+		require.NoError(t, err)
+		require.True(t, exists)
+	})
+
+	t.Run("artist not found", func(t *testing.T) {
+		mockArtistRepo.EXPECT().IsFavoriteArtist(ctx, userID, artistID).Return(false, nil)
+		exists, err := artistUsecase.IsFavoriteArtist(ctx, userID, artistID)
+		require.NoError(t, err)
+		require.False(t, exists)
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockArtistRepo.EXPECT().IsFavoriteArtist(ctx, userID, artistID).Return(false, mockError)
+
+		exists, err := artistUsecase.IsFavoriteArtist(ctx, userID, artistID)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "repository error")
+		require.False(t, exists)
+	})
 }
