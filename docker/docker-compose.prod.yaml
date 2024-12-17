@@ -9,6 +9,9 @@ services:
     image: containrrr/watchtower:latest
     container_name: watchtower
     privileged: true
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_ROLLING_RESTART=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 30
