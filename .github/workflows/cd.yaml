@@ -64,6 +64,7 @@ jobs:
       #     script: |
       #       rm -rf /home/ubuntu/nova-music/backend/internal/db/postgres/migrations/*
 
+
       - name: Copy migration files to server
         uses: appleboy/scp-action@v0.1.7
         with:
