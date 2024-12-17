@@ -47,8 +47,14 @@ func (handlers *userHandlers) Health(response http.ResponseWriter, request *http
 		utils.JSONError(response, http.StatusInternalServerError, "failed to get health status")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // Register godoc
@@ -109,8 +115,14 @@ func (handlers *userHandlers) Register(response http.ResponseWriter, request *ht
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
+
 	response.WriteHeader(http.StatusOK)
-	response.Write(rawBytes)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // Login godoc
@@ -166,8 +178,14 @@ func (handlers *userHandlers) Login(response http.ResponseWriter, request *http.
 		utils.JSONError(response, http.StatusInternalServerError, "failed to return token")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // Logout godoc
@@ -199,8 +217,14 @@ func (handlers *userHandlers) Logout(response http.ResponseWriter, request *http
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetCSRFToken godoc
@@ -231,8 +255,14 @@ func (handlers *userHandlers) GetCSRFToken(response http.ResponseWriter, request
 		utils.JSONError(response, http.StatusInternalServerError, "failed to log out")
 		return
 	}
-	response.Write(rawBytes)
+
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // Update godoc
