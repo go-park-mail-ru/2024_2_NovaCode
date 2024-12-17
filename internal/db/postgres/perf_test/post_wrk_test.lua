@@ -22,7 +22,7 @@ end
 local counter = 1
 
 function response()
-   if counter == 100 then
+   if counter == 1000 then
       wrk.thread:stop()
    end
    counter = counter + 1

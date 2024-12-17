@@ -8,6 +8,6 @@ RESPONSE=$(
 JWT_TOKEN=$(echo $RESPONSE | jq -r '.token')
 USER_ID=$(echo $RESPONSE | jq -r '.user.id')
 
-wrk -c150 -d20s -t100 -sget_wrk_test.lua \
+wrk -c150 -d900s -t100 -sget_wrk_test.lua \
     -H "Cookie: jwt-token=${JWT_TOKEN}" \
     http://localhost:8084/api/v1/playlists/${USER_ID}/allPlaylists

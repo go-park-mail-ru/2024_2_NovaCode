@@ -6,6 +6,6 @@ JWT_TOKEN=$(
   jq -r '.token'
 )
 
-wrk -c150 -d40s -t100 -spost_wrk_test.lua \
+wrk -c150 -d2400s -t100 -spost_wrk_test.lua \
     -H "Cookie: jwt-token=${JWT_TOKEN}" \
     http://localhost:8084/api/v1/playlists
