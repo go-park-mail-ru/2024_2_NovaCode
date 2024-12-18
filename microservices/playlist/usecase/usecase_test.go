@@ -723,3 +723,132 @@ func TestPlaylistUsecase_GetFavoritePlaylists_NotFoundPlaylists(t *testing.T) {
 	require.Nil(t, dtoPlaylists)
 	require.EqualError(t, err, fmt.Sprintf("Can't load playlists by user ID %v", userID))
 }
+
+func TestPlaylistUsecaseGetPopularPlaylists_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+
+	ownerID := uuid.New()
+	mockPlaylists := []*models.Playlist{
+		{
+			ID:        1,
+			Name:      "Chill Vibes",
+			Image:     "/images/playlists/chill_vibes.jpg",
+			OwnerID:   ownerID,
+			IsPrivate: false,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Workout Beats",
+			Image:     "/images/playlists/workout_beats.jpg",
+			OwnerID:   ownerID,
+			IsPrivate: false,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	findByIDResponseUser := &userService.FindByIDResponse{
+		User: &userService.User{
+			Uuid:     ownerID.String(),
+			Username: "user2",
+		},
+	}
+
+	ctx := context.Background()
+	playlistRepoMock.EXPECT().GetPopularPlaylists(ctx).Return(mockPlaylists, nil)
+	userClientMock.EXPECT().FindByID(ctx, &userService.FindByIDRequest{Uuid: ownerID.String()}).Return(findByIDResponseUser, nil).Times(2)
+
+	playlistsDTO, err := playlistUsecase.GetPopularPlaylists(ctx)
+
+	require.NoError(t, err)
+	require.NotNil(t, playlistsDTO)
+	require.Len(t, playlistsDTO, len(mockPlaylists))
+	require.Equal(t, "user2", playlistsDTO[0].OwnerName)
+	require.Equal(t, "user2", playlistsDTO[1].OwnerName)
+}
+
+func TestPlaylistUsecaseGetPopularPlaylists_RepoError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+
+	ctx := context.Background()
+	mockError := fmt.Errorf("repository error")
+	playlistRepoMock.EXPECT().GetPopularPlaylists(ctx).Return(nil, mockError)
+
+	playlistsDTO, err := playlistUsecase.GetPopularPlaylists(ctx)
+
+	require.Error(t, err)
+	require.Nil(t, playlistsDTO)
+}
+
+func TestPlaylistUsecaseGetPopularPlaylists_UserClientError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+
+	ownerID := uuid.New()
+	mockPlaylists := []*models.Playlist{
+		{
+			ID:        1,
+			Name:      "Chill Vibes",
+			Image:     "/images/playlists/chill_vibes.jpg",
+			OwnerID:   ownerID,
+			IsPrivate: false,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	ctx := context.Background()
+	playlistRepoMock.EXPECT().GetPopularPlaylists(ctx).Return(mockPlaylists, nil)
+	userClientMock.EXPECT().FindByID(ctx, &userService.FindByIDRequest{Uuid: ownerID.String()}).Return(nil, fmt.Errorf("user service error"))
+
+	playlistsDTO, err := playlistUsecase.GetPopularPlaylists(ctx)
+
+	require.Error(t, err)
+	require.Nil(t, playlistsDTO)
+}

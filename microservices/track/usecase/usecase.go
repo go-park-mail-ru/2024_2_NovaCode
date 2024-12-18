@@ -241,3 +241,25 @@ func (usecase *trackUsecase) ConvertTrackToDTO(ctx context.Context, track *model
 	trackDTO.ArtistName = artist.Artist.Name
 	return trackDTO, nil
 }
+
+func (usecase *trackUsecase) GetPopular(ctx context.Context) ([]*dto.TrackDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	tracks, err := usecase.trackRepo.GetPopular(ctx)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load tracks: %v", err), requestID)
+		return nil, fmt.Errorf("Can't load tracks")
+	}
+	usecase.logger.Info("Found tracks", requestID)
+
+	var dtoTracks []*dto.TrackDTO
+	for _, track := range tracks {
+		dtoTrack, err := usecase.ConvertTrackToDTO(ctx, track)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
+			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoTracks = append(dtoTracks, dtoTrack)
+	}
+
+	return dtoTracks, nil
+}

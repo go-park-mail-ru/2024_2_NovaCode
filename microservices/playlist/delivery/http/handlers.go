@@ -413,3 +413,26 @@ func (h *playlistHandlers) GetFavoritePlaylists(response http.ResponseWriter, re
 		return
 	}
 }
+
+func (h *playlistHandlers) GetPopularPlaylists(response http.ResponseWriter, request *http.Request) {
+	playlists, err := h.usecase.GetPopularPlaylists(request.Context())
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	rawBytes, err := easyjson.Marshal(dto.PlaylistDTOs(playlists))
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		h.logger.Errorf("Failed to write response: %v", err)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}

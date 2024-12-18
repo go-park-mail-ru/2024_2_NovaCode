@@ -191,3 +191,25 @@ func (u *PlaylistUsecase) GetFavoritePlaylists(ctx context.Context, userID uuid.
 
 	return dtoPlaylists, nil
 }
+
+func (u *PlaylistUsecase) GetPopularPlaylists(ctx context.Context) ([]*dto.PlaylistDTO, error) {
+	playlists, err := u.playlistRepo.GetPopularPlaylists(ctx)
+	if err != nil {
+		u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
+		return nil, err
+	}
+
+	playlistsDTO := []*dto.PlaylistDTO{}
+	for _, playlist := range playlists {
+		owner, err := u.userClient.FindByID(ctx, &userService.FindByIDRequest{Uuid: playlist.OwnerID.String()})
+		if err != nil {
+			u.logger.Error(err.Error(), ctx.Value(utils.RequestIDKey{}))
+			return nil, err
+		}
+		playlistDTO := dto.NewPlaylistToPlaylistDTO(playlist)
+		playlistDTO.OwnerName = owner.User.Username
+		playlistsDTO = append(playlistsDTO, playlistDTO)
+	}
+
+	return playlistsDTO, nil
+}

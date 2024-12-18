@@ -15,4 +15,5 @@ type Usecase interface {
 	DeleteFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error
 	IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error)
 	GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*dto.ArtistDTO, error)
+	GetPopular(ctx context.Context) ([]*dto.ArtistDTO, error)
 }

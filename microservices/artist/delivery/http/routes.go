@@ -40,4 +40,6 @@ func BindRoutes(s *httpServer.Server) {
 		"/api/v1/artists/favorite/{artistID:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(artistHandlers.DeleteFavoriteArtist)),
 	).Methods("DELETE")
+
+	s.MUX.HandleFunc("/api/v1/artists/popular", artistHandlers.GetPopular).Methods("GET")
 }

@@ -322,3 +322,37 @@ func TestPlaylistRepositoryGetFavoritePlaylists(t *testing.T) {
 	require.NotNil(t, foundPlaylists)
 	require.Equal(t, foundPlaylists, expectedPlaylists)
 }
+
+func TestPlaylistRepositoryGetPopularPlaylists(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
+	mockPlaylists := sqlmock.NewRows(columns).
+		AddRow(1, "Popular Playlist 1", "/images/playlists/1.jpg", uuid.New(), false, time.Now(), time.Now()).
+		AddRow(2, "Popular Playlist 2", "/images/playlists/2.jpg", uuid.New(), false, time.Now(), time.Now())
+
+	mock.ExpectQuery(getPopularPlaylistsQuery).WillReturnRows(mockPlaylists)
+
+	playlists, err := playlistRepository.GetPopularPlaylists(context.Background())
+
+	require.NoError(t, err)
+	require.NotNil(t, playlists)
+	require.Len(t, playlists, 2)
+
+	require.Equal(t, uint64(1), playlists[0].ID)
+	require.Equal(t, "Popular Playlist 1", playlists[0].Name)
+	require.Equal(t, "/images/playlists/1.jpg", playlists[0].Image)
+
+	require.Equal(t, uint64(2), playlists[1].ID)
+	require.Equal(t, "Popular Playlist 2", playlists[1].Name)
+	require.Equal(t, "/images/playlists/2.jpg", playlists[1].Image)
+
+	err = mock.ExpectationsWereMet()
+	require.NoError(t, err)
+}

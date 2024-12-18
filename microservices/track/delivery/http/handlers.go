@@ -436,3 +436,32 @@ func (handlers *trackHandlers) GetTracksFromPlaylist(response http.ResponseWrite
 		return
 	}
 }
+
+func (handlers *trackHandlers) GetPopular(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	tracks, err := handlers.usecase.GetPopular(request.Context())
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get tracks: %v", err))
+		return
+	} else if len(tracks) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No tracks were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	rawBytes, err := easyjson.Marshal(dto.TrackDTOs(tracks))
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode tracks: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode tracks: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}

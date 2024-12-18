@@ -41,4 +41,23 @@ RETURNING id, playlist_id, track_order_in_playlist, track_id, created_at`
       JOIN favorite_playlist AS fp
       ON p.id = fp.playlist_id
     WHERE fp.user_id = $1`
+
+	getPopularPlaylistsQuery = `SELECT 
+    p.id, 
+    p.name, 
+    p.image, 
+    p.owner_id, 
+    p.is_private, 
+    p.created_at, 
+    p.updated_at
+    FROM 
+        playlist p
+    LEFT JOIN 
+        favorite_playlist fp ON p.id = fp.playlist_id
+    GROUP BY 
+        p.id
+    ORDER BY 
+        COUNT(fp.playlist_id) DESC
+    LIMIT 50;
+    `
 )

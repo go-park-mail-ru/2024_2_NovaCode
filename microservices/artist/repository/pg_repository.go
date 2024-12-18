@@ -176,3 +176,31 @@ func (r *ArtistRepository) GetFavoriteArtists(ctx context.Context, userID uuid.U
 
 	return artists, nil
 }
+
+func (r *ArtistRepository) GetPopular(ctx context.Context) ([]*models.Artist, error) {
+	var artists []*models.Artist
+	rows, err := r.db.QueryContext(ctx, getPopularArtistsQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetPopular.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		artist := &models.Artist{}
+		err := rows.Scan(
+			&artist.ID,
+			&artist.Name,
+			&artist.Bio,
+			&artist.Country,
+			&artist.Image,
+			&artist.CreatedAt,
+			&artist.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetPopular.Query")
+		}
+		artists = append(artists, artist)
+	}
+
+	return artists, nil
+}
