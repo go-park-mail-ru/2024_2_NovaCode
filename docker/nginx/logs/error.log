@@ -1,2 +1,5 @@
 2024/12/12 19:40:37 [emerg] 1#1: host not found in upstream "novamusic-track:8080" in /etc/nginx/nginx.conf:35
 2024/12/13 12:30:30 [emerg] 1#1: host not found in upstream "novamusic-track:8080" in /etc/nginx/nginx.conf:35
+2024/12/17 09:26:35 [error] 30#30: *55 upstream prematurely closed connection while reading response header from upstream, client: 172.18.0.1, server: localhost, request: "GET /api/v1/playlists HTTP/1.1", upstream: "http://172.18.0.6:8080/api/v1/playlists", host: "localhost:8080", referrer: "http://localhost:8080/"
+2024/12/17 09:26:53 [error] 30#30: *55 upstream prematurely closed connection while reading response header from upstream, client: 172.18.0.1, server: localhost, request: "GET /api/v1/playlists HTTP/1.1", upstream: "http://172.18.0.6:8080/api/v1/playlists", host: "localhost:8080", referrer: "http://localhost:8080/"
+2024/12/17 09:27:14 [error] 30#30: *11 upstream prematurely closed connection while reading response header from upstream, client: 172.18.0.1, server: localhost, request: "GET /api/v1/playlists HTTP/1.1", upstream: "http://172.18.0.6:8080/api/v1/playlists", host: "localhost:8080", referrer: "http://localhost:8080/"
