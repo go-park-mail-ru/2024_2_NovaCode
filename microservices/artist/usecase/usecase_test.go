@@ -353,6 +353,132 @@ func TestArtistUsecase_IsFavoriteArtist(t *testing.T) {
 	})
 }
 
+func TestUsecase_GetFavoriteArtistsCount_FoundArtists(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	artistUsecase := NewArtistUsecase(artistRepoMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedCount := uint64(5)
+	artistRepoMock.EXPECT().GetFavoriteArtistsCount(ctx, userID).Return(expectedCount, nil)
+
+	count, err := artistUsecase.GetFavoriteArtistsCount(ctx, userID)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedCount, count)
+}
+
+func TestUsecase_GetFavoriteArtistsCount_ErrorGettingCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	artistUsecase := NewArtistUsecase(artistRepoMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedError := fmt.Errorf("Can't load artists by user ID %v", userID)
+	artistRepoMock.EXPECT().GetFavoriteArtistsCount(ctx, userID).Return(uint64(0), expectedError)
+
+	count, err := artistUsecase.GetFavoriteArtistsCount(ctx, userID)
+
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), count)
+}
+
+func TestUsecase_GetArtistLikesCount_Success(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	artistUsecase := NewArtistUsecase(artistRepoMock, logger)
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	artistID := uint64(123)
+	expectedLikesCount := uint64(10)
+
+	artistRepoMock.EXPECT().GetArtistLikesCount(ctx, artistID).Return(expectedLikesCount, nil)
+
+	likesCount, err := artistUsecase.GetArtistLikesCount(ctx, artistID)
+	require.NoError(t, err)
+	require.Equal(t, expectedLikesCount, likesCount)
+}
+
+func TestUsecase_GetArtistLikesCount_ErrorGettingLikesCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	artistRepoMock := mockArtist.NewMockRepo(ctrl)
+	artistUsecase := NewArtistUsecase(artistRepoMock, logger)
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	artistID := uint64(123)
+	expectedError := fmt.Errorf("Can't load artist likes count by artist ID %v", artistID)
+
+	artistRepoMock.EXPECT().GetArtistLikesCount(ctx, artistID).Return(uint64(0), expectedError)
+
+	likesCount, err := artistUsecase.GetArtistLikesCount(ctx, artistID)
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), likesCount)
+}
+
 func TestArtistUsecase_GetPopular(t *testing.T) {
 	t.Parallel()
 

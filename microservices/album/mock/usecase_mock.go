@@ -64,6 +64,21 @@ func (mr *MockUsecaseMockRecorder) DeleteFavoriteAlbum(ctx, userID, albumID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFavoriteAlbum", reflect.TypeOf((*MockUsecase)(nil).DeleteFavoriteAlbum), ctx, userID, albumID)
 }
 
+// GetAlbumLikesCount mocks base method.
+func (m *MockUsecase) GetAlbumLikesCount(ctx context.Context, albumID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAlbumLikesCount", ctx, albumID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAlbumLikesCount indicates an expected call of GetAlbumLikesCount.
+func (mr *MockUsecaseMockRecorder) GetAlbumLikesCount(ctx, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumLikesCount", reflect.TypeOf((*MockUsecase)(nil).GetAlbumLikesCount), ctx, albumID)
+}
+
 // GetAll mocks base method.
 func (m *MockUsecase) GetAll(ctx context.Context) ([]*dto.AlbumDTO, error) {
 	m.ctrl.T.Helper()
@@ -107,6 +122,21 @@ func (m *MockUsecase) GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) (
 func (mr *MockUsecaseMockRecorder) GetFavoriteAlbums(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteAlbums", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteAlbums), ctx, userID)
+}
+
+// GetFavoriteAlbumsCount mocks base method.
+func (m *MockUsecase) GetFavoriteAlbumsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteAlbumsCount", ctx, userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteAlbumsCount indicates an expected call of GetFavoriteAlbumsCount.
+func (mr *MockUsecaseMockRecorder) GetFavoriteAlbumsCount(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteAlbumsCount", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteAlbumsCount), ctx, userID)
 }
 
 // IsFavoriteAlbum mocks base method.

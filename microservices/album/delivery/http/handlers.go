@@ -327,3 +327,76 @@ func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, r
 		return
 	}
 }
+
+func (handlers *albumHandlers) GetFavoriteAlbumsCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong user id: %v", vars["userID"], err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
+		return
+	}
+
+	count, err := handlers.usecase.GetFavoriteAlbumsCount(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get favorite albums count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite albums count: %v", err))
+		return
+	} else if count == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite albums were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	countResponse := &utils.CountResponse{Count: count}
+	rawBytes, err := easyjson.Marshal(countResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode favorite albums count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode favorite albums count: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
+func (handlers *albumHandlers) GetAlbumLikesCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	albumID, err := strconv.ParseUint(vars["albumID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid album ID: %v", err))
+		return
+	}
+
+	likesCount, err := handlers.usecase.GetAlbumLikesCount(request.Context(), albumID)
+	if err != nil {
+		handlers.logger.Error("Failed to get album likes count", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't check is album in favorite")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	countResponse := &utils.CountResponse{Count: likesCount}
+	rawBytes, err := easyjson.Marshal(countResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}

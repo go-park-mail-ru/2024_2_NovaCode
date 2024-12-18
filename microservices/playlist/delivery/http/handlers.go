@@ -437,3 +437,76 @@ func (h *playlistHandlers) GetPopularPlaylists(response http.ResponseWriter, req
 		return
 	}
 }
+
+func (handlers *playlistHandlers) GetFavoritePlaylistsCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong user id: %v", vars["userID"], err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
+		return
+	}
+
+	count, err := handlers.usecase.GetFavoritePlaylistsCount(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get playlists count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get playlists count: %v", err))
+		return
+	} else if count == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No playlists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	countResponse := &utils.CountResponse{Count: count}
+	rawBytes, err := easyjson.Marshal(countResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode playlists count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode playlists count: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
+func (handlers *playlistHandlers) GetPlaylistLikesCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	playlistID, err := strconv.ParseUint(vars["playlistID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid playlist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid playlist ID: %v", err))
+		return
+	}
+
+	likesCount, err := handlers.usecase.GetPlaylistLikesCount(request.Context(), playlistID)
+	if err != nil {
+		handlers.logger.Error("Failed to get playlist likes count", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't get playlist likes count")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	countResponse := &utils.CountResponse{Count: likesCount}
+	rawBytes, err := easyjson.Marshal(countResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}

@@ -192,6 +192,30 @@ func (u *PlaylistUsecase) GetFavoritePlaylists(ctx context.Context, userID uuid.
 	return dtoPlaylists, nil
 }
 
+func (usecase *PlaylistUsecase) GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	count, err := usecase.playlistRepo.GetFavoritePlaylistsCount(ctx, userID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load playlists count by user ID %v: %v", userID, err), requestID)
+		return 0, fmt.Errorf("Can't load playlists by user ID %v", userID)
+	}
+	usecase.logger.Infof("Found %d playlists for user ID %v", count, userID)
+
+	return count, nil
+}
+
+func (usecase *PlaylistUsecase) GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	likesCount, err := usecase.playlistRepo.GetPlaylistLikesCount(ctx, playlistID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load playlist likes count by playlist ID %v: %v", playlistID, err), requestID)
+		return 0, fmt.Errorf("Can't load playlist likes count by playlist ID %v", playlistID)
+	}
+	usecase.logger.Infof("Found %d likes for playlist ID %v", likesCount, playlistID)
+
+	return likesCount, nil
+}
+
 func (u *PlaylistUsecase) GetPopularPlaylists(ctx context.Context) ([]*dto.PlaylistDTO, error) {
 	playlists, err := u.playlistRepo.GetPopularPlaylists(ctx)
 	if err != nil {

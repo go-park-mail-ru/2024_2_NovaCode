@@ -37,4 +37,15 @@ const (
       JOIN favorite_album AS fa
       ON a.id = fa.album_id
     WHERE fa.user_id = $1`
+
+	getFavoriteCountQuery = `
+    SELECT COUNT(*)
+    FROM album AS a 
+      JOIN favorite_album AS fa
+      ON a.id = fa.album_id
+    WHERE fa.user_id = $1`
+
+	getLikesCountQuery = `
+    SELECT COUNT(*)
+    FROM favorite_album WHERE album_id = $1`
 )

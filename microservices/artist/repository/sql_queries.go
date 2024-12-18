@@ -36,6 +36,17 @@ const (
       ON a.id = fa.artist_id
     WHERE fa.user_id = $1`
 
+	getFavoriteCountQuery = `
+    SELECT COUNT(*)
+    FROM artist AS a 
+      JOIN favorite_artist AS fa
+      ON a.id = fa.artist_id
+    WHERE fa.user_id = $1`
+
+	getLikesCountQuery = `
+    SELECT COUNT(*)
+    FROM favorite_artist WHERE artist_id = $1`
+
 	getPopularArtistsQuery = `SELECT 
     a.id, 
     a.name, 

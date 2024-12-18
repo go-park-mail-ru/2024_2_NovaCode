@@ -140,6 +140,21 @@ func (mr *MockRepositoryMockRecorder) GetFavoritePlaylists(ctx, userID interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoritePlaylists", reflect.TypeOf((*MockRepository)(nil).GetFavoritePlaylists), ctx, userID)
 }
 
+// GetFavoritePlaylistsCount mocks base method.
+func (m *MockRepository) GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoritePlaylistsCount", ctx, userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoritePlaylistsCount indicates an expected call of GetFavoritePlaylistsCount.
+func (mr *MockRepositoryMockRecorder) GetFavoritePlaylistsCount(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoritePlaylistsCount", reflect.TypeOf((*MockRepository)(nil).GetFavoritePlaylistsCount), ctx, userID)
+}
+
 // GetLengthPlaylist mocks base method.
 func (m *MockRepository) GetLengthPlaylist(ctx context.Context, playlistID uint64) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -168,6 +183,21 @@ func (m *MockRepository) GetPlaylist(ctx context.Context, playlistID uint64) (*m
 func (mr *MockRepositoryMockRecorder) GetPlaylist(ctx, playlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylist", reflect.TypeOf((*MockRepository)(nil).GetPlaylist), ctx, playlistID)
+}
+
+// GetPlaylistLikesCount mocks base method.
+func (m *MockRepository) GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPlaylistLikesCount", ctx, playlistID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPlaylistLikesCount indicates an expected call of GetPlaylistLikesCount.
+func (mr *MockRepositoryMockRecorder) GetPlaylistLikesCount(ctx, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylistLikesCount", reflect.TypeOf((*MockRepository)(nil).GetPlaylistLikesCount), ctx, playlistID)
 }
 
 // GetPopularPlaylists mocks base method.

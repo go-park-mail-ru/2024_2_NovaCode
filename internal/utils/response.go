@@ -53,3 +53,8 @@ func JSONError(response http.ResponseWriter, statusCode int, message string) {
 type ExistsResponse struct {
 	Exists bool `json:"exists"`
 }
+
+//easyjson:json
+type CountResponse struct {
+	Count uint64 `json:"count"`
+}

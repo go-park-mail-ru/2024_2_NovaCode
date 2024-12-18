@@ -177,6 +177,26 @@ func (r *ArtistRepository) GetFavoriteArtists(ctx context.Context, userID uuid.U
 	return artists, nil
 }
 
+func (r *ArtistRepository) GetFavoriteArtistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	var count uint64
+	err := r.db.QueryRowContext(ctx, getFavoriteCountQuery, userID).Scan(&count)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "GetFavoriteArtistsCount.Query")
+	}
+
+	return count, nil
+}
+
+func (r *ArtistRepository) GetArtistLikesCount(ctx context.Context, artistID uint64) (uint64, error) {
+	var likesCount uint64
+	err := r.db.QueryRowContext(ctx, getLikesCountQuery, artistID).Scan(&likesCount)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "GetLikesCount.Query")
+	}
+
+	return likesCount, nil
+}
+
 func (r *ArtistRepository) GetPopular(ctx context.Context) ([]*models.Artist, error) {
 	var artists []*models.Artist
 	rows, err := r.db.QueryContext(ctx, getPopularArtistsQuery)
