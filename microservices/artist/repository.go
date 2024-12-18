@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
+	uuid "github.com/google/uuid"
 )
 
 type Repo interface {
@@ -11,4 +12,9 @@ type Repo interface {
 	FindById(ctx context.Context, artistID uint64) (*models.Artist, error)
 	GetAll(ctx context.Context) ([]*models.Artist, error)
 	FindByQuery(ctx context.Context, query string) ([]*models.Artist, error)
+	AddFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error
+	DeleteFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) error
+	IsFavoriteArtist(ctx context.Context, userID uuid.UUID, artistID uint64) (bool, error)
+	GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error)
+	GetPopular(ctx context.Context) ([]*models.Artist, error)
 }

@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/stretchr/testify/require"
@@ -203,4 +205,202 @@ func TestArtistRepositoryGetAll(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, foundArtists)
 	require.Equal(t, foundArtists, expectedArtists)
+}
+
+func TestArtistRepositoryAddFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+
+	mock.ExpectExec(addFavoriteArtistQuery).WithArgs(userID, artistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = artistRepository.AddFavoriteArtist(context.Background(), userID, artistID)
+
+	require.NoError(t, err)
+}
+
+func TestArtistRepositoryDeleteFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+
+	mock.ExpectExec(deleteFavoriteArtistQuery).WithArgs(userID, artistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = artistRepository.DeleteFavoriteArtist(context.Background(), userID, artistID)
+
+	require.NoError(t, err)
+}
+
+func TestArtistRepositoryIsFavoriteArtist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	userID := uuid.New()
+	artistID := uint64(12345)
+
+	mock.ExpectQuery(isFavoriteArtistQuery).WithArgs(userID, artistID).WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
+
+	exists, err := artistRepository.IsFavoriteArtist(context.Background(), userID, artistID)
+
+	require.NoError(t, err)
+	require.True(t, exists)
+}
+
+func TestArtistRepositoryGetFavoriteArtists(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	artists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Artist 1",
+			Bio:       "Bio 1",
+			Country:   "Country 1",
+			Image:     "/imgs/artists/artist_1.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Artist 2",
+			Bio:       "Bio 2",
+			Country:   "Country 2",
+			Image:     "/imgs/artists/artist_2.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "bio", "country", "image", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, artist := range artists {
+		rows.AddRow(
+			artist.ID,
+			artist.Name,
+			artist.Bio,
+			artist.Country,
+			artist.Image,
+			artist.CreatedAt,
+			artist.UpdatedAt,
+		)
+	}
+
+	userID := uuid.New()
+
+	expectedArtists := []*models.Artist{&artists[0], &artists[1]}
+	mock.ExpectQuery(getFavoriteQuery).WithArgs(userID).WillReturnRows(rows)
+
+	foundArtists, err := artistRepository.GetFavoriteArtists(context.Background(), userID)
+	require.NoError(t, err)
+	require.NotNil(t, foundArtists)
+	require.Equal(t, foundArtists, expectedArtists)
+}
+
+func TestArtistRepositoryGetPopular(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	artists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Artist 1",
+			Bio:       "Bio of Artist 1",
+			Country:   "Country A",
+			Image:     "/images/artists/artist_1.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Artist 2",
+			Bio:       "Bio of Artist 2",
+			Country:   "Country B",
+			Image:     "/images/artists/artist_2.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "bio", "country", "image", "created_at", "updated_at"}
+
+	rows := sqlmock.NewRows(columns)
+	for _, artist := range artists {
+		rows.AddRow(
+			artist.ID,
+			artist.Name,
+			artist.Bio,
+			artist.Country,
+			artist.Image,
+			artist.CreatedAt,
+			artist.UpdatedAt,
+		)
+	}
+
+	mock.ExpectQuery(getPopularArtistsQuery).WillReturnRows(rows)
+
+	ctx := context.Background()
+	foundArtists, err := artistRepository.GetPopular(ctx)
+
+	require.NoError(t, err)
+	require.NotNil(t, foundArtists)
+	require.Equal(t, len(artists), len(foundArtists))
+
+	for i, artist := range artists {
+		require.Equal(t, artist.ID, foundArtists[i].ID)
+		require.Equal(t, artist.Name, foundArtists[i].Name)
+		require.Equal(t, artist.Bio, foundArtists[i].Bio)
+		require.Equal(t, artist.Country, foundArtists[i].Country)
+		require.Equal(t, artist.Image, foundArtists[i].Image)
+		require.WithinDuration(t, artist.CreatedAt, foundArtists[i].CreatedAt, time.Second)
+		require.WithinDuration(t, artist.UpdatedAt, foundArtists[i].UpdatedAt, time.Second)
+	}
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestArtistRepositoryGetPopular_Error(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	mock.ExpectQuery(getPopularArtistsQuery).WillReturnError(sqlmock.ErrCancelled)
+
+	ctx := context.Background()
+	foundArtists, err := artistRepository.GetPopular(ctx)
+
+	require.Error(t, err)
+	require.Nil(t, foundArtists)
+
+	require.NoError(t, mock.ExpectationsWereMet())
 }

@@ -16,4 +16,9 @@ type Usecase interface {
 	AddToPlaylist(ctx context.Context, playlistTrackDTO *pldto.PlaylistTrackDTO) (*models.PlaylistTrack, error)
 	RemoveFromPlaylist(ctx context.Context, playlistTrackDTO *pldto.PlaylistTrackDTO) error
 	DeletePlaylist(ctx context.Context, playlistID uint64) error
+	AddFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
+	DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
+	IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error)
+	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*pldto.PlaylistDTO, error)
+	GetPopularPlaylists(ctx context.Context) ([]*pldto.PlaylistDTO, error)
 }

@@ -27,7 +27,7 @@ func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) 
 
 	s.MUX.HandleFunc("/api/v1/playlists/{playlistId:[0-9]+}", playlistHandleres.GetPlaylist).Methods("GET")
 
-	s.MUX.HandleFunc("/api/v1/users/{userId:[0-9a-fA-F-]+}/playlists", playlistHandleres.GetUserPlaylists).Methods("GET")
+	s.MUX.HandleFunc("/api/v1/playlists/{userId:[0-9a-fA-F-]+}/allPlaylists", playlistHandleres.GetUserPlaylists).Methods("GET")
 
 	s.MUX.Handle(
 		"/api/v1/playlists/{playlistId:[0-9]+}/tracks",
@@ -43,4 +43,26 @@ func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) 
 		"/api/v1/playlists/{playlistId:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.DeletePlaylist)),
 	).Methods("DELETE")
+
+	s.MUX.Handle(
+		"/api/v1/playlists/favorite/byUser/{userID}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.GetFavoritePlaylists)),
+	).Methods("GET")
+
+	s.MUX.Handle(
+		"/api/v1/playlists/favorite/{playlistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.IsFavoritePlaylist)),
+	).Methods("GET")
+
+	s.MUX.Handle(
+		"/api/v1/playlists/favorite/{playlistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.AddFavoritePlaylist)),
+	).Methods("POST")
+
+	s.MUX.Handle(
+		"/api/v1/playlists/favorite/{playlistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.DeleteFavoritePlaylist)),
+	).Methods("DELETE")
+
+	s.MUX.HandleFunc("/api/v1/playlists/popular", playlistHandleres.GetPopularPlaylists).Methods("GET")
 }

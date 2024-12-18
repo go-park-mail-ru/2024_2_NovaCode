@@ -47,6 +47,7 @@ func (usecase *userUsecase) Register(ctx context.Context, user *models.User) (*d
 		usecase.logger.Error(fmt.Sprintf("error checking username availability: %v", err), requestID)
 		return nil, fmt.Errorf("failed to check username availability: %w", err)
 	}
+	fmt.Printf("debug")
 
 	if foundUser, err := usecase.pgRepo.FindByEmail(ctx, user.Email); foundUser != nil {
 		usecase.logger.Warn(fmt.Sprintf("email '%s' is already taken", user.Email), requestID)

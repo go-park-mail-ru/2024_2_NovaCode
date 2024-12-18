@@ -211,3 +211,148 @@ func TestPlaylistRepositoryDeletePlaylist(t *testing.T) {
 	rowsAffected, _ := res.RowsAffected()
 	require.Equal(t, int64(1), rowsAffected)
 }
+
+func TestPlaylistRepositoryAddFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectExec(addFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = playlistRepository.AddFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+}
+
+func TestPlaylistRepositoryDeleteFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectExec(deleteFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnResult(sqlmock.NewResult(0, 1))
+	err = playlistRepository.DeleteFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+}
+
+func TestPlaylistRepositoryIsFavoritePlaylist(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	userID := uuid.New()
+	playlistID := uint64(12345)
+
+	mock.ExpectQuery(isFavoritePlaylistQuery).WithArgs(userID, playlistID).WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
+
+	exists, err := playlistRepository.IsFavoritePlaylist(context.Background(), userID, playlistID)
+
+	require.NoError(t, err)
+	require.True(t, exists)
+}
+
+func TestPlaylistRepositoryGetFavoritePlaylists(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	playlists := []models.Playlist{
+		{
+			ID:        1,
+			Name:      "Playlist 1",
+			Image:     "/imgs/playlists/playlist_1.jpg",
+			OwnerID:   uuid.New(),
+			IsPrivate: false,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Playlist 2",
+			Image:     "/imgs/playlists/playlist_2.jpg",
+			OwnerID:   uuid.New(),
+			IsPrivate: true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
+	rows := sqlmock.NewRows(columns)
+	for _, playlist := range playlists {
+		rows.AddRow(
+			playlist.ID,
+			playlist.Name,
+			playlist.Image,
+			playlist.OwnerID,
+			playlist.IsPrivate,
+			playlist.CreatedAt,
+			playlist.UpdatedAt,
+		)
+	}
+
+	userID := uuid.New()
+
+	expectedPlaylists := []*models.Playlist{&playlists[0], &playlists[1]}
+	mock.ExpectQuery(getFavoriteQuery).WithArgs(userID).WillReturnRows(rows)
+
+	foundPlaylists, err := playlistRepository.GetFavoritePlaylists(context.Background(), userID)
+	require.NoError(t, err)
+	require.NotNil(t, foundPlaylists)
+	require.Equal(t, foundPlaylists, expectedPlaylists)
+}
+
+func TestPlaylistRepositoryGetPopularPlaylists(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	playlistRepository := NewPlaylistRepository(db)
+
+	columns := []string{"id", "name", "image", "owner_id", "is_private", "created_at", "updated_at"}
+	mockPlaylists := sqlmock.NewRows(columns).
+		AddRow(1, "Popular Playlist 1", "/images/playlists/1.jpg", uuid.New(), false, time.Now(), time.Now()).
+		AddRow(2, "Popular Playlist 2", "/images/playlists/2.jpg", uuid.New(), false, time.Now(), time.Now())
+
+	mock.ExpectQuery(getPopularPlaylistsQuery).WillReturnRows(mockPlaylists)
+
+	playlists, err := playlistRepository.GetPopularPlaylists(context.Background())
+
+	require.NoError(t, err)
+	require.NotNil(t, playlists)
+	require.Len(t, playlists, 2)
+
+	require.Equal(t, uint64(1), playlists[0].ID)
+	require.Equal(t, "Popular Playlist 1", playlists[0].Name)
+	require.Equal(t, "/images/playlists/1.jpg", playlists[0].Image)
+
+	require.Equal(t, uint64(2), playlists[1].ID)
+	require.Equal(t, "Popular Playlist 2", playlists[1].Name)
+	require.Equal(t, "/images/playlists/2.jpg", playlists[1].Image)
+
+	err = mock.ExpectationsWereMet()
+	require.NoError(t, err)
+}

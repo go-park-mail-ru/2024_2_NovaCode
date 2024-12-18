@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+//easyjson:json
 type PlaylistTrack struct {
 	ID                   uint64
 	PlaylistID           uint64
@@ -10,3 +11,6 @@ type PlaylistTrack struct {
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 }
+
+//easyjson:json
+type PlaylistTracks []*PlaylistTrack

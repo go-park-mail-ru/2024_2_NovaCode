@@ -12,7 +12,8 @@ const (
 	findByQuery = `
     SELECT id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at
     FROM "track"
-    WHERE fts @@ to_tsquery($1)`
+    WHERE fts @@ to_tsquery('english', $1 || ':*') 
+        OR fts @@ to_tsquery('russian_hunspell', $1 || ':*')`
 
 	getByArtistIDQuery = `SELECT id, name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, created_at, updated_at FROM track WHERE artist_id = $1`
 
@@ -39,5 +40,28 @@ const (
       ON t.id = ft.track_id
     WHERE ft.user_id = $1`
 
-	GetTracksFromPlaylistQuery = `SELECT id, playlist_id, track_order_in_playlist, track_id, created_at FROM playlist_track WHERE playlist_id = $1 ORDER BY created_at DESC`
+	getTracksFromPlaylistQuery = `SELECT id, playlist_id, track_order_in_playlist, track_id, created_at FROM playlist_track WHERE playlist_id = $1 ORDER BY created_at DESC`
+
+	getPopularTracksQuery = `SELECT 
+    t.id, 
+    t.name, 
+    t.duration, 
+    t.filepath, 
+    t.image, 
+    t.artist_id, 
+    t.album_id, 
+    t.track_order_in_album, 
+    t.release_date, 
+    t.created_at, 
+    t.updated_at
+    FROM 
+        track t
+    LEFT JOIN 
+        favorite_track ft ON t.id = ft.track_id
+    GROUP BY 
+        t.id
+    ORDER BY 
+        COUNT(ft.track_id) DESC
+    LIMIT 50;
+`
 )

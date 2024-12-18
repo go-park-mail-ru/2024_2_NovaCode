@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//easyjson:json
 type CSATQuestionDTO struct {
 	ID       uint64 `json:"id"`
 	Question string `json:"question"`
@@ -17,6 +18,10 @@ func NewCSATQuestionDTO(csatQuestion *models.CSATQuestion) *CSATQuestionDTO {
 	}
 }
 
+//easyjson:json
+type CSATQuestionDTOs []*CSATQuestionDTO
+
+//easyjson:json
 type CSATAnswerDTO struct {
 	ID             uint64    `json:"id,omitempty"`
 	Score          uint8     `json:"score"`
@@ -41,6 +46,7 @@ func NewAnswerFromCSATAnswerDTO(answerDTO *CSATAnswerDTO) *models.CSATAnswer {
 	}
 }
 
+//easyjson:json
 type CSATStatisticsDTO struct {
 	Topic        string  `json:"topic"`
 	Question     string  `json:"question"`
@@ -54,3 +60,6 @@ func NewCSATStatisticsDTO(csatStat *models.CSATStat) *CSATStatisticsDTO {
 		AverageScore: csatStat.AverageScore,
 	}
 }
+
+//easyjson:json
+type CSATStatisticsDTOs []*CSATStatisticsDTO

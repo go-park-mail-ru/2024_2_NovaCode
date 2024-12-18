@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/middleware"
@@ -44,6 +43,4 @@ func BindRoutes(s *httpServer.Server) {
 			middleware.CSRFMiddleware(&s.CFG.Service.Auth.CSRF, s.Logger, http.HandlerFunc(csatHandlers.SubmitAnswer)),
 		),
 	).Methods("POST")
-
-	fmt.Println("routes have binded")
 }

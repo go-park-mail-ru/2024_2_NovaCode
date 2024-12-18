@@ -646,7 +646,11 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 	usecaseMock := mocks.NewMockUsecase(ctrl)
 	trackHandlers := NewTrackHandlers(usecaseMock, logger)
 
+	router := mux.NewRouter()
+	router.HandleFunc("/api/v1/tracks/favorite/byUser/{userID}", trackHandlers.GetFavoriteTracks).Methods("GET")
+
 	t.Run("Success", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		tracks := []*dto.TrackDTO{
 			{ID: 1, Name: "Track 1", ArtistName: "Artist 1"},
@@ -655,79 +659,67 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 
 		usecaseMock.EXPECT().GetFavoriteTracks(gomock.Any(), userID).Return(tracks, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/tracks/favorite", trackHandlers.GetFavoriteTracks).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/tracks/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createTrackRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusOK, res.StatusCode)
+		assert.Equal(t, http.StatusOK, response.Code)
 
 		var result []*dto.TrackDTO
-		err = json.NewDecoder(res.Body).Decode(&result)
+		err := json.NewDecoder(response.Body).Decode(&result)
 		assert.NoError(t, err)
 		assert.Len(t, result, 2)
 		assert.Equal(t, "Track 1", result[0].Name)
 		assert.Equal(t, "Track 2", result[1].Name)
 	})
 
-	t.Run("User ID not found", func(t *testing.T) {
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/tracks/favorite", trackHandlers.GetFavoriteTracks).Methods("GET")
+	t.Run("User ID not found in request", func(t *testing.T) {
+		requestID := "test-request-id"
+		invalidUserID := "invalid-uuid"
 
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/tracks/favorite", nil)
-		assert.NoError(t, err)
-
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/tracks/favorite/byUser/"+invalidUserID, nil)
+		request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
-		assert.Contains(t, response.Body.String(), "User id not found")
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Contains(t, response.Body.String(), "Invalid user ID")
 	})
 
 	t.Run("Error while getting favorite tracks", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		mockError := fmt.Errorf("usecase error")
 		usecaseMock.EXPECT().GetFavoriteTracks(gomock.Any(), userID).Return(nil, mockError)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/tracks/favorite", trackHandlers.GetFavoriteTracks).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/tracks/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createTrackRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-
-		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Contains(t, response.Body.String(), "Failed to get favorite tracks")
 	})
 
 	t.Run("No favorite tracks found", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		usecaseMock.EXPECT().GetFavoriteTracks(gomock.Any(), userID).Return(nil, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/api/v1/tracks/favorite", trackHandlers.GetFavoriteTracks).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/api/v1/tracks/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createTrackRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 		assert.Contains(t, response.Body.String(), "No favorite tracks were found")
 	})
+}
+
+func createTrackRequestWithVars(requestID string, userID uuid.UUID) *http.Request {
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/tracks/favorite/byUser/"+userID.String(), nil)
+	request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
+	return request
 }

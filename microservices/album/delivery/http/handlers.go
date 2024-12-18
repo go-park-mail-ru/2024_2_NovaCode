@@ -1,15 +1,18 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album/dto"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/gorilla/mux"
+	"github.com/mailru/easyjson"
 )
 
 type albumHandlers struct {
@@ -51,13 +54,20 @@ func (handlers *albumHandlers) SearchAlbum(response http.ResponseWriter, request
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(foundAlbums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // ViewAlbum godoc
@@ -87,13 +97,20 @@ func (handlers *albumHandlers) ViewAlbum(response http.ResponseWriter, request *
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(foundAlbum); err != nil {
+	rawBytes, err := easyjson.Marshal(foundAlbum)
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode album: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAll godoc
@@ -117,13 +134,20 @@ func (handlers *albumHandlers) GetAll(response http.ResponseWriter, request *htt
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }
 
 // GetAllByArtistID godoc
@@ -157,11 +181,149 @@ func (handlers *albumHandlers) GetAllByArtistID(response http.ResponseWriter, re
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(response).Encode(albums); err != nil {
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, "Encode fail")
 		return
 	}
 
 	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
+func (handlers *albumHandlers) AddFavoriteAlbum(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	albumID, err := strconv.ParseUint(vars["albumID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid album ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := handlers.usecase.AddFavoriteAlbum(request.Context(), userID, albumID); err != nil {
+		handlers.logger.Error("Can't add album to favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't add album to favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *albumHandlers) DeleteFavoriteAlbum(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	albumID, err := strconv.ParseUint(vars["albumID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid album ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	if err := handlers.usecase.DeleteFavoriteAlbum(request.Context(), userID, albumID); err != nil {
+		handlers.logger.Error("Can't delete album from favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't delete album from favorite")
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *albumHandlers) IsFavoriteAlbum(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	albumID, err := strconv.ParseUint(vars["albumID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid album ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid album ID: %v", err))
+		return
+	}
+
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("User id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "User id not found")
+		return
+	}
+
+	exists, err := handlers.usecase.IsFavoriteAlbum(request.Context(), userID, albumID)
+	if err != nil {
+		handlers.logger.Error("Can't check is album in favorite", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't check is album in favorite")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	existsResponse := &utils.ExistsResponse{Exists: exists}
+	rawBytes, err := easyjson.Marshal(existsResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
+func (handlers *albumHandlers) GetFavoriteAlbums(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid user ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	albums, err := handlers.usecase.GetFavoriteAlbums(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get favorite albums: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite albums: %v", err))
+		return
+	} else if len(albums) == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite albums were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	rawBytes, err := easyjson.Marshal(dto.AlbumDTOs(albums))
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode albums: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode albums: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
 }

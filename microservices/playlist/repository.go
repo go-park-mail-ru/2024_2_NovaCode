@@ -17,4 +17,9 @@ type Repository interface {
 	AddToPlaylist(ctx context.Context, playlistID uint64, trackOrder uint64, trackID uint64) (*models.PlaylistTrack, error)
 	RemoveFromPlaylist(ctx context.Context, playlistID uint64, trackID uint64) (sql.Result, error)
 	DeletePlaylist(ctx context.Context, playlistID uint64) (sql.Result, error)
+	AddFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
+	DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
+	IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error)
+	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error)
+	GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error)
 }

@@ -37,6 +37,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddFavoritePlaylist mocks base method.
+func (m *MockRepository) AddFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFavoritePlaylist", ctx, userID, playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFavoritePlaylist indicates an expected call of AddFavoritePlaylist.
+func (mr *MockRepositoryMockRecorder) AddFavoritePlaylist(ctx, userID, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFavoritePlaylist", reflect.TypeOf((*MockRepository)(nil).AddFavoritePlaylist), ctx, userID, playlistID)
+}
+
 // AddToPlaylist mocks base method.
 func (m *MockRepository) AddToPlaylist(ctx context.Context, playlistID, trackOrder, trackID uint64) (*models.PlaylistTrack, error) {
 	m.ctrl.T.Helper()
@@ -65,6 +79,20 @@ func (m *MockRepository) CreatePlaylist(ctx context.Context, playlist *models.Pl
 func (mr *MockRepositoryMockRecorder) CreatePlaylist(ctx, playlist interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePlaylist", reflect.TypeOf((*MockRepository)(nil).CreatePlaylist), ctx, playlist)
+}
+
+// DeleteFavoritePlaylist mocks base method.
+func (m *MockRepository) DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFavoritePlaylist", ctx, userID, playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFavoritePlaylist indicates an expected call of DeleteFavoritePlaylist.
+func (mr *MockRepositoryMockRecorder) DeleteFavoritePlaylist(ctx, userID, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFavoritePlaylist", reflect.TypeOf((*MockRepository)(nil).DeleteFavoritePlaylist), ctx, userID, playlistID)
 }
 
 // DeletePlaylist mocks base method.
@@ -97,6 +125,21 @@ func (mr *MockRepositoryMockRecorder) GetAllPlaylists(ctx interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPlaylists", reflect.TypeOf((*MockRepository)(nil).GetAllPlaylists), ctx)
 }
 
+// GetFavoritePlaylists mocks base method.
+func (m *MockRepository) GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoritePlaylists", ctx, userID)
+	ret0, _ := ret[0].([]*models.Playlist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoritePlaylists indicates an expected call of GetFavoritePlaylists.
+func (mr *MockRepositoryMockRecorder) GetFavoritePlaylists(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoritePlaylists", reflect.TypeOf((*MockRepository)(nil).GetFavoritePlaylists), ctx, userID)
+}
+
 // GetLengthPlaylist mocks base method.
 func (m *MockRepository) GetLengthPlaylist(ctx context.Context, playlistID uint64) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -127,6 +170,21 @@ func (mr *MockRepositoryMockRecorder) GetPlaylist(ctx, playlistID interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylist", reflect.TypeOf((*MockRepository)(nil).GetPlaylist), ctx, playlistID)
 }
 
+// GetPopularPlaylists mocks base method.
+func (m *MockRepository) GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopularPlaylists", ctx)
+	ret0, _ := ret[0].([]*models.Playlist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopularPlaylists indicates an expected call of GetPopularPlaylists.
+func (mr *MockRepositoryMockRecorder) GetPopularPlaylists(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopularPlaylists", reflect.TypeOf((*MockRepository)(nil).GetPopularPlaylists), ctx)
+}
+
 // GetUserPlaylists mocks base method.
 func (m *MockRepository) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error) {
 	m.ctrl.T.Helper()
@@ -140,6 +198,21 @@ func (m *MockRepository) GetUserPlaylists(ctx context.Context, userID uuid.UUID)
 func (mr *MockRepositoryMockRecorder) GetUserPlaylists(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPlaylists", reflect.TypeOf((*MockRepository)(nil).GetUserPlaylists), ctx, userID)
+}
+
+// IsFavoritePlaylist mocks base method.
+func (m *MockRepository) IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFavoritePlaylist", ctx, userID, playlistID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsFavoritePlaylist indicates an expected call of IsFavoritePlaylist.
+func (mr *MockRepositoryMockRecorder) IsFavoritePlaylist(ctx, userID, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFavoritePlaylist", reflect.TypeOf((*MockRepository)(nil).IsFavoritePlaylist), ctx, userID, playlistID)
 }
 
 // RemoveFromPlaylist mocks base method.

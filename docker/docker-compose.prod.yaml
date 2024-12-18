@@ -1,10 +1,23 @@
 networks:
   prometheus:
   prometheus-exporters:
+  app-network:
+    driver: bridge
 
 services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    privileged: true
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_ROLLING_RESTART=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+
   novamusic-user:
-    image: daronenko/novamusic-user:${USER_VERSION}
+    image: daronenko/novamusic-user:latest
     container_name: novamusic-user
     platform: linux/amd64
     env_file: .prod.env
@@ -22,11 +35,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-playlist:
-    image: daronenko/novamusic-playlist:${PLAYLIST_VERSION}
+    image: daronenko/novamusic-playlist:latest
     container_name: novamusic-playlist
     platform: linux/amd64
     env_file: .prod.env
@@ -44,11 +58,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-artist:
-    image: daronenko/novamusic-artist:${ARTIST_VERSION}
+    image: daronenko/novamusic-artist:latest
     container_name: novamusic-artist
     platform: linux/amd64
     env_file: .prod.env
@@ -66,11 +81,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-album:
-    image: daronenko/novamusic-album:${ALBUM_VERSION}
+    image: daronenko/novamusic-album:latest
     container_name: novamusic-album
     platform: linux/amd64
     env_file: .prod.env
@@ -88,11 +104,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-track:
-    image: daronenko/novamusic-track:${TRACK_VERSION}
+    image: daronenko/novamusic-track:latest
     container_name: novamusic-track
     platform: linux/amd64
     env_file: .prod.env
@@ -110,11 +127,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-csat:
-    image: daronenko/novamusic-csat:${CSAT_VERSION}
+    image: daronenko/novamusic-csat:latest
     container_name: novamusic-csat
     platform: linux/amd64
     env_file: .prod.env
@@ -132,11 +150,12 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   novamusic-genre:
-    image: daronenko/novamusic-genre:${GENRE_VERSION}
+    image: daronenko/novamusic-genre:latest
     container_name: novamusic-genre
     platform: linux/amd64
     env_file: .prod.env
@@ -154,27 +173,31 @@ services:
     networks:
       - prometheus
       - prometheus-exporters
+      - app-network
     volumes:
       - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
 
   postgres:
     container_name: novamusic-postgres
-    image: postgres:16
+    image: daronenko/postgres-ru:latest
+    build:
+      dockerfile: postgres/Dockerfile
+      context: .
     platform: linux/amd64
     env_file: .prod.env
     environment:
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST:-}
+      - POSTGRES_DB=${POSTGRES_DB:-}
+      - POSTGRES_USER=${POSTGRES_USER:-}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}
     restart: on-failure
     healthcheck:
       test:
         [
           'CMD-SHELL',
-          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+          "sh -c 'pg_isready -U ${POSTGRES_USER:-} -d ${POSTGRES_DB:-}'",
         ]
       interval: 2s
       timeout: 3s
@@ -188,14 +211,14 @@ services:
     container_name: novamusic-postgres-migrations
     image: ghcr.io/kukymbr/goose-docker:3.22.1
     platform: linux/amd64
-    restart: no
     env_file: .prod.env
+    restart: no
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - GOOSE_DRIVER=postgres
-      - GOOSE_DBSTRING=host=postgres port=${POSTGRES_PORT} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}
+      - GOOSE_DBSTRING=host=postgres port=${POSTGRES_PORT:-} user=${POSTGRES_USER:-} password=${POSTGRES_PASSWORD:-} dbname=${POSTGRES_DB:-}
       - GOOSE_VERBOSE=true
     volumes:
       - ../internal/db/postgres/migrations:/migrations
@@ -206,13 +229,13 @@ services:
     container_name: novamusic-minio
     image: minio/minio:latest
     platform: linux/amd64
-    restart: always
     env_file: .prod.env
+    restart: always
     environment:
-      - MINIO_ROOT_USER=${MINIO_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
-      - MINIO_SERVER_URL=https://${HOST}:8010
-      - MINIO_BROWSER_REDIRECT_URL=https://${HOST}
+      - MINIO_ROOT_USER=${MINIO_USER:-}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-}
+      - MINIO_SERVER_URL=https://${HOST:-}:8010
+      - MINIO_BROWSER_REDIRECT_URL=https://${HOST:-}
     ports:
       - 8010:9000
       - 8011:9001
@@ -222,6 +245,7 @@ services:
       - /etc/ssl/nova-music.ru:/root/.minio/certs:ro
     networks:
       - prometheus
+      - app-network
 
   minio-client:
     container_name: minio-client
@@ -230,7 +254,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host rm local;
-      /usr/bin/mc config host add --quiet --api s3v4 local https://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD};
+      /usr/bin/mc config host add --quiet --api s3v4 local https://minio:9000 ${MINIO_USER:-} ${MINIO_PASSWORD:-};
 
       /usr/bin/mc mb --quiet local/avatars;
       /usr/bin/mc policy set public local/avatars;
@@ -251,11 +275,11 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--no-collector.rapl'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--no-collector.rapl"
     restart: unless-stopped
     expose:
       - 9100
@@ -276,7 +300,7 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=365d'
-      - '--web.external-url=${PROMETHEUS_URL}'
+      - '--web.external-url=${PROMETHEUS_URL:-}'
       - '--web.enable-admin-api'
     restart: unless-stopped
     expose:
@@ -299,7 +323,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER
       - GF_SECURITY_ADMIN_PASSWORD
-      - GF_DEFAULT_INSTANCE_NAME=${HOST}
+      - GF_DEFAULT_INSTANCE_NAME=${HOST:-}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ENABLE_GZIP=true
       - GF_SERVER_ROOT_URL
@@ -322,6 +346,7 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
+    env_file: .prod.env
     volumes:
       - alertmanager-data:/alertmanager
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
@@ -329,7 +354,7 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL}'
+      - '--web.external-url=${ALERTMANAGER_EXTERNAL_URL:-}'
     restart: unless-stopped
     expose:
       - 8004
@@ -337,6 +362,29 @@ services:
       - 8004:9093
     networks:
       - prometheus
+
+  nginx:
+    image: nginx:latest
+    # restart: always
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf
+      - /var/www/nova-music/dist:/var/www/dist
+      - ./nginx/logs:/var/log/nginx
+      - /etc/ssl/nova-music.ru:/etc/ssl/nova-music.ru
+    networks:
+      - app-network
+    depends_on:
+      - novamusic-user
+      - novamusic-track
+      - novamusic-artist
+      - novamusic-album
+      - novamusic-playlist
+      - novamusic-csat
+      - novamusic-genre
 
 volumes:
   postgres-volume:

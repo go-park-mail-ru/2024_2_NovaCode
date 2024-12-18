@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/album"
@@ -103,6 +105,59 @@ func (usecase *albumUsecase) GetAllByArtistID(ctx context.Context, artistID uint
 		if err != nil {
 			usecase.logger.Errorf("Can't create DTO for %s album: %v", album.Name, err)
 			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoAlbums = append(dtoAlbums, dtoAlbum)
+	}
+
+	return dtoAlbums, nil
+}
+
+func (usecase *albumUsecase) AddFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	if err := usecase.albumRepo.AddFavoriteAlbum(ctx, userID, albumID); err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't add album %d to favorite for user %v: %v", albumID, userID, err), requestID)
+		return fmt.Errorf("Can't add album %d to favorite for user %v: %v", albumID, userID, err)
+	}
+
+	return nil
+}
+
+func (usecase *albumUsecase) DeleteFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	if err := usecase.albumRepo.DeleteFavoriteAlbum(ctx, userID, albumID); err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't delete album %d from favorite for user %v: %v", albumID, userID, err), requestID)
+		return fmt.Errorf("Can't delete album %d from favorite for user %v: %v", albumID, userID, err)
+	}
+
+	return nil
+}
+
+func (usecase *albumUsecase) IsFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) (bool, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	exists, err := usecase.albumRepo.IsFavoriteAlbum(ctx, userID, albumID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't find album %d in favorite for user %v: %v", albumID, userID, err), requestID)
+		return false, fmt.Errorf("Can't find album %d in favorite for user %v: %v", albumID, userID, err)
+	}
+
+	return exists, nil
+}
+
+func (usecase *albumUsecase) GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) ([]*dto.AlbumDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	albums, err := usecase.albumRepo.GetFavoriteAlbums(ctx, userID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load albums by user ID %v: %v", userID, err), requestID)
+		return nil, fmt.Errorf("Can't load albums by user ID %v", userID)
+	}
+	usecase.logger.Infof("Found %d albums for user ID %v", len(albums), userID)
+
+	var dtoAlbums []*dto.AlbumDTO
+	for _, album := range albums {
+		dtoAlbum, err := usecase.convertAlbumToDTO(ctx, album)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s album: %v", album.Name, err), requestID)
+			return nil, fmt.Errorf("Can't create DTO for album")
 		}
 		dtoAlbums = append(dtoAlbums, dtoAlbum)
 	}
