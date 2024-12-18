@@ -14,4 +14,6 @@ type Handlers interface {
 	DeleteFavoritePlaylist(response http.ResponseWriter, request *http.Request)
 	IsFavoritePlaylist(response http.ResponseWriter, request *http.Request)
 	GetFavoritePlaylists(response http.ResponseWriter, request *http.Request)
+	GetFavoritePlaylistsCount(response http.ResponseWriter, request *http.Request)
+	GetPlaylistLikesCount(response http.ResponseWriter, request *http.Request)
 }

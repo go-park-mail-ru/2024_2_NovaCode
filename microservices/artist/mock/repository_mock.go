@@ -124,6 +124,21 @@ func (mr *MockRepoMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepo)(nil).GetAll), ctx)
 }
 
+// GetArtistLikesCount mocks base method.
+func (m *MockRepo) GetArtistLikesCount(ctx context.Context, artistID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetArtistLikesCount", ctx, artistID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetArtistLikesCount indicates an expected call of GetArtistLikesCount.
+func (mr *MockRepoMockRecorder) GetArtistLikesCount(ctx, artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArtistLikesCount", reflect.TypeOf((*MockRepo)(nil).GetArtistLikesCount), ctx, artistID)
+}
+
 // GetFavoriteArtists mocks base method.
 func (m *MockRepo) GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error) {
 	m.ctrl.T.Helper()
@@ -137,6 +152,21 @@ func (m *MockRepo) GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]
 func (mr *MockRepoMockRecorder) GetFavoriteArtists(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteArtists", reflect.TypeOf((*MockRepo)(nil).GetFavoriteArtists), ctx, userID)
+}
+
+// GetFavoriteArtistsCount mocks base method.
+func (m *MockRepo) GetFavoriteArtistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteArtistsCount", ctx, userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteArtistsCount indicates an expected call of GetFavoriteArtistsCount.
+func (mr *MockRepoMockRecorder) GetFavoriteArtistsCount(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteArtistsCount", reflect.TypeOf((*MockRepo)(nil).GetFavoriteArtistsCount), ctx, userID)
 }
 
 // IsFavoriteArtist mocks base method.

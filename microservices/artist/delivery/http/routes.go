@@ -27,6 +27,11 @@ func BindRoutes(s *httpServer.Server) {
 	).Methods("GET")
 
 	s.MUX.Handle(
+		"/api/v1/artists/favorite/count/{userID:[0-9a-fA-F-]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(artistHandlers.GetFavoriteArtistsCount)),
+	).Methods("GET")
+
+	s.MUX.Handle(
 		"/api/v1/artists/favorite/{artistID:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(artistHandlers.IsFavoriteArtist)),
 	).Methods("GET")
@@ -40,4 +45,9 @@ func BindRoutes(s *httpServer.Server) {
 		"/api/v1/artists/favorite/{artistID:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(artistHandlers.DeleteFavoriteArtist)),
 	).Methods("DELETE")
+
+	s.MUX.Handle(
+		"/api/v1/artists/likes/{artistID:[0-9]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(artistHandlers.GetArtistLikesCount)),
+	).Methods("GET")
 }

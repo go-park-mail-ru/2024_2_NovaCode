@@ -369,3 +369,47 @@ func TestAlbumRepositoryGetFavoriteAlbums(t *testing.T) {
 	require.NotNil(t, foundAlbums)
 	require.Equal(t, foundAlbums, expectedAlbums)
 }
+
+func TestAlbumRepositoryGetFavoriteAlbumsCount(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	userID := uuid.New()
+	expectedCount := uint64(2)
+
+	mock.ExpectQuery(getFavoriteCountQuery).WithArgs(userID).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(expectedCount))
+
+	count, err := albumRepository.GetFavoriteAlbumsCount(context.Background(), userID)
+	require.NoError(t, err)
+	require.Equal(t, expectedCount, count)
+
+	err = mock.ExpectationsWereMet()
+	require.NoError(t, err)
+}
+
+func TestAlbumRepositoryGetAlbumLikesCount(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	albumRepository := NewAlbumPGRepository(db)
+
+	albumID := uint64(123)
+	expectedLikesCount := uint64(10)
+
+	mock.ExpectQuery(getLikesCountQuery).WithArgs(albumID).WillReturnRows(sqlmock.NewRows([]string{"likes_count"}).AddRow(expectedLikesCount))
+
+	likesCount, err := albumRepository.GetAlbumLikesCount(context.Background(), albumID)
+	require.NoError(t, err)
+	require.Equal(t, expectedLikesCount, likesCount)
+
+	err = mock.ExpectationsWereMet()
+	require.NoError(t, err)
+}

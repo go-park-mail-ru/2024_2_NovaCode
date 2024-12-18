@@ -275,3 +275,60 @@ func (handlers *artistHandlers) GetFavoriteArtists(response http.ResponseWriter,
 
 	response.WriteHeader(http.StatusOK)
 }
+
+func (handlers *artistHandlers) GetFavoriteArtistsCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong user id: %v", vars["userID"], err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
+		return
+	}
+
+	count, err := handlers.usecase.GetFavoriteArtistsCount(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get favorite artists count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite artists count: %v", err))
+		return
+	} else if count == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite artists were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(map[string]uint64{"favoriteArtistsCount": count}); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode favorite artists count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode favorite artists count: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (handlers *artistHandlers) GetArtistLikesCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	artistID, err := strconv.ParseUint(vars["artistID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Invalid artist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("Invalid artist ID: %v", err))
+		return
+	}
+
+	likesCount, err := handlers.usecase.GetArtistLikesCount(request.Context(), artistID)
+	if err != nil {
+		handlers.logger.Error("Failed to get artist likes count", requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Can't get artist likes count")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(response).Encode(map[string]uint64{"artistLikesCount": likesCount}); err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}

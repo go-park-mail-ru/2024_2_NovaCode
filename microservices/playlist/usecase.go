@@ -20,4 +20,6 @@ type Usecase interface {
 	DeleteFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) error
 	IsFavoritePlaylist(ctx context.Context, userID uuid.UUID, playlistID uint64) (bool, error)
 	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*pldto.PlaylistDTO, error)
+	GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
+	GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error)
 }

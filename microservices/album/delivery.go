@@ -11,4 +11,6 @@ type Handlers interface {
 	DeleteFavoriteAlbum(response http.ResponseWriter, request *http.Request)
 	IsFavoriteAlbum(response http.ResponseWriter, request *http.Request)
 	GetFavoriteAlbums(response http.ResponseWriter, request *http.Request)
+	GetFavoriteAlbumsCount(response http.ResponseWriter, request *http.Request)
+	GetAlbumLikesCount(response http.ResponseWriter, request *http.Request)
 }

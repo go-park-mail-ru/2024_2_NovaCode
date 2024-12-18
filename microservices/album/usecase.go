@@ -16,4 +16,6 @@ type Usecase interface {
 	DeleteFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) error
 	IsFavoriteAlbum(ctx context.Context, userID uuid.UUID, albumID uint64) (bool, error)
 	GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) ([]*dto.AlbumDTO, error)
+	GetFavoriteAlbumsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
+	GetAlbumLikesCount(ctx context.Context, albumID uint64) (uint64, error)
 }

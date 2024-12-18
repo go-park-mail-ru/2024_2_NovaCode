@@ -41,4 +41,15 @@ RETURNING id, playlist_id, track_order_in_playlist, track_id, created_at`
       JOIN favorite_playlist AS fp
       ON p.id = fp.playlist_id
     WHERE fp.user_id = $1`
+
+	getFavoriteCountQuery = `
+    SELECT COUNT(*)
+    FROM playlist AS p
+      JOIN favorite_playlist AS fp
+      ON p.id = fp.playlist_id
+    WHERE fp.user_id = $1`
+
+	getLikesCountQuery = `
+    SELECT COUNT(*)
+    FROM favorite_playlist WHERE playlist_id = $1`
 )

@@ -109,6 +109,21 @@ func (mr *MockRepoMockRecorder) FindByQuery(ctx, query interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByQuery", reflect.TypeOf((*MockRepo)(nil).FindByQuery), ctx, query)
 }
 
+// GetAlbumLikesCount mocks base method.
+func (m *MockRepo) GetAlbumLikesCount(ctx context.Context, albumID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAlbumLikesCount", ctx, albumID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAlbumLikesCount indicates an expected call of GetAlbumLikesCount.
+func (mr *MockRepoMockRecorder) GetAlbumLikesCount(ctx, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumLikesCount", reflect.TypeOf((*MockRepo)(nil).GetAlbumLikesCount), ctx, albumID)
+}
+
 // GetAll mocks base method.
 func (m *MockRepo) GetAll(ctx context.Context) ([]*models.Album, error) {
 	m.ctrl.T.Helper()
@@ -152,6 +167,21 @@ func (m *MockRepo) GetFavoriteAlbums(ctx context.Context, userID uuid.UUID) ([]*
 func (mr *MockRepoMockRecorder) GetFavoriteAlbums(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteAlbums", reflect.TypeOf((*MockRepo)(nil).GetFavoriteAlbums), ctx, userID)
+}
+
+// GetFavoriteAlbumsCount mocks base method.
+func (m *MockRepo) GetFavoriteAlbumsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteAlbumsCount", ctx, userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteAlbumsCount indicates an expected call of GetFavoriteAlbumsCount.
+func (mr *MockRepoMockRecorder) GetFavoriteAlbumsCount(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteAlbumsCount", reflect.TypeOf((*MockRepo)(nil).GetFavoriteAlbumsCount), ctx, userID)
 }
 
 // IsFavoriteAlbum mocks base method.

@@ -136,6 +136,30 @@ func (usecase *artistUsecase) GetFavoriteArtists(ctx context.Context, userID uui
 	return dtoArtists, nil
 }
 
+func (usecase *artistUsecase) GetFavoriteArtistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	count, err := usecase.artistRepo.GetFavoriteArtistsCount(ctx, userID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load favorite artists count by user ID %v: %v", userID, err), requestID)
+		return 0, fmt.Errorf("Can't load artists by user ID %v", userID)
+	}
+	usecase.logger.Infof("Found %d favorite artists for user ID %v", count, userID)
+
+	return count, nil
+}
+
+func (usecase *artistUsecase) GetArtistLikesCount(ctx context.Context, artistID uint64) (uint64, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	likesCount, err := usecase.artistRepo.GetArtistLikesCount(ctx, artistID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load artist likes count by artist ID %v: %v", artistID, err), requestID)
+		return 0, fmt.Errorf("Can't load artist likes count by artist ID %v", artistID)
+	}
+	usecase.logger.Infof("Found %d likes for artist ID %v", likesCount, artistID)
+
+	return likesCount, nil
+}
+
 func (usecase *artistUsecase) convertArtistToDTO(artist *models.Artist) (*dto.ArtistDTO, error) {
 	return dto.NewArtistDTO(artist), nil
 }

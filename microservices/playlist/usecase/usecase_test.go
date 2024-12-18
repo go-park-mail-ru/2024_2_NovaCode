@@ -723,3 +723,141 @@ func TestPlaylistUsecase_GetFavoritePlaylists_NotFoundPlaylists(t *testing.T) {
 	require.Nil(t, dtoPlaylists)
 	require.EqualError(t, err, fmt.Sprintf("Can't load playlists by user ID %v", userID))
 }
+
+func TestUsecase_GetFavoritePlaylistsCount_FoundPlaylists(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := &PlaylistUsecase{
+		playlistRepo: playlistRepoMock,
+		logger:       logger,
+	}
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedCount := uint64(5)
+	playlistRepoMock.EXPECT().GetFavoritePlaylistsCount(ctx, userID).Return(expectedCount, nil)
+
+	count, err := playlistUsecase.GetFavoritePlaylistsCount(ctx, userID)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedCount, count)
+}
+
+func TestUsecase_GetFavoritePlaylistsCount_ErrorGettingCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := &PlaylistUsecase{
+		playlistRepo: playlistRepoMock,
+		logger:       logger,
+	}
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedError := fmt.Errorf("Can't load playlists by user ID %v", userID)
+	playlistRepoMock.EXPECT().GetFavoritePlaylistsCount(ctx, userID).Return(uint64(0), expectedError)
+
+	count, err := playlistUsecase.GetFavoritePlaylistsCount(ctx, userID)
+
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), count)
+}
+
+func TestUsecase_GetPlaylistLikesCount_Success(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := &PlaylistUsecase{
+		playlistRepo: playlistRepoMock,
+		logger:       logger,
+	}
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	playlistID := uint64(123)
+	expectedLikesCount := uint64(10)
+
+	playlistRepoMock.EXPECT().GetPlaylistLikesCount(ctx, playlistID).Return(expectedLikesCount, nil)
+
+	likesCount, err := playlistUsecase.GetPlaylistLikesCount(ctx, playlistID)
+	require.NoError(t, err)
+	require.Equal(t, expectedLikesCount, likesCount)
+}
+
+func TestUsecase_GetPlaylistLikesCount_ErrorGettingLikesCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	playlistUsecase := &PlaylistUsecase{
+		playlistRepo: playlistRepoMock,
+		logger:       logger,
+	}
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	playlistID := uint64(123)
+	expectedError := fmt.Errorf("Can't load playlist likes count by playlist ID %v", playlistID)
+
+	playlistRepoMock.EXPECT().GetPlaylistLikesCount(ctx, playlistID).Return(uint64(0), expectedError)
+
+	likesCount, err := playlistUsecase.GetPlaylistLikesCount(ctx, playlistID)
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), likesCount)
+}

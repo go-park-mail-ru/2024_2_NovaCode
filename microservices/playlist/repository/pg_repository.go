@@ -235,3 +235,23 @@ func (r *PlaylistRepository) GetFavoritePlaylists(ctx context.Context, userID uu
 
 	return playlists, nil
 }
+
+func (r *PlaylistRepository) GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	var count uint64
+	err := r.db.QueryRowContext(ctx, getFavoriteCountQuery, userID).Scan(&count)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "GetFavoritePlaylistsCount.Query")
+	}
+
+	return count, nil
+}
+
+func (r *PlaylistRepository) GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error) {
+	var likesCount uint64
+	err := r.db.QueryRowContext(ctx, getLikesCountQuery, playlistID).Scan(&likesCount)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "GetLikesCount.Query")
+	}
+
+	return likesCount, nil
+}

@@ -636,3 +636,133 @@ func TestUsecase_GetFavoriteAlbums_NotFoundAlbums(t *testing.T) {
 	require.Nil(t, dtoAlbums)
 	require.EqualError(t, err, fmt.Sprintf("Can't load albums by user ID %v", userID))
 }
+
+func TestUsecase_GetFavoriteAlbumsCount_FoundAlbums(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedCount := uint64(3)
+	albumRepoMock.EXPECT().GetFavoriteAlbumsCount(ctx, userID).Return(expectedCount, nil)
+
+	count, err := albumUsecase.GetFavoriteAlbumsCount(ctx, userID)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedCount, count)
+}
+
+func TestUsecase_GetFavoriteAlbumsCount_ErrorGettingCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedError := fmt.Errorf("Can't load albums by user ID %v", userID)
+	albumRepoMock.EXPECT().GetFavoriteAlbumsCount(ctx, userID).Return(uint64(0), expectedError)
+
+	count, err := albumUsecase.GetFavoriteAlbumsCount(ctx, userID)
+
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), count)
+}
+
+func TestUsecase_GetAlbumLikesCount_Success(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	albumID := uint64(123)
+	expectedLikesCount := uint64(10)
+
+	albumRepoMock.EXPECT().GetAlbumLikesCount(ctx, albumID).Return(expectedLikesCount, nil)
+
+	likesCount, err := albumUsecase.GetAlbumLikesCount(ctx, albumID)
+	require.NoError(t, err)
+	require.Equal(t, expectedLikesCount, likesCount)
+}
+
+func TestUsecase_GetAlbumLikesCount_ErrorGettingLikesCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	albumRepoMock := mockAlbum.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumUsecase := NewAlbumUsecase(albumRepoMock, artistClientMock, logger)
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, utils.RequestIDKey{}, "test-request-id")
+
+	albumID := uint64(123)
+	expectedError := fmt.Errorf("Can't load albums by user ID %v", albumID)
+
+	albumRepoMock.EXPECT().GetAlbumLikesCount(ctx, albumID).Return(uint64(0), expectedError)
+
+	likesCount, err := albumUsecase.GetAlbumLikesCount(ctx, albumID)
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), likesCount)
+}
