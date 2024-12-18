@@ -42,7 +42,7 @@ jobs:
             docker push ${DOCKER_USERNAME}/novamusic-${service}:${GITHUB_SHA::8}
             docker push ${DOCKER_USERNAME}/novamusic-${service}:latest
           done
-  
+
   migrate:
     name: Postgres Migration
     runs-on: ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Copy migration files to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -60,7 +60,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           source: "internal/db/postgres/migrations/*"
-          target: "/home/ubuntu/nova-music/backend/internal/db/postgres/migrations/"
+          target: "/home/ubuntu/nova-music/backend/"
 
       - name: Run database migrations
         uses: appleboy/ssh-action@v0.1.7

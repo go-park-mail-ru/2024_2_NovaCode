@@ -228,6 +228,7 @@ services:
       - minio-data:/data
     networks:
       - prometheus
+      - app-network
 
   minio-client:
     container_name: minio-client

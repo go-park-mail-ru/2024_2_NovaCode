@@ -268,7 +268,7 @@ func (r *TrackRepository) GetFavoriteTracks(ctx context.Context, userID uuid.UUI
 func (r *TrackRepository) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error) {
 	playlist := []*models.PlaylistTrack{}
 	rows, err := r.db.QueryContext(ctx,
-		GetTracksFromPlaylistQuery,
+		getTracksFromPlaylistQuery,
 		playlistID,
 	)
 	if err != nil {
@@ -290,4 +290,37 @@ func (r *TrackRepository) GetTracksFromPlaylist(ctx context.Context, playlistID 
 	}
 
 	return playlist, nil
+}
+
+func (r *TrackRepository) GetPopular(ctx context.Context) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getPopularTracksQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetPopular.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.OrderInAlbum,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+			//&track.FavoriteCount,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetPopular.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
 }

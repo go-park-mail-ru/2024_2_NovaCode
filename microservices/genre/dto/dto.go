@@ -4,6 +4,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 )
 
+//easyjson:json
 type GenreDTO struct {
 	ID      uint64 `json:"id"`
 	Name    string `json:"name"`
@@ -17,3 +18,6 @@ func NewGenreDTO(genre *models.Genre) *GenreDTO {
 		genre.RusName,
 	}
 }
+
+//easyjson:json
+type GenreDTOs []*GenreDTO

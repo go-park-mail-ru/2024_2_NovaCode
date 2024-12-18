@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//easyjson:json
 type RegisterDTO struct {
 	Role     string `json:"role,omitempty"`
 	Username string `json:"username,omitempty"`
@@ -21,6 +22,7 @@ func NewUserFromRegisterDTO(registerDTO *RegisterDTO) *models.User {
 	}
 }
 
+//easyjson:json
 type LoginDTO struct {
 	Username string `json:"username,omitempty"`
 	Password string `json:"password,omitempty"`
@@ -33,6 +35,7 @@ func NewUserFromLoginDTO(loginDTO *LoginDTO) *models.User {
 	}
 }
 
+//easyjson:json
 type UpdateDTO struct {
 	UserID   uuid.UUID `json:"id,omitempty"`
 	Username string    `json:"username,omitempty"`
@@ -47,6 +50,7 @@ func NewUserFromUpdateDTO(updateDTO *UpdateDTO) *models.User {
 	}
 }
 
+//easyjson:json
 type UserDTO struct {
 	ID       uuid.UUID `json:"id"`
 	Email    string    `json:"email,omitempty"`
@@ -63,6 +67,7 @@ func NewUserDTO(user *models.User) *UserDTO {
 	}
 }
 
+//easyjson:json
 type PublicUserDTO struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username,omitempty"`
@@ -77,6 +82,7 @@ func NewPublicUserDTO(userDTO *UserDTO) *PublicUserDTO {
 	}
 }
 
+//easyjson:json
 type UserTokenDTO struct {
 	User  *UserDTO `json:"user"`
 	Token string   `json:"token"`

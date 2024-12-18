@@ -23,4 +23,5 @@ type Repository interface {
 	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*models.Playlist, error)
 	GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error)
+	GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error)
 }

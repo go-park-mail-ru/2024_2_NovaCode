@@ -163,3 +163,25 @@ func (usecase *artistUsecase) GetArtistLikesCount(ctx context.Context, artistID 
 func (usecase *artistUsecase) convertArtistToDTO(artist *models.Artist) (*dto.ArtistDTO, error) {
 	return dto.NewArtistDTO(artist), nil
 }
+
+func (usecase *artistUsecase) GetPopular(ctx context.Context) ([]*dto.ArtistDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	artists, err := usecase.artistRepo.GetPopular(ctx)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load popular artists: %v", err), requestID)
+		return nil, fmt.Errorf("Can't load popular artists")
+	}
+	usecase.logger.Info("Popular artists found", requestID)
+
+	var dtoArtists []*dto.ArtistDTO
+	for _, artist := range artists {
+		dtoArtist, err := usecase.convertArtistToDTO(artist)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s artist: %v", artist.Name, err), requestID)
+			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoArtists = append(dtoArtists, dtoArtist)
+	}
+
+	return dtoArtists, nil
+}

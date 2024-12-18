@@ -45,7 +45,7 @@ func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) 
 	).Methods("DELETE")
 
 	s.MUX.Handle(
-		"/api/v1/playlists/favorite",
+		"/api/v1/playlists/favorite/byUser/{userID}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.GetFavoritePlaylists)),
 	).Methods("GET")
 
@@ -73,4 +73,6 @@ func BindRoutes(s *httpServer.Server, userClient userService.UserServiceClient) 
 		"/api/v1/playlists/likes/{playlistID:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(playlistHandleres.GetPlaylistLikesCount)),
 	).Methods("GET")
+	
+	s.MUX.HandleFunc("/api/v1/playlists/popular", playlistHandleres.GetPopularPlaylists).Methods("GET")
 }

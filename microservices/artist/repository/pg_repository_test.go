@@ -361,3 +361,90 @@ func TestAlbumRepositoryGetArtistLikesCount(t *testing.T) {
 	err = mock.ExpectationsWereMet()
 	require.NoError(t, err)
 }
+
+func TestArtistRepositoryGetPopular(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	artists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Artist 1",
+			Bio:       "Bio of Artist 1",
+			Country:   "Country A",
+			Image:     "/images/artists/artist_1.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Artist 2",
+			Bio:       "Bio of Artist 2",
+			Country:   "Country B",
+			Image:     "/images/artists/artist_2.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	columns := []string{"id", "name", "bio", "country", "image", "created_at", "updated_at"}
+
+	rows := sqlmock.NewRows(columns)
+	for _, artist := range artists {
+		rows.AddRow(
+			artist.ID,
+			artist.Name,
+			artist.Bio,
+			artist.Country,
+			artist.Image,
+			artist.CreatedAt,
+			artist.UpdatedAt,
+		)
+	}
+
+	mock.ExpectQuery(getPopularArtistsQuery).WillReturnRows(rows)
+
+	ctx := context.Background()
+	foundArtists, err := artistRepository.GetPopular(ctx)
+
+	require.NoError(t, err)
+	require.NotNil(t, foundArtists)
+	require.Equal(t, len(artists), len(foundArtists))
+
+	for i, artist := range artists {
+		require.Equal(t, artist.ID, foundArtists[i].ID)
+		require.Equal(t, artist.Name, foundArtists[i].Name)
+		require.Equal(t, artist.Bio, foundArtists[i].Bio)
+		require.Equal(t, artist.Country, foundArtists[i].Country)
+		require.Equal(t, artist.Image, foundArtists[i].Image)
+		require.WithinDuration(t, artist.CreatedAt, foundArtists[i].CreatedAt, time.Second)
+		require.WithinDuration(t, artist.UpdatedAt, foundArtists[i].UpdatedAt, time.Second)
+	}
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestArtistRepositoryGetPopular_Error(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	defer db.Close()
+
+	artistRepository := NewArtistPGRepository(db)
+
+	mock.ExpectQuery(getPopularArtistsQuery).WillReturnError(sqlmock.ErrCancelled)
+
+	ctx := context.Background()
+	foundArtists, err := artistRepository.GetPopular(ctx)
+
+	require.Error(t, err)
+	require.Nil(t, foundArtists)
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}

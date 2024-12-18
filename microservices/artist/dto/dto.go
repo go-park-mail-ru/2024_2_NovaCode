@@ -4,6 +4,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 )
 
+//easyjson:json
 type ArtistDTO struct {
 	ID      uint64 `json:"id"`
 	Name    string `json:"name"`
@@ -21,3 +22,6 @@ func NewArtistDTO(artist *models.Artist) *ArtistDTO {
 		artist.Image,
 	}
 }
+
+//easyjson:json
+type ArtistDTOs []*ArtistDTO

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 
 	s3Repo "github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3/repository/s3"
@@ -60,6 +59,4 @@ func BindRoutes(s *httpServer.Server) {
 		"/api/v1/auth/health",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(userHandleres.Health)),
 	).Methods("GET")
-
-	fmt.Println("routes have binded")
 }

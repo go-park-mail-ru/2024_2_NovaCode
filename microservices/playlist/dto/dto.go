@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//easyjson:json
 type PlaylistDTO struct {
 	Id        uint64    `json:"id,omitempty"`
 	Name      string    `json:"name"`
@@ -13,9 +14,21 @@ type PlaylistDTO struct {
 	OwnerName string    `json:"owner_name,omitempty"`
 }
 
+//easyjson:json
 type PlaylistTrackDTO struct {
 	PlaylistID uint64 `json:"playlist_id"`
 	TrackID    uint64 `json:"track_id"`
+}
+
+//easyjson:json
+type PlaylistDTOs []*PlaylistDTO
+
+//easyjson:json
+type PlaylistTrackDTOs []*PlaylistTrackDTO
+
+//easyjson:json
+type TrackIdDTO struct {
+	TrackID uint64 `json:"track_id"`
 }
 
 func NewPlaylistFromPlaylistDTO(dto *PlaylistDTO) *models.Playlist {

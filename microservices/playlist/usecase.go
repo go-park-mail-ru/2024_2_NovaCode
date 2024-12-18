@@ -22,4 +22,5 @@ type Usecase interface {
 	GetFavoritePlaylists(ctx context.Context, userID uuid.UUID) ([]*pldto.PlaylistDTO, error)
 	GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error)
+	GetPopularPlaylists(ctx context.Context) ([]*pldto.PlaylistDTO, error)
 }

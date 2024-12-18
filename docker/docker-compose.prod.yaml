@@ -8,24 +8,13 @@ services:
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
+    privileged: true
     environment:
-      - WATCHTOWER_MONITOR_ONLY=true
       - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_INTERVAL=30
+      - WATCHTOWER_ROLLING_RESTART=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
-    networks:
-      - prometheus
-      - prometheus-exporters
-    depends_on:
-      - novamusic-user
-      - novamusic-playlist
-      - novamusic-artist
-      - novamusic-album
-      - novamusic-track
-      - novamusic-csat
-      - novamusic-genre
+    command: --interval 30
 
   novamusic-user:
     image: daronenko/novamusic-user:latest
@@ -256,6 +245,7 @@ services:
       - /etc/ssl/nova-music.ru:/root/.minio/certs:ro
     networks:
       - prometheus
+      - app-network
 
   minio-client:
     container_name: minio-client
@@ -375,6 +365,7 @@ services:
 
   nginx:
     image: nginx:latest
+    # restart: always
     container_name: nginx
     ports:
       - 80:80

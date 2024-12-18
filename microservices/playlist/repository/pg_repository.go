@@ -255,3 +255,31 @@ func (r *PlaylistRepository) GetPlaylistLikesCount(ctx context.Context, playlist
 
 	return likesCount, nil
 }
+
+func (r *PlaylistRepository) GetPopularPlaylists(ctx context.Context) ([]*models.Playlist, error) {
+	playlists := []*models.Playlist{}
+	rows, err := r.db.QueryContext(ctx,
+		getPopularPlaylistsQuery,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		if err := rows.Scan(
+			&playlist.ID,
+			&playlist.Name,
+			&playlist.Image,
+			&playlist.OwnerID,
+			&playlist.IsPrivate,
+			&playlist.CreatedAt,
+			&playlist.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		playlists = append(playlists, playlist)
+	}
+
+	return playlists, nil
+}

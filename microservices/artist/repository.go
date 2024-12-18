@@ -18,4 +18,5 @@ type Repo interface {
 	GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*models.Artist, error)
 	GetFavoriteArtistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetArtistLikesCount(ctx context.Context, artistID uint64) (uint64, error)
+	GetPopular(ctx context.Context) ([]*models.Artist, error)
 }

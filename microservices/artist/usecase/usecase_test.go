@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/config"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/dto"
 	mockArtist "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/artist/mock"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/golang/mock/gomock"
@@ -476,4 +477,107 @@ func TestUsecase_GetArtistLikesCount_ErrorGettingLikesCount(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, expectedError.Error())
 	require.Equal(t, uint64(0), likesCount)
+}
+
+func TestArtistUsecase_GetPopular(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	mockArtistRepo := mockArtist.NewMockRepo(ctrl)
+	logger := logger.New(&cfg.Service.Logger)
+
+	artistUsecase := &artistUsecase{
+		artistRepo: mockArtistRepo,
+		logger:     logger,
+	}
+
+	requestID := uuid.New()
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, requestID)
+
+	artists := []*models.Artist{
+		{
+			ID:        1,
+			Name:      "Artist 1",
+			Bio:       "Bio 1",
+			Country:   "Country A",
+			Image:     "/images/artists/artist_1.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		{
+			ID:        2,
+			Name:      "Artist 2",
+			Bio:       "Bio 2",
+			Country:   "Country B",
+			Image:     "/images/artists/artist_2.jpg",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	dtoArtists := []*dto.ArtistDTO{
+		{
+			ID:      1,
+			Name:    "Artist 1",
+			Bio:     "Bio 1",
+			Country: "Country A",
+			Image:   "/images/artists/artist_1.jpg",
+		},
+		{
+			ID:      2,
+			Name:    "Artist 2",
+			Bio:     "Bio 2",
+			Country: "Country B",
+			Image:   "/images/artists/artist_2.jpg",
+		},
+	}
+
+	t.Run("success", func(t *testing.T) {
+		mockArtistRepo.EXPECT().GetPopular(ctx).Return(artists, nil)
+
+		for i, artist := range artists {
+			artistUsecase.logger.Info(fmt.Sprintf("Convert artist %s to DTO", artist.Name), requestID)
+			dtoArtist := dtoArtists[i]
+			require.Equal(t, artist.ID, dtoArtist.ID)
+			require.Equal(t, artist.Name, dtoArtist.Name)
+			require.Equal(t, artist.Bio, dtoArtist.Bio)
+			require.Equal(t, artist.Country, dtoArtist.Country)
+			require.Equal(t, artist.Image, dtoArtist.Image)
+		}
+
+		result, err := artistUsecase.GetPopular(ctx)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+		require.Equal(t, len(dtoArtists), len(result))
+
+		for i, dtoArtist := range dtoArtists {
+			require.Equal(t, dtoArtist.ID, result[i].ID)
+			require.Equal(t, dtoArtist.Name, result[i].Name)
+			require.Equal(t, dtoArtist.Bio, result[i].Bio)
+			require.Equal(t, dtoArtist.Country, result[i].Country)
+			require.Equal(t, dtoArtist.Image, result[i].Image)
+		}
+	})
+
+	t.Run("repository error", func(t *testing.T) {
+		mockError := fmt.Errorf("repository error")
+		mockArtistRepo.EXPECT().GetPopular(ctx).Return(nil, mockError)
+
+		result, err := artistUsecase.GetPopular(ctx)
+
+		require.Error(t, err)
+		require.Nil(t, result)
+	})
 }

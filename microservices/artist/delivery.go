@@ -12,4 +12,5 @@ type Handlers interface {
 	GetFavoriteArtists(response http.ResponseWriter, request *http.Request)
 	GetFavoriteArtistsCount(response http.ResponseWriter, request *http.Request)
 	GetArtistLikesCount(response http.ResponseWriter, request *http.Request)
+	GetPopular(response http.ResponseWriter, request *http.Request)
 }

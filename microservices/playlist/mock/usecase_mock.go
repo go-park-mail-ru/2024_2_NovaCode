@@ -184,6 +184,21 @@ func (mr *MockUsecaseMockRecorder) GetPlaylistLikesCount(ctx, playlistID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylistLikesCount", reflect.TypeOf((*MockUsecase)(nil).GetPlaylistLikesCount), ctx, playlistID)
 }
 
+// GetPopularPlaylists mocks base method.
+func (m *MockUsecase) GetPopularPlaylists(ctx context.Context) ([]*dto.PlaylistDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopularPlaylists", ctx)
+	ret0, _ := ret[0].([]*dto.PlaylistDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopularPlaylists indicates an expected call of GetPopularPlaylists.
+func (mr *MockUsecaseMockRecorder) GetPopularPlaylists(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopularPlaylists", reflect.TypeOf((*MockUsecase)(nil).GetPopularPlaylists), ctx)
+}
+
 // GetUserPlaylists mocks base method.
 func (m *MockUsecase) GetUserPlaylists(ctx context.Context, userID uuid.UUID) ([]*dto.PlaylistDTO, error) {
 	m.ctrl.T.Helper()

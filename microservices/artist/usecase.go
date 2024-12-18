@@ -17,4 +17,5 @@ type Usecase interface {
 	GetFavoriteArtists(ctx context.Context, userID uuid.UUID) ([]*dto.ArtistDTO, error)
 	GetFavoriteArtistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetArtistLikesCount(ctx context.Context, artistID uint64) (uint64, error)
+	GetPopular(ctx context.Context) ([]*dto.ArtistDTO, error)
 }
