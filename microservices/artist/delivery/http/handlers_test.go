@@ -409,7 +409,11 @@ func TestArtistHandlers_GetFavoriteArtists(t *testing.T) {
 	usecaseMock := mocks.NewMockUsecase(ctrl)
 	artistHandlers := NewArtistHandlers(usecaseMock, logger)
 
+	router := mux.NewRouter()
+	router.HandleFunc("/api/v1/artists/favorite/byUser/{userID}", artistHandlers.GetFavoriteArtists).Methods("GET")
+
 	t.Run("Successful retrieval of favorite artists", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		artists := []*dto.ArtistDTO{
 			{ID: 1, Name: "Artist1"},
@@ -418,58 +422,67 @@ func TestArtistHandlers_GetFavoriteArtists(t *testing.T) {
 
 		usecaseMock.EXPECT().GetFavoriteArtists(gomock.Any(), userID).Return(artists, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/artists/favorites", artistHandlers.GetFavoriteArtists).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/artists/favorites", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createArtistRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusOK, res.StatusCode)
-		var result []dto.ArtistDTO
-		err = json.NewDecoder(res.Body).Decode(&result)
+		assert.Equal(t, http.StatusOK, response.Code)
+
+		var result []*dto.ArtistDTO
+		err := json.NewDecoder(response.Body).Decode(&result)
 		assert.NoError(t, err)
-		assert.Equal(t, len(artists), len(result))
+		assert.Len(t, result, 2)
+		assert.Equal(t, "Artist1", result[0].Name)
+		assert.Equal(t, "Artist2", result[1].Name)
 	})
 
 	t.Run("No favorite artists found", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		usecaseMock.EXPECT().GetFavoriteArtists(gomock.Any(), userID).Return(nil, nil)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/artists/favorite", artistHandlers.GetFavoriteArtists).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/artists/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createArtistRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+		assert.Contains(t, response.Body.String(), "No favorite artists were found")
+	})
+
+	t.Run("Invalid user ID", func(t *testing.T) {
+		requestID := "test-request-id"
+		invalidUserID := "invalid-uuid"
+
+		request := httptest.NewRequest(http.MethodGet, "/api/v1/artists/favorite/byUser/"+invalidUserID, nil)
+		request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Contains(t, response.Body.String(), "Invalid user ID")
 	})
 
 	t.Run("Error in usecase when retrieving favorite artists", func(t *testing.T) {
+		requestID := "test-request-id"
 		userID := uuid.New()
 		mockError := fmt.Errorf("usecase error")
 		usecaseMock.EXPECT().GetFavoriteArtists(gomock.Any(), userID).Return(nil, mockError)
 
-		router := mux.NewRouter()
-		router.HandleFunc("/artists/favorite", artistHandlers.GetFavoriteArtists).Methods("GET")
-
-		request, err := http.NewRequest(http.MethodGet, "/artists/favorite", nil)
-		assert.NoError(t, err)
-		request = request.WithContext(context.WithValue(request.Context(), utils.UserIDKey{}, userID))
-
+		request := createArtistRequestWithVars(requestID, userID)
 		response := httptest.NewRecorder()
+
 		router.ServeHTTP(response, request)
 
-		res := response.Result()
-		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.Contains(t, response.Body.String(), "Failed to get favorite artists")
 	})
+}
+
+func createArtistRequestWithVars(requestID string, userID uuid.UUID) *http.Request {
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/artists/favorite/byUser/"+userID.String(), nil)
+	request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))
+	return request
 }
