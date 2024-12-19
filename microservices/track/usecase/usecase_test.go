@@ -897,6 +897,71 @@ func TestUsecase_GetFavoriteTracks_NotFoundTracks(t *testing.T) {
 	require.EqualError(t, err, fmt.Sprintf("Can't load tracks by user ID %v", userID))
 }
 
+func TestUsecase_GetFavoriteTracksCount_FoundTracks(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	trackRepoMock := mockTrack.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumClientMock := mockAlbum.NewMockAlbumServiceClient(ctrl)
+	trackUsecase := NewTrackUsecase(trackRepoMock, artistClientMock, albumClientMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedCount := uint64(10)
+	trackRepoMock.EXPECT().GetFavoriteTracksCount(ctx, userID).Return(expectedCount, nil)
+
+	count, err := trackUsecase.GetFavoriteTracksCount(ctx, userID)
+
+	require.NoError(t, err)
+	require.Equal(t, expectedCount, count)
+}
+
+func TestUsecase_GetFavoriteTracksCount_ErrorGettingCount(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	trackRepoMock := mockTrack.NewMockRepo(ctrl)
+	artistClientMock := mockArtist.NewMockArtistServiceClient(ctrl)
+	albumClientMock := mockAlbum.NewMockAlbumServiceClient(ctrl)
+	trackUsecase := NewTrackUsecase(trackRepoMock, artistClientMock, albumClientMock, logger)
+
+	userID := uuid.New()
+	ctx := context.Background()
+	expectedError := fmt.Errorf("Can't load tracks by user ID %v", userID)
+	trackRepoMock.EXPECT().GetFavoriteTracksCount(ctx, userID).Return(uint64(0), expectedError)
+
+	count, err := trackUsecase.GetFavoriteTracksCount(ctx, userID)
+
+	require.Error(t, err)
+	require.EqualError(t, err, expectedError.Error())
+	require.Equal(t, uint64(0), count)
+}
+
 func TestUsecase_GetTracksFromPlaylist_FoundTracks(t *testing.T) {
 	t.Parallel()
 

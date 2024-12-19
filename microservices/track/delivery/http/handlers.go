@@ -406,6 +406,44 @@ func (handlers *trackHandlers) GetFavoriteTracks(response http.ResponseWriter, r
 	}
 }
 
+func (handlers *trackHandlers) GetFavoriteTracksCount(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	vars := mux.Vars(request)
+	userID, err := uuid.Parse(vars["userID"])
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Get '%s' wrong user id: %v", vars["userID"], err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "Wrong id value")
+		return
+	}
+
+	count, err := handlers.usecase.GetFavoriteTracksCount(request.Context(), userID)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to get favorite tracks count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get favorite tracks count: %v", err))
+		return
+	} else if count == 0 {
+		utils.JSONError(response, http.StatusNotFound, "No favorite tracks were found")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	countResponse := &utils.CountResponse{Count: count}
+	rawBytes, err := easyjson.Marshal(countResponse)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to encode favorite tracks count: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode favorite tracks count: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
 func (handlers *trackHandlers) GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)

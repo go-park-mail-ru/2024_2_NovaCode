@@ -18,6 +18,7 @@ type Repo interface {
 	DeleteFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) error
 	IsFavoriteTrack(ctx context.Context, userID uuid.UUID, trackID uint64) (bool, error)
 	GetFavoriteTracks(ctx context.Context, userID uuid.UUID) ([]*models.Track, error)
+	GetFavoriteTracksCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error)
 	GetPopular(ctx context.Context) ([]*models.Track, error)
 }

@@ -32,6 +32,11 @@ func BindRoutes(s *httpServer.Server, artistClient artistService.ArtistServiceCl
 	).Methods("GET")
 
 	s.MUX.Handle(
+		"/api/v1/tracks/favorite/count/{userID:[0-9a-fA-F-]+}",
+		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(trackHandleres.GetFavoriteTracksCount)),
+	).Methods("GET")
+
+	s.MUX.Handle(
 		"/api/v1/tracks/favorite/{trackID:[0-9]+}",
 		middleware.AuthMiddleware(&s.CFG.Service.Auth, s.Logger, http.HandlerFunc(trackHandleres.IsFavoriteTrack)),
 	).Methods("GET")

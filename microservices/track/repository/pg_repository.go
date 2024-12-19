@@ -265,6 +265,16 @@ func (r *TrackRepository) GetFavoriteTracks(ctx context.Context, userID uuid.UUI
 	return tracks, nil
 }
 
+func (r *TrackRepository) GetFavoriteTracksCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	var count uint64
+	err := r.db.QueryRowContext(ctx, getFavoriteCountQuery, userID).Scan(&count)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, errors.Wrap(err, "GetFavoriteTracksCount.Query")
+	}
+
+	return count, nil
+}
+
 func (r *TrackRepository) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error) {
 	playlist := []*models.PlaylistTrack{}
 	rows, err := r.db.QueryContext(ctx,
