@@ -232,28 +232,6 @@ func (u *trackUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uin
 	return tracksDTO, nil
 }
 
-func (usecase *trackUsecase) ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
-	requestID := ctx.Value(utils.RequestIDKey{})
-	artist, err := usecase.artistClient.FindByID(ctx, &artistService.FindByIDRequest{Id: track.ArtistID})
-	if err != nil {
-		usecase.logger.Error(fmt.Sprintf("Can't find artist for track %s: %v", track.Name, err), requestID)
-		return nil, fmt.Errorf("Can't find artist for track")
-	}
-
-	album, err := usecase.albumClient.FindByID(ctx, &albumService.FindByIDRequest{Id: track.AlbumID})
-	if err != nil {
-		usecase.logger.Error(fmt.Sprintf("Can't find album for track %s: %v", track.Name, err), requestID)
-		return nil, fmt.Errorf("Can't find album for track")
-	}
-
-	trackDTO := dto.NewTrackDTO(track)
-	trackDTO.AlbumID = album.Album.Id
-	trackDTO.AlbumName = album.Album.Name
-	trackDTO.ArtistID = artist.Artist.Id
-	trackDTO.ArtistName = artist.Artist.Name
-	return trackDTO, nil
-}
-
 func (usecase *trackUsecase) GetPopular(ctx context.Context) ([]*dto.TrackDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
 	tracks, err := usecase.trackRepo.GetPopular(ctx)
@@ -274,4 +252,48 @@ func (usecase *trackUsecase) GetPopular(ctx context.Context) ([]*dto.TrackDTO, e
 	}
 
 	return dtoTracks, nil
+}
+
+func (usecase *trackUsecase) GetTracksByGenre(ctx context.Context, genre string) ([]*dto.TrackDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	tracks, err := usecase.trackRepo.GetTracksByGenre(ctx, genre)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load tracks: %v", err), requestID)
+		return nil, fmt.Errorf("Can't load tracks")
+	}
+	usecase.logger.Info("Found tracks", requestID)
+
+	var dtoTracks []*dto.TrackDTO
+	for _, track := range tracks {
+		dtoTrack, err := usecase.ConvertTrackToDTO(ctx, track)
+		if err != nil {
+			usecase.logger.Error(fmt.Sprintf("Can't create DTO for %s track: %v", track.Name, err), requestID)
+			return nil, fmt.Errorf("Can't create DTO")
+		}
+		dtoTracks = append(dtoTracks, dtoTrack)
+	}
+
+	return dtoTracks, nil
+}
+
+func (usecase *trackUsecase) ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	artist, err := usecase.artistClient.FindByID(ctx, &artistService.FindByIDRequest{Id: track.ArtistID})
+	if err != nil {
+		usecase.logger.Error(fmt.Sprintf("Can't find artist for track %s: %v", track.Name, err), requestID)
+		return nil, fmt.Errorf("Can't find artist for track")
+	}
+
+	album, err := usecase.albumClient.FindByID(ctx, &albumService.FindByIDRequest{Id: track.AlbumID})
+	if err != nil {
+		usecase.logger.Error(fmt.Sprintf("Can't find album for track %s: %v", track.Name, err), requestID)
+		return nil, fmt.Errorf("Can't find album for track")
+	}
+
+	trackDTO := dto.NewTrackDTO(track)
+	trackDTO.AlbumID = album.Album.Id
+	trackDTO.AlbumName = album.Album.Name
+	trackDTO.ArtistID = artist.Artist.Id
+	trackDTO.ArtistName = artist.Artist.Name
+	return trackDTO, nil
 }
