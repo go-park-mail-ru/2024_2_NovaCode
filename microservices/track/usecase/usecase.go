@@ -190,6 +190,18 @@ func (usecase *trackUsecase) GetFavoriteTracks(ctx context.Context, userID uuid.
 	return dtoTracks, nil
 }
 
+func (usecase *trackUsecase) GetFavoriteTracksCount(ctx context.Context, userID uuid.UUID) (uint64, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	count, err := usecase.trackRepo.GetFavoriteTracksCount(ctx, userID)
+	if err != nil {
+		usecase.logger.Warn(fmt.Sprintf("Can't load favorite tracks count by user ID %v: %v", userID, err), requestID)
+		return 0, fmt.Errorf("Can't load tracks by user ID %v", userID)
+	}
+	usecase.logger.Infof("Found %d favorite tracks for user ID %v", count, userID)
+
+	return count, nil
+}
+
 func (u *trackUsecase) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error) {
 	tracks := []*models.Track{}
 	playlistTracks, err := u.trackRepo.GetTracksFromPlaylist(ctx, playlistID)

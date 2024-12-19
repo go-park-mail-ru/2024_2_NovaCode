@@ -718,6 +718,88 @@ func TestTrackHandlers_GetFavoriteTracks(t *testing.T) {
 	})
 }
 
+func TestTrackHandlers_GetFavoriteTracksCount(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{}
+	logger := logger.New(&cfg.Service.Logger)
+	usecaseMock := mocks.NewMockUsecase(ctrl)
+	trackHandlers := NewTrackHandlers(usecaseMock, logger)
+
+	t.Run("Success", func(t *testing.T) {
+		userID := uuid.New()
+		count := uint64(2)
+
+		usecaseMock.EXPECT().GetFavoriteTracksCount(gomock.Any(), userID).Return(count, nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/tracks/favorite/count/{userID:[0-9a-fA-F-]+}", trackHandlers.GetFavoriteTracksCount).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/tracks/favorite/count/%s", userID.String()), nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+		assert.Contains(t, response.Body.String(), fmt.Sprintf(`"count":%d`, count))
+	})
+
+	t.Run("Wrong id value", func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/tracks/favorite/count/{userID:[0-9a-fA-F-]+}", trackHandlers.GetFavoriteTracksCount).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, "/api/v1/tracks/favorite/count/123", nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Wrong id value")
+	})
+
+	t.Run("Error while getting favorite tracks count", func(t *testing.T) {
+		userID := uuid.New()
+		mockError := fmt.Errorf("usecase error")
+		usecaseMock.EXPECT().GetFavoriteTracksCount(gomock.Any(), userID).Return(uint64(0), mockError)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/tracks/favorite/count/{userID:[0-9a-fA-F-]+}", trackHandlers.GetFavoriteTracksCount).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/tracks/favorite/count/%s", userID.String()), nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "Failed to get favorite tracks count")
+	})
+
+	t.Run("No favorite tracks found", func(t *testing.T) {
+		userID := uuid.New()
+		usecaseMock.EXPECT().GetFavoriteTracksCount(gomock.Any(), userID).Return(uint64(0), nil)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/api/v1/tracks/favorite/count/{userID:[0-9a-fA-F-]+}", trackHandlers.GetFavoriteTracksCount).Methods("GET")
+
+		request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/tracks/favorite/count/%s", userID.String()), nil)
+		assert.NoError(t, err)
+
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+
+		res := response.Result()
+		assert.Equal(t, http.StatusNotFound, res.StatusCode)
+		assert.Contains(t, response.Body.String(), "No favorite tracks were found")
+	})
+}
+
 func createTrackRequestWithVars(requestID string, userID uuid.UUID) *http.Request {
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/tracks/favorite/byUser/"+userID.String(), nil)
 	request = request.WithContext(context.WithValue(request.Context(), utils.RequestIDKey{}, requestID))

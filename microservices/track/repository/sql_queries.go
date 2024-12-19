@@ -40,6 +40,13 @@ const (
       ON t.id = ft.track_id
     WHERE ft.user_id = $1`
 
+	getFavoriteCountQuery = `
+    SELECT COUNT(*)
+    FROM track AS a 
+      JOIN favorite_track AS fa
+      ON a.id = fa.track_id
+    WHERE fa.user_id = $1`
+
 	getTracksFromPlaylistQuery = `SELECT id, playlist_id, track_order_in_playlist, track_id, created_at FROM playlist_track WHERE playlist_id = $1 ORDER BY created_at DESC`
 
 	getPopularTracksQuery = `SELECT 
