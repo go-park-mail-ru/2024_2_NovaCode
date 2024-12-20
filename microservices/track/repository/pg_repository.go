@@ -334,3 +334,35 @@ func (r *TrackRepository) GetPopular(ctx context.Context) ([]*models.Track, erro
 
 	return tracks, nil
 }
+
+func (r *TrackRepository) GetTracksByGenre(ctx context.Context, genre string) ([]*models.Track, error) {
+	var tracks []*models.Track
+	rows, err := r.db.QueryContext(ctx, getTracksByGenre, genre)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetTracksByGenre.Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(
+			&track.ID,
+			&track.Name,
+			&track.Duration,
+			&track.FilePath,
+			&track.Image,
+			&track.ArtistID,
+			&track.AlbumID,
+			&track.OrderInAlbum,
+			&track.ReleaseDate,
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetTracksByGenre.Query")
+		}
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}

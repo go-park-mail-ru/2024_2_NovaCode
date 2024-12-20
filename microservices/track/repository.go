@@ -21,4 +21,5 @@ type Repo interface {
 	GetFavoriteTracksCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error)
 	GetPopular(ctx context.Context) ([]*models.Track, error)
+	GetTracksByGenre(ctx context.Context, genre string) ([]*models.Track, error)
 }
