@@ -199,6 +199,21 @@ func (mr *MockRepoMockRecorder) GetPopular(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopular", reflect.TypeOf((*MockRepo)(nil).GetPopular), ctx)
 }
 
+// GetTracksByGenre mocks base method.
+func (m *MockRepo) GetTracksByGenre(ctx context.Context, genre string) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByGenre", ctx, genre)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByGenre indicates an expected call of GetTracksByGenre.
+func (mr *MockRepoMockRecorder) GetTracksByGenre(ctx, genre interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByGenre", reflect.TypeOf((*MockRepo)(nil).GetTracksByGenre), ctx, genre)
+}
+
 // GetTracksFromPlaylist mocks base method.
 func (m *MockRepo) GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*models.PlaylistTrack, error) {
 	m.ctrl.T.Helper()

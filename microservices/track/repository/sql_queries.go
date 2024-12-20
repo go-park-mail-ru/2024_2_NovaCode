@@ -70,5 +70,12 @@ const (
     ORDER BY 
         COUNT(ft.track_id) DESC
     LIMIT 50;
-`
+  `
+
+	getTracksByGenre = `
+    SELECT t.id AS id, t.name AS name, duration, filepath, image, artist_id, album_id, track_order_in_album, release_date, t.created_at AS created_at, t.updated_at AS updated_at 
+    FROM track AS t
+      JOIN genre_track gt ON t.id = gt.track_id
+      JOIN genre g ON gt.genre_id = g.id
+    WHERE g.name = $1`
 )

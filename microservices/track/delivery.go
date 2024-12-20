@@ -15,4 +15,5 @@ type Handlers interface {
 	GetFavoriteTracksCount(response http.ResponseWriter, request *http.Request)
 	GetTracksFromPlaylist(response http.ResponseWriter, request *http.Request)
 	GetPopular(response http.ResponseWriter, request *http.Request)
+	GetTracksByGenre(response http.ResponseWriter, request *http.Request)
 }
