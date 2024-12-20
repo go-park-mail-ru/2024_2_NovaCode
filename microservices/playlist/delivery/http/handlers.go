@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/content"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -499,6 +502,86 @@ func (handlers *playlistHandlers) GetPlaylistLikesCount(response http.ResponseWr
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to encode: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to encode: %v", err))
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+	_, err = response.Write(rawBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("Failed to write response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "Write response fail")
+		return
+	}
+}
+
+func (handlers *playlistHandlers) UploadImage(response http.ResponseWriter, request *http.Request) {
+	requestID := request.Context().Value(utils.RequestIDKey{})
+	userID, ok := request.Context().Value(utils.UserIDKey{}).(uuid.UUID)
+	if !ok {
+		handlers.logger.Error("user id not found in context", requestID)
+		utils.JSONError(response, http.StatusBadRequest, "failed to update user details")
+		return
+	}
+
+	vars := mux.Vars(request)
+	playlistID, err := strconv.ParseUint(vars["playlistID"], 10, 64)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("invalid playlist ID: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, fmt.Sprintf("invalid playlist ID: %v", err))
+		return
+	}
+
+	playlist, err := handlers.usecase.GetPlaylist(request.Context(), playlistID)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "failed to get playlist")
+		return
+	}
+	if playlist.OwnerID != userID {
+		utils.JSONError(response, http.StatusForbidden, "you cannot modify this playlist")
+		return
+	}
+
+	file, header, err := request.FormFile("file")
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "failed to get file from request")
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("failed to read file: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "failed to read file")
+		return
+	}
+
+	contentType, err := content.IsImage(fileBytes)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("invalid content type: %v", err), requestID)
+		utils.JSONError(response, http.StatusBadRequest, "invalid content type")
+		return
+	}
+
+	upload := s3.Upload{
+		Bucket:      "playlists",
+		File:        bytes.NewReader(fileBytes),
+		Filename:    header.Filename,
+		Size:        header.Size,
+		ContentType: contentType,
+	}
+
+	userDTO, err := handlers.usecase.UploadImage(request.Context(), playlistID, upload)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("failed to upload image: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "failed to upload image")
+		return
+	}
+
+	response.Header().Set("Content-Type", "application/json")
+	rawBytes, err := easyjson.Marshal(userDTO)
+	if err != nil {
+		handlers.logger.Error(fmt.Sprintf("error encoding updated playlist response: %v", err), requestID)
+		utils.JSONError(response, http.StatusInternalServerError, "failed to encode response")
 		return
 	}
 
