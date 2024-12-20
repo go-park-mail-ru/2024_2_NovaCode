@@ -38,7 +38,8 @@ func TestPlaylistUsecaseCreatePlaylist_Success(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ownerId := uuid.New()
 
@@ -96,7 +97,8 @@ func TestPlaylistUsecaseGetPlaylist_Success(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	playlistID := uint64(1)
 	ownerID := uuid.New()
@@ -146,7 +148,8 @@ func TestPlaylistUsecaseGetPlaylist_NotFound(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	playlistID := uint64(1)
 	ctx := context.Background()
@@ -176,7 +179,8 @@ func TestPlaylistUsecaseGetAllPlaylists_Success(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ownerID := uuid.New()
 	playlists := []*models.Playlist{
@@ -218,7 +222,8 @@ func TestPlaylistUsecaseGetAllPlaylists_ConnDone(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ctx := context.Background()
 	playlistRepoMock.EXPECT().GetAllPlaylists(ctx).Return(nil, sql.ErrConnDone)
@@ -243,8 +248,10 @@ func TestPlaylistUsecaseAddToPlaylist_Success(t *testing.T) {
 	}
 
 	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	playlistID := uint64(1)
 	trackID := uint64(42)
@@ -284,8 +291,10 @@ func TestPlaylistUsecaseAddToPlaylist_NotFound(t *testing.T) {
 	}
 
 	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	playlistID := uint64(1)
 	trackID := uint64(42)
@@ -317,7 +326,8 @@ func TestPlaylistUsecaseGetUserPlaylists_Success(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	userID := uuid.New()
 	playlists := []*models.Playlist{
@@ -359,7 +369,8 @@ func TestPlaylistUsecaseGetUserPlaylists_ConnDone(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	userID := uuid.New()
 	ctx := context.Background()
@@ -387,7 +398,8 @@ func TestPlaylistUsecaseRemoveFromPlaylist_Success(t *testing.T) {
 
 	logger := logger.New(&cfg.Service.Logger)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, s3Repo, logger)
 
 	playlistID := uint64(1)
 	trackID := uint64(42)
@@ -418,7 +430,8 @@ func TestPlaylistUsecaseRemoveFromPlaylist_NotFound(t *testing.T) {
 
 	logger := logger.New(&cfg.Service.Logger)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, s3Repo, logger)
 
 	playlistID := uint64(1)
 	trackID := uint64(42)
@@ -449,7 +462,8 @@ func TestPlaylistUsecaseDeletePlaylist_Success(t *testing.T) {
 
 	logger := logger.New(&cfg.Service.Logger)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, s3Repo, logger)
 
 	playlistID := uint64(1)
 
@@ -476,7 +490,8 @@ func TestPlaylistUsecaseDeletePlaylist_ConnDone(t *testing.T) {
 
 	logger := logger.New(&cfg.Service.Logger)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, nil, s3Repo, logger)
 
 	playlistID := uint64(1)
 
@@ -878,7 +893,8 @@ func TestPlaylistUsecaseGetPopularPlaylists_Success(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ownerID := uuid.New()
 	mockPlaylists := []*models.Playlist{
@@ -938,7 +954,8 @@ func TestPlaylistUsecaseGetPopularPlaylists_RepoError(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ctx := context.Background()
 	mockError := fmt.Errorf("repository error")
@@ -966,7 +983,8 @@ func TestPlaylistUsecaseGetPopularPlaylists_UserClientError(t *testing.T) {
 	logger := logger.New(&cfg.Service.Logger)
 	userClientMock := mock.NewMockUserServiceClient(ctrl)
 	playlistRepoMock := mock.NewMockRepository(ctrl)
-	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, logger)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
 
 	ownerID := uuid.New()
 	mockPlaylists := []*models.Playlist{
