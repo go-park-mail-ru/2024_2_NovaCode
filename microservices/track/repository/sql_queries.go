@@ -77,5 +77,5 @@ const (
     FROM track AS t
       JOIN genre_track gt ON t.id = gt.track_id
       JOIN genre g ON gt.genre_id = g.id
-    WHERE g.name = $1`
+    WHERE g.id = $1`
 )

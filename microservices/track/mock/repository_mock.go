@@ -200,7 +200,7 @@ func (mr *MockRepoMockRecorder) GetPopular(ctx interface{}) *gomock.Call {
 }
 
 // GetTracksByGenre mocks base method.
-func (m *MockRepo) GetTracksByGenre(ctx context.Context, genre string) ([]*models.Track, error) {
+func (m *MockRepo) GetTracksByGenre(ctx context.Context, genre uint64) ([]*models.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByGenre", ctx, genre)
 	ret0, _ := ret[0].([]*models.Track)

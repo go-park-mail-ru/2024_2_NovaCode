@@ -254,9 +254,9 @@ func (usecase *trackUsecase) GetPopular(ctx context.Context) ([]*dto.TrackDTO, e
 	return dtoTracks, nil
 }
 
-func (usecase *trackUsecase) GetTracksByGenre(ctx context.Context, genre string) ([]*dto.TrackDTO, error) {
+func (usecase *trackUsecase) GetTracksByGenre(ctx context.Context, genreID uint64) ([]*dto.TrackDTO, error) {
 	requestID := ctx.Value(utils.RequestIDKey{})
-	tracks, err := usecase.trackRepo.GetTracksByGenre(ctx, genre)
+	tracks, err := usecase.trackRepo.GetTracksByGenre(ctx, genreID)
 	if err != nil {
 		usecase.logger.Warn(fmt.Sprintf("Can't load tracks: %v", err), requestID)
 		return nil, fmt.Errorf("Can't load tracks")

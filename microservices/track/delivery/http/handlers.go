@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	uuid "github.com/google/uuid"
 	"github.com/mailru/easyjson"
@@ -509,9 +508,13 @@ func (handlers *trackHandlers) GetPopular(response http.ResponseWriter, request 
 func (handlers *trackHandlers) GetTracksByGenre(response http.ResponseWriter, request *http.Request) {
 	requestID := request.Context().Value(utils.RequestIDKey{})
 	vars := mux.Vars(request)
-	genre := strings.ToLower(vars["genre"])
+	genreID, err := strconv.ParseUint(vars["genreID"], 10, 64)
+	if err != nil {
+		utils.JSONError(response, http.StatusBadRequest, "Invalid genre ID")
+		return
+	}
 
-	tracks, err := handlers.usecase.GetTracksByGenre(request.Context(), genre)
+	tracks, err := handlers.usecase.GetTracksByGenre(request.Context(), genreID)
 	if err != nil {
 		handlers.logger.Error(fmt.Sprintf("Failed to get tracks: %v", err), requestID)
 		utils.JSONError(response, http.StatusInternalServerError, fmt.Sprintf("Failed to get tracks: %v", err))

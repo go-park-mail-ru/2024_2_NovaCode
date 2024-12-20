@@ -335,9 +335,9 @@ func (r *TrackRepository) GetPopular(ctx context.Context) ([]*models.Track, erro
 	return tracks, nil
 }
 
-func (r *TrackRepository) GetTracksByGenre(ctx context.Context, genre string) ([]*models.Track, error) {
+func (r *TrackRepository) GetTracksByGenre(ctx context.Context, genreID uint64) ([]*models.Track, error) {
 	var tracks []*models.Track
-	rows, err := r.db.QueryContext(ctx, getTracksByGenre, genre)
+	rows, err := r.db.QueryContext(ctx, getTracksByGenre, genreID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetTracksByGenre.Query")
 	}

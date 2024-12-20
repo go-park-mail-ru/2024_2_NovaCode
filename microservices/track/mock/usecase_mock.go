@@ -171,7 +171,7 @@ func (mr *MockUsecaseMockRecorder) GetPopular(ctx interface{}) *gomock.Call {
 }
 
 // GetTracksByGenre mocks base method.
-func (m *MockUsecase) GetTracksByGenre(ctx context.Context, genre string) ([]*dto.TrackDTO, error) {
+func (m *MockUsecase) GetTracksByGenre(ctx context.Context, genre uint64) ([]*dto.TrackDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByGenre", ctx, genre)
 	ret0, _ := ret[0].([]*dto.TrackDTO)

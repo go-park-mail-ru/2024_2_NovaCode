@@ -22,5 +22,5 @@ type Usecase interface {
 	ConvertTrackToDTO(ctx context.Context, track *models.Track) (*dto.TrackDTO, error)
 	GetTracksFromPlaylist(ctx context.Context, playlistID uint64) ([]*dto.TrackDTO, error)
 	GetPopular(ctx context.Context) ([]*dto.TrackDTO, error)
-	GetTracksByGenre(ctx context.Context, genre string) ([]*dto.TrackDTO, error)
+	GetTracksByGenre(ctx context.Context, genre uint64) ([]*dto.TrackDTO, error)
 }
