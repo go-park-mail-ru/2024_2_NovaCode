@@ -17,4 +17,5 @@ type Handlers interface {
 	GetFavoritePlaylistsCount(response http.ResponseWriter, request *http.Request)
 	GetPlaylistLikesCount(response http.ResponseWriter, request *http.Request)
 	GetPopularPlaylists(response http.ResponseWriter, request *http.Request)
+	UploadImage(response http.ResponseWriter, request *http.Request)
 }
