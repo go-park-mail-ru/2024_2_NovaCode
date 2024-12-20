@@ -21,6 +21,8 @@ require (
 	google.golang.org/protobuf v1.35.2
 )
 
+require go.uber.org/mock v0.5.0 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
@@ -45,7 +47,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
