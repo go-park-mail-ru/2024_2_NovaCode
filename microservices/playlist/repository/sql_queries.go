@@ -71,4 +71,11 @@ RETURNING id, playlist_id, track_order_in_playlist, track_id, created_at`
         COUNT(fp.playlist_id) DESC
     LIMIT 50;
     `
+
+	updatePlaylistQuery = `
+		UPDATE "playlist"
+		SET name = $1, image = $2, is_private = $3
+		WHERE id = $4
+		RETURNING id, name, image, owner_id, is_private
+	`
 )
