@@ -10,6 +10,7 @@ import (
 	userService "github.com/go-park-mail-ru/2024_2_NovaCode/proto/user"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/utils"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/logger"
 	"github.com/google/uuid"
 )
@@ -17,15 +18,17 @@ import (
 type PlaylistUsecase struct {
 	playlistRepo playlist.Repository
 	userClient   userService.UserServiceClient
+	s3Repo       s3.S3Repo
 	logger       logger.Logger
 }
 
 func NewPlaylistUsecase(
 	playlistRepo playlist.Repository,
 	userClient userService.UserServiceClient,
+	s3Repo s3.S3Repo,
 	logger logger.Logger,
 ) playlist.Usecase {
-	return &PlaylistUsecase{playlistRepo, userClient, logger}
+	return &PlaylistUsecase{playlistRepo, userClient, s3Repo, logger}
 }
 
 func (u *PlaylistUsecase) CreatePlaylist(ctx context.Context, newPlaylistDTO *dto.PlaylistDTO) (*dto.PlaylistDTO, error) {
@@ -236,4 +239,58 @@ func (u *PlaylistUsecase) GetPopularPlaylists(ctx context.Context) ([]*dto.Playl
 	}
 
 	return playlistsDTO, nil
+}
+
+func (u *PlaylistUsecase) Update(ctx context.Context, playlist *models.Playlist) (*dto.PlaylistDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	currentPlaylist, err := u.playlistRepo.GetPlaylist(ctx, playlist.ID)
+	if err != nil {
+		u.logger.Warn(fmt.Sprintf("playlist not found: %v", err), requestID)
+		return nil, fmt.Errorf("failed to find playlist")
+	}
+
+	currentPlaylist.Name = playlist.Name
+	currentPlaylist.Image = playlist.Image
+	currentPlaylist.OwnerID = playlist.OwnerID
+	currentPlaylist.IsPrivate = playlist.IsPrivate
+
+	updatedPlaylist, err := u.playlistRepo.Update(ctx, currentPlaylist)
+	if err != nil {
+		u.logger.Error(fmt.Sprintf("error updating playlist: %v", err), requestID)
+		return nil, fmt.Errorf("failed to update playlist")
+	}
+	u.logger.Infof("playlist '%s' successfully updated", updatedPlaylist.ID)
+
+	playlistDTO := dto.NewPlaylistToPlaylistDTO(updatedPlaylist)
+	return playlistDTO, nil
+}
+
+func (u *PlaylistUsecase) UploadImage(ctx context.Context, playlistID uint64, file s3.Upload) (*dto.PlaylistDTO, error) {
+	requestID := ctx.Value(utils.RequestIDKey{})
+	playlist, err := u.playlistRepo.GetPlaylist(ctx, playlistID)
+	if err != nil {
+		u.logger.Warn(fmt.Sprintf("playlist not found: %v", err), requestID)
+		return nil, fmt.Errorf("playlist not found")
+	}
+
+	uploadInfo, err := u.s3Repo.Put(ctx, file)
+	if err != nil {
+		u.logger.Warn(fmt.Sprintf("failed to save playlist image: %v", err), requestID)
+		return nil, fmt.Errorf("failed to save playlist image")
+	}
+
+	imageURL := uploadInfo.Key
+
+	updatedPlaylistDTO, err := u.Update(ctx, &models.Playlist{
+		ID:        playlist.ID,
+		Name:      playlist.Name,
+		Image:     imageURL,
+		IsPrivate: playlist.IsPrivate,
+	})
+	if err != nil {
+		u.logger.Warn(fmt.Sprintf("failed to update playlist model: %v", err), requestID)
+		return nil, fmt.Errorf("failed to update playlist model")
+	}
+
+	return updatedPlaylistDTO, nil
 }

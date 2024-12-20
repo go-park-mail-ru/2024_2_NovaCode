@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	"github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist"
@@ -282,4 +283,27 @@ func (r *PlaylistRepository) GetPopularPlaylists(ctx context.Context) ([]*models
 	}
 
 	return playlists, nil
+}
+
+func (r *PlaylistRepository) Update(ctx context.Context, playlist *models.Playlist) (*models.Playlist, error) {
+	var updatedPlaylist models.Playlist
+
+	if err := r.db.QueryRowContext(
+		ctx,
+		updatePlaylistQuery,
+		playlist.Name,
+		playlist.Image,
+		playlist.IsPrivate,
+		playlist.ID,
+	).Scan(
+		&updatedPlaylist.ID,
+		&updatedPlaylist.Name,
+		&updatedPlaylist.Image,
+		&updatedPlaylist.OwnerID,
+		&updatedPlaylist.IsPrivate,
+	); err != nil {
+		return nil, fmt.Errorf("failed to update playlist: %w", err)
+	}
+
+	return &updatedPlaylist, nil
 }

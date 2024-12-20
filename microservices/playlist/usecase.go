@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_2_NovaCode/internal/models"
 	pldto "github.com/go-park-mail-ru/2024_2_NovaCode/microservices/playlist/dto"
+	"github.com/go-park-mail-ru/2024_2_NovaCode/pkg/db/s3"
 	"github.com/google/uuid"
 )
 
@@ -23,4 +24,6 @@ type Usecase interface {
 	GetFavoritePlaylistsCount(ctx context.Context, userID uuid.UUID) (uint64, error)
 	GetPlaylistLikesCount(ctx context.Context, playlistID uint64) (uint64, error)
 	GetPopularPlaylists(ctx context.Context) ([]*pldto.PlaylistDTO, error)
+	Update(ctx context.Context, playlist *models.Playlist) (*pldto.PlaylistDTO, error)
+	UploadImage(ctx context.Context, playlistID uint64, file s3.Upload) (*pldto.PlaylistDTO, error)
 }
