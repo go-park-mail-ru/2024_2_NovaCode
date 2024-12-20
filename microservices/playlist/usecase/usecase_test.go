@@ -1008,3 +1008,60 @@ func TestPlaylistUsecaseGetPopularPlaylists_UserClientError(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, playlistsDTO)
 }
+
+func TestPlaylistUsecaseUpdate(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	cfg := &config.Config{
+		Service: config.ServiceConfig{
+			Logger: config.LoggerConfig{
+				Level:  "info",
+				Format: "json",
+			},
+		},
+	}
+
+	logger := logger.New(&cfg.Service.Logger)
+	userClientMock := mock.NewMockUserServiceClient(ctrl)
+	playlistRepoMock := mock.NewMockRepository(ctrl)
+	s3Repo := mock.NewMockS3Repo(ctrl)
+	playlistUsecase := NewPlaylistUsecase(playlistRepoMock, userClientMock, s3Repo, logger)
+
+	ctx := context.WithValue(context.Background(), utils.RequestIDKey{}, "test-request-id")
+
+	updatedPlaylistInput := &models.Playlist{
+		ID:        1,
+		Name:      "Updated Playlist",
+		Image:     "updated_image.jpg",
+		OwnerID:   uuid.New(),
+		IsPrivate: true,
+	}
+
+	existingPlaylist := &models.Playlist{
+		ID:        updatedPlaylistInput.ID,
+		Name:      "Old Playlist",
+		Image:     "old_image.jpg",
+		OwnerID:   updatedPlaylistInput.OwnerID,
+		IsPrivate: false,
+		CreatedAt: time.Now().Add(-time.Hour * 24),
+		UpdatedAt: time.Now().Add(-time.Hour),
+	}
+
+	playlistRepoMock.EXPECT().GetPlaylist(ctx, updatedPlaylistInput.ID).Return(existingPlaylist, nil)
+	playlistRepoMock.EXPECT().Update(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, playlist *models.Playlist) (*models.Playlist, error) {
+		require.Equal(t, updatedPlaylistInput.Name, playlist.Name)
+		require.Equal(t, updatedPlaylistInput.Image, playlist.Image)
+		require.Equal(t, updatedPlaylistInput.OwnerID, playlist.OwnerID)
+		return playlist, nil
+	})
+
+	result, err := playlistUsecase.Update(ctx, updatedPlaylistInput)
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, updatedPlaylistInput.Name, result.Name)
+	require.Equal(t, updatedPlaylistInput.Image, result.Image)
+	require.Equal(t, updatedPlaylistInput.OwnerID, result.OwnerID)
+}
